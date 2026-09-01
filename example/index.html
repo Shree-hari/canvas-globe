@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@swiftools/geo-globe — demo</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; background: #080b12; color: #e8ebf2;
+      font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column;
+      align-items: center; gap: 18px; padding: 28px 16px 50px;
+    }
+    h1 { font-size: 19px; margin: 0; font-weight: 700; }
+    p { color: #8992a8; font-size: 13px; margin: 0; text-align: center; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    button {
+      background: #151d2e; color: #e8ebf2; border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 9px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: #1d2740; }
+    .stage { position: relative; width: min(560px, 92vw); }
+    canvas { width: 100%; aspect-ratio: 1; display: block; }
+    canvas.flat { aspect-ratio: 360 / 139; }
+    #tip {
+      position: absolute; pointer-events: none; opacity: 0; transform: translate(-50%, -145%);
+      background: #151d2e; border: 1px solid rgba(255, 255, 255, .16); border-radius: 9px;
+      padding: 5px 10px; font-size: 12px; white-space: nowrap; transition: opacity .12s;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌍 @swiftools/geo-globe</h1>
+  <p>Drag to spin · hover a marker · zero dependencies, zero network calls</p>
+  <div class="row">
+    <button onclick="g.setMode('globe'); fit()">🌐 Globe</button>
+    <button onclick="g.setMode('map'); fit()">🗺 Map</button>
+    <button onclick="g.setTheme('atlas')">Atlas</button>
+    <button onclick="g.setTheme('midnight')">Midnight</button>
+    <button onclick="g.setTheme('mono')">Mono</button>
+    <button onclick="g.flyTo(72.58, 23.03)">Fly to Ahmedabad</button>
+    <button onclick="g.setOptions({ autoRotate: !g.o.autoRotate })">Toggle spin</button>
+    <button onclick="download()">⬇ PNG</button>
+  </div>
+  <div class="stage">
+    <canvas id="c"></canvas>
+    <div id="tip"></div>
+  </div>
+
+  <script type="module">
+    import { createGlobe } from "../src/index.js";
+
+    const cities = [
+      { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true },
+      { name: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻" },
+      { name: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀" },
+      { name: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬" },
+      { name: "São Paulo", lat: -23.55, lon: -46.63, count: 3, emoji: "👩‍🎤" },
+      { name: "Sydney", lat: -33.87, lon: 151.21, count: 2, emoji: "🧑‍🌾" },
+      { name: "Nairobi", lat: -1.29, lon: 36.82, count: 2, emoji: "👨‍🍳" },
+    ];
+
+    const tip = document.getElementById("tip");
+    window.g = createGlobe(document.getElementById("c"), {
+      markers: cities,
+      onHover: (m, pos) => {
+        tip.style.opacity = m ? 1 : 0;
+        if (!m) return;
+        tip.style.left = `${pos.x}px`;
+        tip.style.top = `${pos.y}px`;
+        tip.textContent = `${m.name} · ${m.count} visitors${m.live ? " · live" : ""}`;
+      },
+      onClick: (m) => g.flyTo(m.lon, m.lat),
+    });
+
+    window.fit = () => {
+      document.getElementById("c").classList.toggle("flat", g.o.mode === "map");
+      setTimeout(() => g.resize(), 30);
+    };
+    window.download = () => {
+      const a = document.createElement("a");
+      a.href = g.snapshot();
+      a.download = "globe.png";
+      a.click();
+    };
+  </script>
+</body>
+</html>

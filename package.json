@@ -1,0 +1,56 @@
+{
+  "name": "@swiftools/geo-globe",
+  "version": "0.1.0",
+  "description": "Zero-dependency interactive globe and world map on a 2D canvas. Drag to spin, animated markers, avatars, themes — no WebGL, no API keys, no network calls.",
+  "license": "MIT",
+  "keywords": [
+    "globe",
+    "world-map",
+    "canvas",
+    "visualization",
+    "geo",
+    "analytics",
+    "markers",
+    "orthographic",
+    "interactive",
+    "no-dependencies"
+  ],
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./types/index.d.ts",
+  "unpkg": "./dist/geo-globe.umd.js",
+  "jsdelivr": "./dist/geo-globe.umd.js",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./data/world": "./src/data/world.js",
+    "./data/india": "./src/data/india.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "dist",
+    "types",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "data": "node scripts/generate-data.mjs",
+    "example": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "topojson-client": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
