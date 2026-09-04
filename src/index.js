@@ -1,7 +1,10 @@
 export { GeoGlobe, createGlobe, world, india } from "./geo-globe.js";
 export { themes, countryPalette } from "./themes.js";
 export { presets } from "./presets.js";
-export { locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation } from "./viewer.js";
+export { scenes } from "./scenes.js";
+export { exportPresets, exportSize } from "./export.js";
+export { fromCSV, fromRows, parseCSV, geocode, countryPoint } from "./csv.js";
+export { locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation } from "./viewer.js";
 export { recordCanvas, downloadBlob, canRecord, supportedRecordingType } from "./recorder.js";
 export { SphereTexture } from "./texture.js";
 export { Media, drawFitted } from "./media.js";

@@ -8,6 +8,15 @@ All notable changes to this package are documented here. The format follows
 
 ### Added
 
+- **Toolkit for building on top.** `fromCSV()` / `fromRows()` turn spreadsheet data into markers,
+  resolving lat/lon columns, ~300 bundled city names, or country codes and names, with a
+  `gazetteer` escape hatch and a `skipped` report. `exportImage()` / `exportBlob()` render one frame
+  at any size off-screen — `square`, `story`, `linkedin`, `og` and friends — with
+  `transparent` for an alpha channel. `scenes` bundle a preset with the layers a job needs.
+- **Overlays.** `counter` rolls a headline number, `annotations` draw leader-line callouts,
+  `timeline` reveals markers as their `date` arrives and `playTimeline()` animates the range.
+  Markers accept `image` for logo and avatar crops, arcs accept `icon` for a travelling glyph,
+  pings accept `burst`, and country media accepts `{ text }` to cut type out of an outline.
 - **Country canvas.** `focus` frames a single country and can drop or dim the rest of the world, and
   `countryMedia` paints an image, GIF, video, canvas or live `MediaStream` clipped to a country's
   outline. Added `focusOn()`, `clearFocus()`, `setCountryMedia()` and `countryAspect()`.
@@ -63,6 +72,9 @@ All notable changes to this package are documented here. The format follows
 
 ### Changed
 
+- India's boundary is now rounded to two decimals instead of three. At ~1 km it is still well
+  inside the 0.05° decimation tolerance, keeps all 30 rings, shifts the area by 0.01%, and saves
+  about 7 KB gzipped.
 - The render loop now idles when nothing is animating, so static charts cost nothing after the
   first paint.
 - Map mode is interactive: dragging pans and the cursor reflects it.

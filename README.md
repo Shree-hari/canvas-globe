@@ -7,7 +7,9 @@ Interactive **globe** and **world map** on a plain 2D canvas.
 - 🖱 **Interactive** — drag to spin, scroll to zoom, pinch, hover and click
 - 🎯 **Marker-first** — sized by weight, emoji avatars, live pulse rings, clustering
 - ✈️ **Great-circle arcs** — animated flight lines that ride over the horizon
-- 🎨 **Choropleth** — colour countries by ISO code, id or name- 🎬 **Country canvas** — play an image, GIF or video *inside* a country's outline
+- 🎨 **Choropleth** — colour countries by ISO code, id or name- 📄 **Takes a spreadsheet** — `fromCSV()` resolves cities and countries with no geocoding API
+- 🖼 **Export presets** — square, story, LinkedIn, OG, plus transparent PNG
+- 🎬 **Country canvas** — play an image, GIF or video *inside* a country's outline
 - 📍 **Knows where the viewer is** — from their time zone, with no permission prompt
 - 🔔 **Live pings** — "someone in Berlin just signed up", with no backend
 - ⏺ **Records itself** — export a WebM clip straight from the canvas- � **Ten presets** — dot-matrix hologram, neon, blueprint HUD, printed atlas, and more
@@ -121,6 +123,11 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `textureQuality` | `"auto"` | Pixel step for the texture pass; higher is faster |
 | `focus` | — | Frame one country: `"IN"` or `{ country, isolate, dim, outlineWidth }` |
 | `countryMedia` | — | Media clipped to each country, keyed by ISO, id or name |
+| `scene` | — | Whole composition — preset plus the layers a job needs |
+| `counter` | — | `{ value, label, format, position }` rolling headline number |
+| `annotations` | — | `[{ lat, lon, text, dx, dy }]` leader-line callouts |
+| `timeline` | — | `{ at }` — hides markers whose `date` has not arrived |
+| `transparentBackground` | `false` | Skip the ocean fill so exports keep an alpha channel |
 | `heatmap` | `false` | Additive density blobs — `{ radius, intensity, color }` |
 | `spikes` | `false` | Bars off the surface, sized by `count` — `{ height, width }` |
 | `labels` | `false` | `"markers"` \| `"countries"` \| `"both"`, with collision avoidance |
@@ -254,6 +261,11 @@ globe.focusOn("India", { isolate: true });
 globe.setCountryMedia("India", "/reel.mp4");
 globe.countryAspect("India");         // → height / width ratio for the canvas
 globe.clearFocus();
+globe.setScene("logos");              // whole composition
+globe.exportImage({ preset: "story", transparent: true });
+await globe.exportBlob({ preset: "og" });
+globe.setTimelineAt("2024-06-01");
+globe.playTimeline({ duration: 6000 }); // → { stop() }
 globe.ping({ lat, lon, label });      // one-shot expanding ring
 globe.pingFeed(events, { interval }); // → { stop() }
 globe.tour(points, { dwell });        // → { stop() }
@@ -273,7 +285,8 @@ globe.destroy();                      // stop the loop and remove listeners
 ```
 
 Helpers are exported too: `mapAspect`, `colorScale`, `greatCircle`, `angularDistance`,
-`subsolarPoint`, `pointInGeometry`, `geometryBounds`, `projections`, `themes`.
+`subsolarPoint`, `pointInGeometry`, `geometryBounds`, `projections`, `themes`, `presets`, `scenes`,
+`exportPresets`, `fromCSV`, `parseCSV`, `geocode`, `countryPoint`, `placeLocation`.
 
 ## Accessibility
 
@@ -290,6 +303,73 @@ polite live region that announces the view as it changes.
 
 When the user prefers reduced motion, auto-rotation stops, `flyTo` jumps instead of easing, and
 pulse rings and arc animations hold still. Set `respectReducedMotion: false` to opt out.
+
+## Data in, assets out
+
+Marketing data arrives as a spreadsheet, so `fromCSV` resolves rows itself — explicit `lat`/`lon`
+columns first, then a city name, then a country code or name:
+
+```js
+import { fromCSV } from "@swiftools/geo-globe";
+
+const markers = fromCSV(`city,count,image
+London,8,/logos/acme.png
+Tokyo,4,/logos/globex.png`);
+
+markers.skipped; // rows that could not be placed, so you can report them
+globe.setMarkers(markers).fitToMarkers();
+```
+
+City lookup covers roughly 300 major cities that already ship with the package. Pass
+`{ gazetteer: { Ahmedabad: [72.58, 23.03] } }` for anything else — no geocoding service, no key.
+
+Render at whatever size the destination wants, without touching the live canvas:
+
+```js
+globe.exportImage({ preset: "story" });                    // 1080×1920 data URL
+globe.exportImage({ preset: "linkedin", transparent: true });
+await globe.exportBlob({ width: 2400, height: 1260 });
+```
+
+Presets: `square`, `story`, `portrait`, `wide`, `linkedin`, `og`, `twitter`, `thumbnail`.
+
+## Scenes
+
+Presets decide how it looks; **scenes** decide what you are making. Each one bundles a preset with
+the layers and overlays that job needs.
+
+```js
+createGlobe(canvas, { scene: "signups" });
+globe.setScene("coverage");
+```
+
+| Scene | For |
+| --- | --- |
+| `signups` | Live activity on a pricing or landing page |
+| `launch` | A regional announcement, ready for country media |
+| `logos` | "Trusted in N countries" with customer logos |
+| `team` | Where the team is, on a careers page |
+| `coverage` | Campaign or revenue by country, with a legend |
+| `review` | Scroll-linked year in review |
+| `routes` | Traffic between regions |
+
+Switching scenes resets every key the new scene does not set, so nothing leaks between them.
+
+## Overlays
+
+```js
+createGlobe(canvas, {
+  counter: { value: 21947, label: "customers worldwide" },   // rolls when it changes
+  annotations: [{ lat: 23.03, lon: 72.58, text: "HQ — Ahmedabad" }],
+  timeline: { at: "2024-06-01" },                            // hides later markers
+});
+
+globe.playTimeline({ duration: 6000, loop: true });          // "our growth, animated"
+globe.ping({ lat, lon, label: "10,000 users 🎉", burst: 18 });
+```
+
+Markers take `image` for a circular logo or avatar crop, and arcs take `icon` for a travelling
+glyph. Country media accepts `{ text }` to cut type out of a country's outline.
 
 ## Country canvas
 

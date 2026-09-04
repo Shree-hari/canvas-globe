@@ -11,18 +11,23 @@ import { zoneTable, zoneAliases } from "./data/timezones.js";
 
 let byZone = null;
 let byCountry = null;
+let byCity = null;
 let aliasOf = null;
 
 const parseZones = () => {
   if (byZone) return;
   byZone = new Map();
   byCountry = new Map();
+  byCity = new Map();
   aliasOf = new Map();
   for (const row of zoneTable.split(";")) {
     const [name, lon, lat, country] = row.split("|");
     const entry = { lon: Number(lon) / 100, lat: Number(lat) / 100, country, timeZone: name };
     byZone.set(name, entry);
     if (!byCountry.has(country)) byCountry.set(country, entry);
+    // The last path segment is the zone's representative city.
+    const city = name.slice(name.lastIndexOf("/") + 1).replace(/_/g, " ").toLowerCase();
+    if (!byCity.has(city)) byCity.set(city, entry);
   }
   for (const link of zoneAliases.split(";")) {
     const [alias, target] = link.split(">");
@@ -42,6 +47,17 @@ export function countryLocation(code) {
   if (!code) return null;
   parseZones();
   return byCountry.get(String(code).toUpperCase()) || null;
+}
+
+/**
+ * Coordinate for a city name, drawn from the time-zone table's representative
+ * cities. Covers roughly 300 major cities with no extra payload; pass your own
+ * gazetteer to `fromRows` when you need more.
+ */
+export function placeLocation(name) {
+  if (!name) return null;
+  parseZones();
+  return byCity.get(String(name).trim().replace(/_/g, " ").toLowerCase()) || null;
 }
 
 const currentZone = () => {

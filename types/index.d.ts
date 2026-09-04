@@ -9,6 +9,12 @@ export interface Marker {
   count?: number;
   /** Emoji or short glyph drawn inside a bubble marker. */
   emoji?: string;
+  /** Logo or avatar, drawn as a circular crop. Wins over `emoji`. */
+  image?: string | CanvasImageSource;
+  /** Radius of an image marker in px. Default 19. */
+  imageSize?: number;
+  /** When this happened, for `timeline`. Anything `new Date()` accepts. */
+  date?: string | number | Date;
   /** Draws a pulsing ring — use for "active right now". */
   live?: boolean;
   /** Overrides the theme marker colour. */
@@ -49,6 +55,8 @@ export interface Arc {
   baseAlpha?: number;
   /** Set false to draw a plain static line. */
   animate?: boolean;
+  /** Emoji drawn at the travelling head instead of a dot. */
+  icon?: string;
   [key: string]: unknown;
 }
 
@@ -97,6 +105,7 @@ export interface Theme {
 
 export type ThemeName = "atlas" | "midnight" | "mono" | "hologram" | "neon" | "blueprint" | "aurora" | "noir" | "political";
 export type PresetName = ThemeName | "constellation";
+export type SceneName = "signups" | "launch" | "logos" | "team" | "coverage" | "review" | "routes";
 export type MapProjection = "equirectangular" | "mercator" | "naturalEarth";
 /** How landmasses are drawn: solid, halftone dots, line art, neon glow, or nothing. */
 export type LandStyle = "fill" | "dots" | "outline" | "glow" | "none";
@@ -158,6 +167,9 @@ export interface PingSpec {
   radius?: number;
   /** Lifetime in ms. Default 2600. */
   duration?: number;
+  /** Throw particles outward — `true` for 14, or a count. */
+  burst?: boolean | number;
+  burstColor?: string;
   flyTo?: boolean;
   flyToOptions?: FlyToOptions;
 }
@@ -224,6 +236,70 @@ export interface MediaSpec {
   loop?: boolean;
   muted?: boolean;
   crossOrigin?: string | null;
+}
+
+/** Type cut out of a country's outline, auto-sized to fit its width. */
+export interface CountryTextSpec {
+  text: string;
+  color?: string;
+  background?: string;
+  font?: string;
+  weight?: number;
+  /** Fixed size in px; omit to auto-fit. */
+  size?: number;
+  /** Fraction of the shape's width the text should span. Default 0.86. */
+  fill?: number;
+  opacity?: number;
+  offset?: [number, number];
+}
+
+export interface Annotation {
+  lat: number;
+  lon: number;
+  text?: string;
+  /** Leader-line offset from the point. Defaults to 46, -46. */
+  dx?: number;
+  dy?: number;
+  color?: string;
+  size?: number;
+}
+
+export interface CounterSpec {
+  value: number;
+  label?: string;
+  /** Formats the rolling value. Defaults to a localised integer. */
+  format?: (value: number) => string;
+  size?: number;
+  color?: string;
+  padding?: number;
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+}
+
+export interface TimelineSpec {
+  /** Markers with a later `date` are hidden. */
+  at: string | number | Date;
+}
+
+export type ExportPresetName =
+  | "square" | "story" | "portrait" | "wide" | "linkedin" | "og" | "twitter" | "thumbnail";
+
+/** `{ "Ahmedabad": [lon, lat] }` — plug in your own places. */
+export type Gazetteer = Record<string, [number, number] | { lat: number; lon: number }>;
+
+export interface CsvOptions {
+  gazetteer?: Gazetteer;
+  /** Copy every unrecognised column onto the marker. Default true. */
+  extra?: boolean;
+}
+
+export interface ExportOptions {
+  preset?: ExportPresetName;
+  width?: number;
+  height?: number;
+  /** Skip the ocean fill so the result has an alpha channel. */
+  transparent?: boolean;
+  type?: string;
+  quality?: number;
 }
 
 export interface FocusSpec {
@@ -295,7 +371,17 @@ export interface GeoGlobeOptions {
   /** Frame a single country, optionally dropping the rest of the world. */
   focus?: string | FocusSpec | null;
   /** Media painted inside each country's outline, keyed by ISO, id or name. */
-  countryMedia?: Record<string, MediaSource | MediaSpec> | null;
+  countryMedia?: Record<string, MediaSource | MediaSpec | CountryTextSpec> | null;
+  /** Whole composition — preset plus the layers a given job needs. */
+  scene?: SceneName;
+  /** Leader-line callouts. */
+  annotations?: Annotation[] | null;
+  /** Rolling headline number drawn over the scene. */
+  counter?: CounterSpec | null;
+  /** Hides markers whose `date` has not arrived. */
+  timeline?: TimelineSpec | null;
+  /** Skip the ocean fill so exports keep an alpha channel. */
+  transparentBackground?: boolean;
   /** Additive density blobs instead of, or under, markers. */
   heatmap?: boolean | HeatmapOptions;
   /** Bars standing off the surface, scaled by each marker's `count`. */
@@ -418,6 +504,17 @@ export declare class GeoGlobe {
   setCountryMedia(country: string, source: MediaSource | MediaSpec | null): this;
   /** Height / width ratio that frames a country without letterboxing. */
   countryAspect(country: string): number | null;
+  /** Applies a whole composition. Keys the scene omits return to defaults. */
+  setScene(name: SceneName, overrides?: Partial<GeoGlobeOptions>): this;
+  /** Renders one frame at an arbitrary size. Null without a document. */
+  exportImage(opts?: ExportOptions): string | null;
+  /** Same as `exportImage`, resolved as a Blob. */
+  exportBlob(opts?: ExportOptions): Promise<Blob | null> | null;
+  /** Reveals markers whose `date` has arrived; null shows everything. */
+  setTimelineAt(at: string | number | Date | null): this;
+  /** Animates the timeline across a date range. */
+  playTimeline(opts?: { from?: string | number | Date; to?: string | number | Date; duration?: number; loop?: boolean; onTick?: (at: number) => void }): Handle;
+  stopTimeline(): this;
   /** Fires a one-shot expanding ring at a coordinate. */
   ping(spec: PingSpec): this;
   ping(lat: number, rest: Omit<PingSpec, "lat">): this;
@@ -467,12 +564,26 @@ export declare function createGlobe(canvas: HTMLCanvasElement, options?: GeoGlob
 export declare const themes: Record<ThemeName, Theme>;
 /** Named bundles of theme + render style. */
 export declare const presets: Record<PresetName, Partial<GeoGlobeOptions>>;
+/** Whole compositions: preset plus the layers a given job needs. */
+export declare const scenes: Record<SceneName, Partial<GeoGlobeOptions>>;
 /** Distinct fills used by `countryColors: "auto"`. */
 export declare const countryPalette: string[];
-/** Named bundles of theme + render style. */
-export declare const presets: Record<PresetName, Partial<GeoGlobeOptions>>;
-/** Distinct fills used by `countryColors: "auto"`. */
-export declare const countryPalette: string[];
+/** Canvas sizes for the places marketing assets get posted. */
+export declare const exportPresets: Record<ExportPresetName, [number, number]>;
+export declare function exportSize(spec: unknown, fallback: [number, number]): [number, number];
+
+/** Parses CSV text into row objects with lowercased headers. */
+export declare function parseCSV(text: string, options?: { delimiter?: string }): Record<string, string>[];
+/** Converts rows to markers, resolving lat/lon, city or country columns. */
+export declare function fromRows(rows: Record<string, string>[], options?: CsvOptions): Marker[] & { skipped: Record<string, string>[] };
+/** `fromCSV("city,count\nAhmedabad,12")` → markers. */
+export declare function fromCSV(text: string, options?: CsvOptions & { delimiter?: string }): Marker[] & { skipped: Record<string, string>[] };
+/** Best-effort coordinate for a free-text place. */
+export declare function geocode(name: string, options?: { gazetteer?: Gazetteer }): { lat: number; lon: number } | null;
+/** Resolves a country code or name to a coordinate. */
+export declare function countryPoint(name: string): { lat: number; lon: number; country: string | null } | null;
+/** Coordinate for one of the time zone table's representative cities. */
+export declare function placeLocation(name: string): { lat: number; lon: number; country: string; timeZone: string } | null;
 /** Height / width ratio a flat map should use for a latitude range. */
 export declare function mapAspect(latRange?: [number, number], projection?: MapProjection): number;
 /** Builds a linear colour ramp for choropleths. */

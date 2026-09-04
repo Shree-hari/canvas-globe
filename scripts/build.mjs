@@ -9,10 +9,12 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
 
 // Modules that make up the bundle, in dependency order.
-const MODULES = ["src/themes.js", "src/presets.js", "src/geo.js", "src/viewer.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/geo-globe.js", "src/element.js"];
+const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/geo-globe.js", "src/element.js"];
 const EXPORTS = [
-  "GeoGlobe", "createGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "countryPalette",
-  "locateViewer", "locateViewerPrecise", "timeZoneLocation", "countryLocation",
+  "GeoGlobe", "createGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "scenes",
+  "countryPalette", "exportPresets", "exportSize",
+  "fromCSV", "fromRows", "parseCSV", "geocode", "countryPoint",
+  "locateViewer", "locateViewerPrecise", "timeZoneLocation", "countryLocation", "placeLocation",
   "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
   "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
   "geometryBounds", "projections", "world", "india",

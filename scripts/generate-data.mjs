@@ -103,7 +103,9 @@ async function main() {
   console.log("→ india-composite (Survey of India boundary)");
   const raw = await fetch(INDIA_URL).then((r) => r.json());
   const f = raw.type === "FeatureCollection" ? raw.features[0] : raw;
-  const india = simplifyGeometry(f.geometry || f, { tol: 0.05, minSpan: 0.08, round: 3 });
+  // Two decimals is ~1 km, well under the 0.05° (~5 km) decimation tolerance,
+  // so the extra precision only cost bundle size.
+  const india = simplifyGeometry(f.geometry || f, { tol: 0.05, minSpan: 0.08, round: 2 });
   const indiaJson = JSON.stringify(india);
   writeFileSync(
     join(OUT, "india.js"),

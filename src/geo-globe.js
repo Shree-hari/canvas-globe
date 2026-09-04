@@ -10,6 +10,8 @@ import { locateViewer, locateViewerPrecise } from "./viewer.js";
 import { recordCanvas, downloadBlob, canRecord } from "./recorder.js";
 import { SphereTexture } from "./texture.js";
 import { Media, drawFitted } from "./media.js";
+import { scenes, sceneKeys } from "./scenes.js";
+import { exportSize } from "./export.js";
 import { D2R, R2D, TAU, clamp, wrapLon, resolveProjection, projectionBounds, ortho, orthoInverse, greatCircle, circleAround, distanceMeters, subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha } from "./geo.js";
 
 const DEFAULTS = {
@@ -17,6 +19,7 @@ const DEFAULTS = {
   projection: "equirectangular",
   theme: "atlas",
   preset: null,
+  scene: null,
   landStyle: "fill",
   dotSpacing: 2,
   dotSize: 1.15,
@@ -26,6 +29,10 @@ const DEFAULTS = {
   textureQuality: "auto",
   focus: null,
   countryMedia: null,
+  annotations: null,
+  counter: null,
+  timeline: null,
+  transparentBackground: false,
   heatmap: false,
   spikes: false,
   labels: false,
@@ -91,7 +98,10 @@ export class GeoGlobe {
     if (!canvas || !canvas.getContext) throw new TypeError("geo-globe: first argument must be a <canvas> element");
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.o = { ...DEFAULTS, ...(presets[options.preset] || null), ...options };
+    // Scene first, then its preset, then anything the caller passed.
+    const scene = scenes[options.scene] || null;
+    const presetName = options.preset || scene?.preset;
+    this.o = { ...DEFAULTS, ...(presets[presetName] || null), ...scene, ...options };
     this.o.center = { ...DEFAULTS.center, ...(options.center || {}) };
 
     this.lon = this.o.center.lon;
@@ -123,6 +133,8 @@ export class GeoGlobe {
     this._viewer = null;
     this._texture = null;
     this._media = new Map();
+    this._markerMedia = new Map();
+    this._counterShown = null;
 
     this._applyWorld();
     this._applyIndia();
@@ -250,6 +262,113 @@ export class GeoGlobe {
     return this.setOptions({ countryMedia: next });
   }
 
+  /* -------------------------------- scenes -------------------------------- */
+
+  /** Applies a whole composition. Keys the scene omits return to defaults. */
+  setScene(name, overrides = {}) {
+    const scene = scenes[name];
+    if (!scene) return this;
+    const patch = { scene: name };
+    for (const key of sceneKeys) patch[key] = key in scene ? scene[key] : DEFAULTS[key];
+    if (scene.preset) {
+      const preset = presets[scene.preset];
+      for (const key of presetKeys) if (!(key in scene)) patch[key] = key in preset ? preset[key] : DEFAULTS[key];
+    }
+    return this.setOptions({ ...patch, ...overrides });
+  }
+
+  /* -------------------------------- export -------------------------------- */
+
+  /**
+   * Renders one frame at an arbitrary size — social crops, OG images, print.
+   * The live canvas is untouched.
+   */
+  exportImage(opts = {}) {
+    const { w, h } = this._size();
+    const [width, height] = exportSize(opts.preset || opts, [Math.round(w), Math.round(h)]);
+    return this._offscreen(width, height, opts, (surface) =>
+      surface.toDataURL(opts.type || "image/png", opts.quality),
+    );
+  }
+
+  /** Same as `exportImage`, resolved as a Blob. */
+  exportBlob(opts = {}) {
+    const { w, h } = this._size();
+    const [width, height] = exportSize(opts.preset || opts, [Math.round(w), Math.round(h)]);
+    return this._offscreen(width, height, opts, (surface) =>
+      new Promise((resolve) => surface.toBlob(resolve, opts.type || "image/png", opts.quality)),
+    );
+  }
+
+  _offscreen(width, height, opts, take) {
+    if (typeof document === "undefined") return null;
+    const surface = document.createElement("canvas");
+    surface.width = width;
+    surface.height = height;
+    const canvas = this.canvas, ctx = this.ctx, dpr = this._dpr;
+    const transparent = this.o.transparentBackground;
+    this.canvas = surface;
+    this.ctx = surface.getContext("2d");
+    this._dpr = 1;
+    if (opts.transparent) this.o.transparentBackground = true;
+    try {
+      this.render();
+      return take(surface);
+    } finally {
+      this.canvas = canvas;
+      this.ctx = ctx;
+      this._dpr = dpr;
+      this.o.transparentBackground = transparent;
+      this.render();
+    }
+  }
+
+  /* ------------------------------- timeline ------------------------------- */
+
+  /** Reveals markers whose `date` has arrived. Pass null to show everything. */
+  setTimelineAt(at) {
+    return this.setOptions({ timeline: at == null ? null : { ...(this.o.timeline || {}), at } });
+  }
+
+  /**
+   * Animates the timeline across a date range — "our growth, 2020 to now".
+   * Returns a handle with `stop()`.
+   */
+  playTimeline({ from, to, duration = 6000, loop = false, onTick } = {}) {
+    this.stopTimeline();
+    const start = +new Date(from ?? this._timelineBounds()[0]);
+    const end = +new Date(to ?? this._timelineBounds()[1]);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return { stop() {} };
+    const began = Date.now();
+    const tick = () => {
+      const p = (Date.now() - began) / duration;
+      const at = start + (end - start) * (loop ? p % 1 : Math.min(1, p));
+      this.setOptions({ timeline: { at } });
+      onTick?.(at);
+      if (!loop && p >= 1) this.stopTimeline();
+    };
+    tick();
+    this._timeline = setInterval(tick, 1000 / 30);
+    return { stop: () => this.stopTimeline() };
+  }
+
+  stopTimeline() {
+    if (this._timeline) clearInterval(this._timeline);
+    this._timeline = null;
+    return this;
+  }
+
+  _timelineBounds() {
+    let min = Infinity, max = -Infinity;
+    for (const m of this.markers) {
+      const t = m.date == null ? NaN : +new Date(m.date);
+      if (!Number.isFinite(t)) continue;
+      if (t < min) min = t;
+      if (t > max) max = t;
+    }
+    return Number.isFinite(min) ? [min, max] : [Date.now(), Date.now()];
+  }
+
   /* ------------------------------ live pings ------------------------------ */
 
   /**
@@ -268,6 +387,8 @@ export class GeoGlobe {
       color: spec.color || null,
       rings: spec.rings ?? 3,
       radius: spec.radius ?? 46,
+      burst: spec.burst ?? false,
+      burstColor: spec.burstColor || null,
       start: now,
       duration: spec.duration ?? 2600,
     });
@@ -586,6 +707,7 @@ export class GeoGlobe {
     cancelAnimationFrame(this._raf);
     this.stopTour();
     this.stopStory();
+    this.stopTimeline();
     for (const stop of this._feeds || []) stop();
     this._feeds = null;
     this._unbind();
@@ -593,8 +715,10 @@ export class GeoGlobe {
     this._motion?.removeEventListener?.("change", this._onMotion);
     this._tip?.remove();
     this._live?.remove();
-    for (const media of this._media.values()) media.destroy();
+    for (const media of this._media.values()) media.destroy?.();
     this._media.clear();
+    for (const media of this._markerMedia.values()) media.destroy?.();
+    this._markerMedia.clear();
     this._tip = null;
     this._live = null;
     return this;
@@ -633,6 +757,28 @@ export class GeoGlobe {
     return this._viewer ? this.markers.concat([this._viewer]) : this.markers;
   }
 
+  /** Markers that have "happened" yet, per the timeline clock. */
+  _visibleMarkers() {
+    const at = this.o.timeline?.at;
+    const list = this._allMarkers();
+    if (at == null) return list;
+    const cutoff = +new Date(at);
+    return list.filter((m) => {
+      if (m.date == null) return true;
+      const t = +new Date(m.date);
+      return !Number.isFinite(t) || t <= cutoff;
+    });
+  }
+
+  _markerImage(src) {
+    let media = this._markerMedia.get(src);
+    if (!media) {
+      media = new Media(src, () => this.invalidate());
+      this._markerMedia.set(src, media);
+    }
+    return media;
+  }
+
   _applyTexture() {
     const source = this.o.texture;
     if (!source) {
@@ -659,11 +805,16 @@ export class GeoGlobe {
         next.set(key, existing);
         continue;
       }
+      // Text fills reuse the same clip path, so they live in the same map.
+      if (source && typeof source === "object" && source.text) {
+        next.set(key, { ...source, isText: true, _spec: source });
+        continue;
+      }
       const media = new Media(source, () => this.invalidate());
       media._spec = source;
       next.set(key, media);
     }
-    for (const [key, media] of this._media) if (next.get(key) !== media) media.destroy();
+    for (const [key, media] of this._media) if (next.get(key) !== media) media.destroy?.();
     this._media = next;
     this._dirty = true;
   }
@@ -1242,6 +1393,7 @@ export class GeoGlobe {
     if (this._reducedMotion()) return false;
     if (this._hasLive || this._pings.length) return true;
     if (this.o.orbits && this.o.mode === "globe") return true;
+    if (this.o.counter && this._counterShown !== this.o.counter.value) return true;
     for (const media of this._media.values()) if (media.animated) return true;
     return this.o.arcs.length > 0 && this.o.arcs.some((a) => a.animate !== false);
   }
@@ -1257,6 +1409,16 @@ export class GeoGlobe {
       const now = Date.now();
       for (let i = this._pings.length - 1; i >= 0; i--) {
         if (now - this._pings[i].start > this._pings[i].duration) this._pings.splice(i, 1);
+      }
+    }
+
+    const counter = this.o.counter;
+    if (counter && counter.value != null) {
+      if (this._counterShown == null) this._counterShown = counter.value;
+      else if (this._counterShown !== counter.value) {
+        const step = (counter.value - this._counterShown) * 0.14;
+        this._counterShown = Math.abs(step) < 0.5 ? counter.value : this._counterShown + step;
+        this._dirty = true;
       }
     }
 
@@ -1629,10 +1791,15 @@ export class GeoGlobe {
   /** Paints media clipped to a country's outline. Returns true if it drew. */
   _paintCountryMedia(shape, trace) {
     const media = this._mediaFor(shape);
-    if (!media || !media.ready) return false;
+    if (!media) return false;
     const box = this._screenBox(shape);
     if (!box) return false;
     const { ctx } = this;
+    if (media.isText) {
+      this._paintShapeText(media, box, trace, shape);
+      return true;
+    }
+    if (!media.ready) return false;
     ctx.save();
     ctx.beginPath();
     trace(shape.geometry);
@@ -1642,6 +1809,98 @@ export class GeoGlobe {
     const drew = drawFitted(ctx, media, box);
     ctx.restore();
     return drew;
+  }
+
+  /** Type cut out of a country's outline, auto-sized to its width. */
+  _paintShapeText(spec, box, trace, shape) {
+    const { ctx } = this;
+    const [x, y, w, h] = box;
+    ctx.save();
+    ctx.beginPath();
+    trace(shape.geometry);
+    ctx.clip();
+    if (spec.background) {
+      ctx.fillStyle = spec.background;
+      ctx.fillRect(x, y, w, h);
+    }
+    const family = spec.font || "Inter,system-ui,sans-serif";
+    const weight = spec.weight ?? 800;
+    let size = spec.size ?? Math.round(h * 0.34);
+    ctx.font = `${weight} ${size}px ${family}`;
+    const target = w * (spec.fill ?? 0.86);
+    const measured = ctx.measureText(spec.text).width || 1;
+    size = Math.max(6, Math.round(size * (target / measured)));
+    ctx.font = `${weight} ${size}px ${family}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.globalAlpha = spec.opacity ?? 1;
+    ctx.fillStyle = spec.color || "#ffffff";
+    ctx.fillText(spec.text, x + w / 2 + (spec.offset?.[0] || 0), y + h / 2 + (spec.offset?.[1] || 0));
+    ctx.restore();
+  }
+
+  /** Leader lines with a label, for callouts on an explainer graphic. */
+  _paintAnnotations(t) {
+    const list = this.o.annotations;
+    if (!list || !list.length) return;
+    const { ctx } = this;
+    for (const note of list) {
+      const p = this.project(note.lon, note.lat);
+      if (!p) continue;
+      const dx = note.dx ?? 46, dy = note.dy ?? -46;
+      const tx = p.x + dx, ty = p.y + dy;
+      const color = note.color || t.label;
+      ctx.strokeStyle = withAlpha(color, 0.6);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, TAU);
+      ctx.fill();
+      if (!note.text) continue;
+      ctx.font = `600 ${note.size || 12}px Inter,system-ui,sans-serif`;
+      const tw = ctx.measureText(note.text).width;
+      const left = dx < 0 ? tx - tw - 16 : tx;
+      ctx.fillStyle = withAlpha(t.bubble, 0.94);
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(left, ty - 12, tw + 16, 24, 8) : ctx.rect(left, ty - 12, tw + 16, 24);
+      ctx.fill();
+      ctx.fillStyle = color;
+      ctx.textBaseline = "middle";
+      ctx.fillText(note.text, left + 8, ty);
+      ctx.textBaseline = "alphabetic";
+    }
+  }
+
+  /** Odometer-style headline number that rolls when the value changes. */
+  _paintCounter(t, w, h) {
+    const spec = this.o.counter;
+    if (!spec || spec.value == null) return;
+    const { ctx } = this;
+    if (this._counterShown == null) this._counterShown = spec.value;
+    const shown = this._counterShown;
+    const text = spec.format ? spec.format(shown) : Math.round(shown).toLocaleString();
+    const size = spec.size ?? Math.round(Math.min(w, h) * 0.09);
+    const pad = spec.padding ?? 20;
+    const pos = spec.position || "top-left";
+    ctx.save();
+    ctx.font = `800 ${size}px Inter,system-ui,sans-serif`;
+    const tw = ctx.measureText(text).width;
+    const x = pos.includes("right") ? w - pad - tw : pad;
+    const y = pos.includes("bottom") ? h - pad - (spec.label ? size * 0.6 : 0) : pad + size;
+    ctx.fillStyle = spec.color || t.label;
+    ctx.shadowColor = "rgba(0,0,0,.35)";
+    ctx.shadowBlur = 10;
+    ctx.fillText(text, x, y);
+    if (spec.label) {
+      ctx.font = `600 ${Math.round(size * 0.28)}px Inter,system-ui,sans-serif`;
+      ctx.fillStyle = withAlpha(spec.color || t.label, 0.75);
+      ctx.fillText(spec.label, x, y + size * 0.34);
+    }
+    ctx.restore();
   }
 
   _paintCountries(t, trace, textured) {
@@ -1750,10 +2009,19 @@ export class GeoGlobe {
       this._strokeArc(S, (head - len) * n, head * n, arc.headColor || color, width * 1.7);
       const tip = S[Math.round(clamp(head * n, 0, n))];
       if (tip && tip.v) {
-        ctx.fillStyle = arc.headColor || t.arcHead;
-        ctx.beginPath();
-        ctx.arc(tip.x, tip.y, width * 1.5, 0, TAU);
-        ctx.fill();
+        if (arc.icon) {
+          ctx.font = `${(width * 7) | 0}px "Segoe UI Emoji","Apple Color Emoji",sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(arc.icon, tip.x, tip.y);
+          ctx.textAlign = "start";
+          ctx.textBaseline = "alphabetic";
+        } else {
+          ctx.fillStyle = arc.headColor || t.arcHead;
+          ctx.beginPath();
+          ctx.arc(tip.x, tip.y, width * 1.5, 0, TAU);
+          ctx.fill();
+        }
       }
     }
   }
@@ -2050,6 +2318,21 @@ export class GeoGlobe {
       ctx.arc(p.x, p.y, 3.4, 0, TAU);
       ctx.fill();
 
+      // Milestone burst: particles thrown outward on a fixed seed per ping.
+      if (ping.burst && !still) {
+        const count = ping.burst === true ? 14 : ping.burst;
+        for (let i = 0; i < count; i++) {
+          const angle = (i / count) * TAU + ping.start;
+          const reach = (0.4 + ((i * 37) % 10) / 14) * ping.radius * life;
+          ctx.globalAlpha = (1 - life) * 0.9;
+          ctx.fillStyle = ping.burstColor || color;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(angle) * reach, p.y + Math.sin(angle) * reach, 2.2 * (1 - life) + 0.6, 0, TAU);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
       if (!ping.label && !ping.emoji) continue;
       const text = `${ping.emoji ? `${ping.emoji}  ` : ""}${ping.label || ""}`.trim();
       ctx.globalAlpha = clamp(life < 0.12 ? life / 0.12 : (1 - life) / 0.3, 0, 1);
@@ -2142,10 +2425,12 @@ export class GeoGlobe {
     const atm = ctx.createRadialGradient(cx, cy, r * 0.82, cx, cy, r * 1.3);
     atm.addColorStop(0, t.atmosphere);
     atm.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = atm;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 1.3, 0, TAU);
-    ctx.fill();
+    if (!this.o.transparentBackground) {
+      ctx.fillStyle = atm;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 1.3, 0, TAU);
+      ctx.fill();
+    }
 
     ctx.save();
     ctx.beginPath();
@@ -2155,8 +2440,10 @@ export class GeoGlobe {
     const oc = ctx.createRadialGradient(cx - r * 0.38, cy - r * 0.42, r * 0.05, cx, cy, r * 1.05);
     oc.addColorStop(0, t.ocean[0]);
     oc.addColorStop(1, t.ocean[1]);
-    ctx.fillStyle = oc;
-    ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    if (!this.o.transparentBackground) {
+      ctx.fillStyle = oc;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    }
 
     const textured = this._texture && this._texture.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions());
 
@@ -2220,7 +2507,7 @@ export class GeoGlobe {
     });
 
     const pts = [];
-    for (const m of this._allMarkers()) {
+    for (const m of this._visibleMarkers()) {
       const lift = this._spikeLift(m);
       const [x, y, c] = ortho(m.lon, m.lat, this.lon, this.lat, r * (1 + lift));
       if (c < 0.02) continue;
@@ -2231,8 +2518,10 @@ export class GeoGlobe {
     this._paintViewerAccuracy(t, cx, cy, r, null);
     const hits = this._paintMarkers(pts, t);
     if (this.o.labels) this._paintLabels(pts, t, cx, cy, r, w, h);
+    this._paintAnnotations(t);
     this._paintPings(t);
     this._paintLegend(t, w, h);
+    this._paintCounter(t, w, h);
     return hits;
   }
 
@@ -2247,8 +2536,10 @@ export class GeoGlobe {
     const oc = ctx.createLinearGradient(0, 0, 0, h);
     oc.addColorStop(0, t.ocean[0]);
     oc.addColorStop(1, t.ocean[1]);
-    ctx.fillStyle = oc;
-    ctx.fillRect(0, 0, w, h);
+    if (!this.o.transparentBackground) {
+      ctx.fillStyle = oc;
+      ctx.fillRect(0, 0, w, h);
+    }
 
     const textured = this._texture && this._texture.drawFlat(ctx, fwd, w, h);
 
@@ -2292,7 +2583,7 @@ export class GeoGlobe {
 
     const pts = [];
     const margin = 80;
-    for (const m of this._allMarkers()) {
+    for (const m of this._visibleMarkers()) {
       const [x, y0] = fwd(m.lon, m.lat);
       const y = y0 - this._spikeLift(m) * Math.min(w, h) * 0.9;
       if (x < -margin || x > w + margin || y < -margin || y > h + margin) continue;
@@ -2303,8 +2594,10 @@ export class GeoGlobe {
     this._paintViewerAccuracy(t, 0, 0, 0, fwd);
     const hits = this._paintMarkers(pts, t);
     if (this.o.labels) this._paintLabels(pts, t, 0, 0, 0, w, h);
+    this._paintAnnotations(t);
     this._paintPings(t);
     this._paintLegend(t, w, h);
+    this._paintCounter(t, w, h);
     return hits;
   }
 
@@ -2366,6 +2659,47 @@ export class GeoGlobe {
     }
     const base = (m.size || 3.4) * (0.6 + ((m.count || 1) / max) * 0.85) * depth * scale;
     const color = m.cluster ? t.cluster : m.color || t.marker;
+
+    // Logo and avatar markers: a circular crop with a ring and a count badge.
+    if (m.image && !m.cluster) {
+      const media = this._markerImage(m.image);
+      if (media.ready) {
+        const R = (m.imageSize || 19) * depth * scale;
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,.4)";
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = t.bubble;
+        ctx.beginPath();
+        ctx.arc(x, y, R, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, R - 1, 0, TAU);
+        ctx.clip();
+        drawFitted(ctx, media, [x - R, y - R, R * 2, R * 2]);
+        ctx.restore();
+        ctx.strokeStyle = m.live ? t.live : color;
+        ctx.lineWidth = 2.2 * scale;
+        ctx.beginPath();
+        ctx.arc(x, y, R, 0, TAU);
+        ctx.stroke();
+        if (m.count > 1) {
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(x + R * 0.75, y - R * 0.75, 8.5 * scale, 0, TAU);
+          ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.font = `700 ${Math.round(10 * scale)}px Inter,system-ui,sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(m.count), x + R * 0.75, y - R * 0.75 + 1);
+          ctx.textAlign = "start";
+          ctx.textBaseline = "alphabetic";
+        }
+        return { marker: m, x, y, r: R };
+      }
+    }
     if (!m.cluster) {
       const glow = ctx.createRadialGradient(x, y, 0, x, y, base * 5);
       glow.addColorStop(0, m.color ? withAlpha(color, 0.45) : t.markerGlow);
