@@ -1,33 +1,47 @@
 // Builds dist/geo-globe.umd.js for plain <script> users by inlining the ESM
-// sources and stripping module syntax. No bundler, no transpiler.
+// sources in dependency order and stripping module syntax. No bundler.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
 
-const strip = (src) =>
-  src
+// Modules that make up the bundle, in dependency order.
+const MODULES = ["src/themes.js", "src/presets.js", "src/geo.js", "src/viewer.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/geo-globe.js", "src/element.js"];
+const EXPORTS = [
+  "GeoGlobe", "createGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "countryPalette",
+  "locateViewer", "locateViewerPrecise", "timeZoneLocation", "countryLocation",
+  "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
+  "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
+  "geometryBounds", "projections", "world", "india",
+];
+const SIZE_BUDGET_KB = Number(process.env.GEO_GLOBE_SIZE_BUDGET_KB || 120);
+
+const strip = (src, file) => {
+  const out = src
     .replace(/^\s*import[^;]+;\s*$/gm, "")
     .replace(/^export default .*$/gm, "")
     .replace(/^export \{[^}]*\};?\s*$/gm, "")
-    .replace(/^export (const|function|class) /gm, "$1 ");
+    .replace(/^export (const|function|class|async function) /gm, "$1 ");
+  const leftover = out.match(/^\s*(import|export)\b.*$/m);
+  if (leftover) throw new Error(`${file}: unhandled module syntax — ${leftover[0].trim()}`);
+  return out;
+};
 
-// Data files are one huge line each — strip only the `export` keyword, not the line.
-const stripData = (src) =>
-  src.replace(/^export default .*$/gm, "").replace(/^export const /gm, "const ");
+// Data files are one huge line each — strip only the `export` keyword.
+const stripData = (src) => src.replace(/^export default .*$/gm, "").replace(/^export const /gm, "const ");
 
-const world = stripData(read("src/data/world.js"));
-const india = stripData(read("src/data/india.js"));
-const core = strip(read("src/geo-globe.js"));
-
-const body = `${world}
-${india}
-const bundledWorld = world;
-const bundledIndia = india;
-${core}
-return { GeoGlobe, createGlobe, themes, mapAspect, world, india, default: createGlobe };`;
+const parts = [
+  stripData(read("src/data/world.js")),
+  stripData(read("src/data/india.js")),
+  stripData(read("src/data/timezones.js")),
+  "const bundledWorld = world;",
+  "const bundledIndia = india;",
+  ...MODULES.map((m) => strip(read(m), m)),
+  `return { ${EXPORTS.join(", ")}, default: createGlobe };`,
+];
 
 const umd = `/*! @swiftools/geo-globe | MIT | https://github.com/swiftools/geo-globe */
 (function (root, factory) {
@@ -36,10 +50,20 @@ const umd = `/*! @swiftools/geo-globe | MIT | https://github.com/swiftools/geo-g
   else root.GeoGlobe = factory();
 })(typeof self !== "undefined" ? self : this, function () {
 "use strict";
-${body}
+${parts.join("\n")}
 });
 `;
 
 mkdirSync(join(root, "dist"), { recursive: true });
 writeFileSync(join(root, "dist", "geo-globe.umd.js"), umd);
-console.log(`dist/geo-globe.umd.js — ${Math.round(umd.length / 1024)} KB`);
+// The package is ESM; this marks the UMD output as CommonJS for require().
+writeFileSync(join(root, "dist", "package.json"), `{ "type": "commonjs" }\n`);
+
+const raw = Buffer.byteLength(umd) / 1024;
+const gzip = gzipSync(umd).length / 1024;
+console.log(`dist/geo-globe.umd.js — ${raw.toFixed(1)} KB raw · ${gzip.toFixed(1)} KB gzipped`);
+
+if (gzip > SIZE_BUDGET_KB) {
+  console.error(`Bundle exceeds the ${SIZE_BUDGET_KB} KB gzipped budget.`);
+  process.exit(1);
+}

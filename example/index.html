@@ -5,49 +5,152 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>@swiftools/geo-globe — demo</title>
   <style>
+    :root { --panel: #151d2e; --line: rgba(255,255,255,.1); --muted: #8992a8; }
+    * { box-sizing: border-box; }
     body {
       margin: 0; min-height: 100vh; background: #080b12; color: #e8ebf2;
-      font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column;
-      align-items: center; gap: 18px; padding: 28px 16px 50px;
+      font-family: Inter, system-ui, sans-serif; padding: 26px 16px 60px;
+      display: flex; flex-direction: column; align-items: center; gap: 18px;
     }
     h1 { font-size: 19px; margin: 0; font-weight: 700; }
-    p { color: #8992a8; font-size: 13px; margin: 0; text-align: center; }
-    .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    button {
-      background: #151d2e; color: #e8ebf2; border: 1px solid rgba(255, 255, 255, .1);
-      border-radius: 9px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer;
+    h2 { font-size: 12px; margin: 0 0 8px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+    p.lede { color: var(--muted); font-size: 13px; margin: 0; text-align: center; max-width: 64ch; }
+    code { background: var(--panel); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+
+    .layout { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 1180px; }
+    .stage { width: min(540px, 92vw); flex: 0 0 auto; }
+    canvas#c { width: 100%; aspect-ratio: 1; display: block; border-radius: 14px; }
+    canvas#c.flat { aspect-ratio: var(--map-aspect, 2.59); }
+    canvas#c:focus-visible { outline: 2px solid #7c5cff; outline-offset: 3px; }
+    .side { flex: 1 1 320px; min-width: 300px; max-width: 560px; display: flex; flex-direction: column; gap: 18px; }
+
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+    .card { background: none; border: 1px solid var(--line); border-radius: 11px; padding: 5px 5px 3px; cursor: pointer; color: inherit; font: inherit; }
+    .card canvas { width: 100%; aspect-ratio: 1; display: block; border-radius: 7px; }
+    .card span { display: block; font-size: 10.5px; text-align: center; padding: 4px 0 2px; color: var(--muted); }
+    .card[aria-pressed="true"] { border-color: #7c5cff; box-shadow: 0 0 0 1px #7c5cff; }
+    .card[aria-pressed="true"] span { color: #e8ebf2; }
+
+    fieldset { border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px 12px; margin: 0; }
+    legend { font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: 0 5px; }
+    .row { display: flex; gap: 6px; flex-wrap: wrap; }
+    button.chip {
+      background: var(--panel); color: #e8ebf2; border: 1px solid var(--line);
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
     }
-    button:hover { background: #1d2740; }
-    .stage { position: relative; width: min(560px, 92vw); }
-    canvas { width: 100%; aspect-ratio: 1; display: block; }
-    canvas.flat { aspect-ratio: 360 / 139; }
-    #tip {
-      position: absolute; pointer-events: none; opacity: 0; transform: translate(-50%, -145%);
-      background: #151d2e; border: 1px solid rgba(255, 255, 255, .16); border-radius: 9px;
-      padding: 5px 10px; font-size: 12px; white-space: nowrap; transition: opacity .12s;
-    }
+    button.chip:hover { background: #1d2740; }
+    button.chip[aria-pressed="true"] { background: #3b2a6b; border-color: #7c5cff; }
+    label.slider { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    label.slider input { flex: 1; }
+    label.slider output { color: #e8ebf2; font-variant-numeric: tabular-nums; min-width: 30px; text-align: right; }
+    p.hint { font-size: 11px; color: var(--muted); margin: 8px 2px 0; line-height: 1.45; }
+    select.chip { padding: 5px 8px; }
   </style>
 </head>
 <body>
   <h1>🌍 @swiftools/geo-globe</h1>
-  <p>Drag to spin · hover a marker · zero dependencies, zero network calls</p>
-  <div class="row">
-    <button onclick="g.setMode('globe'); fit()">🌐 Globe</button>
-    <button onclick="g.setMode('map'); fit()">🗺 Map</button>
-    <button onclick="g.setTheme('atlas')">Atlas</button>
-    <button onclick="g.setTheme('midnight')">Midnight</button>
-    <button onclick="g.setTheme('mono')">Mono</button>
-    <button onclick="g.flyTo(72.58, 23.03)">Fly to Ahmedabad</button>
-    <button onclick="g.setOptions({ autoRotate: !g.o.autoRotate })">Toggle spin</button>
-    <button onclick="download()">⬇ PNG</button>
-  </div>
-  <div class="stage">
-    <canvas id="c"></canvas>
-    <div id="tip"></div>
+  <p class="lede">
+    Drag to spin · scroll to zoom · hover a marker or country · arrow keys, <code>+</code>/<code>-</code>,
+    <code>0</code> and <code>PageDown</code> when focused. Every preset below is a real live globe.
+  </p>
+
+  <div class="layout">
+    <div class="stage"><canvas id="c"></canvas></div>
+
+    <div class="side">
+      <div>
+        <h2>Presets</h2>
+        <div class="gallery" id="gallery"></div>
+      </div>
+
+      <fieldset>
+        <legend>Land style</legend>
+        <div class="row" id="landStyle">
+          <button class="chip" data-land="fill">Fill</button>
+          <button class="chip" data-land="dots">Dots</button>
+          <button class="chip" data-land="outline">Outline</button>
+          <button class="chip" data-land="glow">Glow</button>
+        </div>
+        <div class="row" style="margin-top:8px;flex-direction:column">
+          <label class="slider">Dot spacing <input id="dotSpacing" type="range" min="1" max="5" step="0.2" value="2" /><output>2</output></label>
+          <label class="slider">Dot size <input id="dotSize" type="range" min="0.5" max="3" step="0.05" value="1.15" /><output>1.15</output></label>
+          <label class="slider">Orbits <input id="orbits" type="range" min="0" max="6" step="1" value="0" /><output>0</output></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Projection</legend>
+        <div class="row" id="projection">
+          <button class="chip" data-mode="globe">🌐 Globe</button>
+          <button class="chip" data-projection="equirectangular">Equirect</button>
+          <button class="chip" data-projection="mercator">Mercator</button>
+          <button class="chip" data-projection="naturalEarth">Natural Earth</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Layers</legend>
+        <div class="row">
+          <button class="chip" data-toggle="graticule">Grid</button>
+          <button class="chip" data-toggle="stars">Stars</button>
+          <button class="chip" data-toggle="shade">Shading</button>
+          <button class="chip" data-toggle="terminator">🌗 Day/night</button>
+          <button class="chip" data-toggle="cluster">🔗 Cluster</button>
+          <button class="chip" data-toggle="heatmap">🔥 Heatmap</button>
+          <button class="chip" data-toggle="spikes">📊 Spikes</button>
+          <button class="chip" data-toggle="autoRotate">🔄 Spin</button>
+          <button class="chip" data-toggle="momentum">🎿 Momentum</button>
+          <button class="chip" id="labels">🏷 Labels</button>
+          <button class="chip" id="legendBtn">📐 Legend</button>
+          <button class="chip" id="choropleth">🎨 Traffic</button>
+          <button class="chip" id="autoColors">🗺 Political</button>
+          <button class="chip" id="arcs">✈️ Arcs</button>
+          <button class="chip" id="texture">🛰 Texture</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Country canvas</legend>
+        <div class="row">
+          <select id="focusPick" class="chip"></select>
+          <button class="chip" id="focusBtn">🎯 Focus</button>
+          <button class="chip" id="isolate">✂️ Isolate</button>
+          <button class="chip" id="mediaAnim">🌊 Animation</button>
+          <button class="chip" id="mediaCam">📷 Webcam</button>
+          <button class="chip" id="mediaClear">✕ Clear</button>
+        </div>
+        <p class="hint">Any image, GIF, video, canvas or live stream, clipped to the country outline.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Live</legend>
+        <div class="row">
+          <button class="chip" id="viewer">📍 Show me</button>
+          <button class="chip" id="precise">🎯 Precise (asks)</button>
+          <button class="chip" id="feed">🔔 Signup feed</button>
+          <button class="chip" id="tourBtn">🎬 Tour</button>
+          <button class="chip" id="record">⏺ Record 6s</button>
+        </div>
+        <p class="hint" id="where">Time zone detection runs with no prompt and no network call.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Actions</legend>
+        <div class="row">
+          <button class="chip" id="india">🇮🇳 Fit India</button>
+          <button class="chip" id="fitMarkers">⤢ Fit markers</button>
+          <button class="chip" id="ahmedabad">Fly to Ahmedabad</button>
+          <button class="chip" id="dateline">Cross the dateline</button>
+          <button class="chip" id="scatter">🎲 5,000 markers</button>
+          <button class="chip" id="reset">↺ Reset</button>
+          <button class="chip" id="png">⬇ PNG</button>
+        </div>
+      </fieldset>
+    </div>
   </div>
 
   <script type="module">
-    import { createGlobe } from "../src/index.js";
+    import { createGlobe, GeoGlobe, presets, mapAspect, colorScale } from "../src/index.js";
 
     const cities = [
       { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true },
@@ -58,30 +161,391 @@
       { name: "Sydney", lat: -33.87, lon: 151.21, count: 2, emoji: "🧑‍🌾" },
       { name: "Nairobi", lat: -1.29, lon: 36.82, count: 2, emoji: "👨‍🍳" },
     ];
+    const hub = { lat: 23.03, lon: 72.58 };
+    const arcs = cities.slice(1).map((c, i) => ({ from: hub, to: c, duration: 2200 + i * 260 }));
 
-    const tip = document.getElementById("tip");
-    window.g = createGlobe(document.getElementById("c"), {
+    const traffic = { IN: 940, US: 720, GB: 480, JP: 300, BR: 260, AU: 180, KE: 140, DE: 220, FR: 160, CA: 130 };
+    const scale = colorScale([0, 1000], ["#1e293b", "#a78bfa"]);
+    const trafficColors = Object.fromEntries(Object.entries(traffic).map(([k, v]) => [k, scale(v)]));
+
+    const canvas = document.getElementById("c");
+    const g = createGlobe(canvas, {
+      preset: "hologram",
       markers: cities,
-      onHover: (m, pos) => {
-        tip.style.opacity = m ? 1 : 0;
-        if (!m) return;
-        tip.style.left = `${pos.x}px`;
-        tip.style.top = `${pos.y}px`;
-        tip.textContent = `${m.name} · ${m.count} visitors${m.live ? " · live" : ""}`;
+      arcs,
+      tooltip: (target, kind) => {
+        if (kind === "country") return traffic[target.iso] ? `${target.name} — ${traffic[target.iso]} visits` : target.name;
+        if (kind === "cluster") return `${target.count} visitors nearby`;
+        return `${target.name} · ${target.count} visitors${target.live ? " · live" : ""}`;
       },
       onClick: (m) => g.flyTo(m.lon, m.lat),
+      onCountryHover: () => {},
+      onCountryClick: (shape) => console.log("country", shape.iso, shape.name),
+    });
+    window.g = g;
+
+    /* ------------------------------- gallery ------------------------------- */
+
+    const gallery = document.getElementById("gallery");
+    const thumbs = [];
+    for (const name of Object.keys(presets)) {
+      const card = document.createElement("button");
+      card.className = "card";
+      card.type = "button";
+      card.dataset.preset = name;
+      card.setAttribute("aria-pressed", String(name === "hologram"));
+      card.innerHTML = `<canvas></canvas><span>${name}</span>`;
+      gallery.appendChild(card);
+      thumbs.push(
+        createGlobe(card.querySelector("canvas"), {
+          preset: name,
+          autoRotate: false,
+          interactive: false,
+          keyboard: false,
+          center: { lon: 20, lat: 12 },
+          radiusRatio: 0.44,
+          markers: [],
+        }),
+      );
+      card.addEventListener("click", () => {
+        for (const c of gallery.children) c.setAttribute("aria-pressed", String(c === card));
+        g.setPreset(name);
+        syncControls();
+      });
+    }
+
+    /* ------------------------------- controls ------------------------------ */
+
+    const press = (el, on) => el.setAttribute("aria-pressed", String(on));
+    const syncAspect = () => {
+      canvas.classList.toggle("flat", g.o.mode === "map");
+      canvas.style.setProperty("--map-aspect", String(1 / mapAspect(g.o.latRange, g.o.projection)));
+      requestAnimationFrame(() => g.resize());
+    };
+
+    function syncControls() {
+      for (const b of document.querySelectorAll("[data-land]")) press(b, b.dataset.land === g.o.landStyle);
+      for (const b of document.querySelectorAll("[data-toggle]")) press(b, !!g.o[b.dataset.toggle]);
+      for (const b of document.querySelectorAll("[data-mode]")) press(b, g.o.mode === "globe");
+      for (const b of document.querySelectorAll("[data-projection]")) {
+        press(b, g.o.mode === "map" && g.o.projection === b.dataset.projection);
+      }
+      press(document.getElementById("choropleth"), g.o.countryColors === trafficColors);
+      press(document.getElementById("autoColors"), g.o.countryColors === "auto");
+      press(document.getElementById("arcs"), g.o.arcs.length > 0);
+      press(document.getElementById("texture"), !!g.o.texture);
+      press(document.getElementById("labels"), g.o.labels !== false);
+      press(document.getElementById("legendBtn"), !!g.o.legend);
+      press(document.getElementById("viewer"), !!g.o.showViewer);
+      for (const [id, value] of [["dotSpacing", g.o.dotSpacing], ["dotSize", g.o.dotSize], ["orbits", Array.isArray(g.o.orbits) ? 0 : g.o.orbits]]) {
+        const input = document.getElementById(id);
+        input.value = value;
+        input.nextElementSibling.value = value;
+      }
+    }
+
+    for (const b of document.querySelectorAll("[data-land]")) {
+      b.addEventListener("click", () => { g.setLandStyle(b.dataset.land); syncControls(); });
+    }
+    for (const b of document.querySelectorAll("[data-toggle]")) {
+      b.addEventListener("click", () => { g.setOptions({ [b.dataset.toggle]: !g.o[b.dataset.toggle] }); syncControls(); });
+    }
+    for (const id of ["dotSpacing", "dotSize", "orbits"]) {
+      const input = document.getElementById(id);
+      input.addEventListener("input", () => {
+        const value = Number(input.value);
+        input.nextElementSibling.value = value;
+        g.setOptions({ [id]: value });
+      });
+    }
+    document.querySelector("[data-mode]").addEventListener("click", () => { g.setMode("globe"); syncAspect(); syncControls(); });
+    for (const b of document.querySelectorAll("[data-projection]")) {
+      b.addEventListener("click", () => { g.setOptions({ mode: "map", projection: b.dataset.projection }); syncAspect(); syncControls(); });
+    }
+
+    document.getElementById("choropleth").addEventListener("click", () => {
+      g.setOptions({ countryColors: g.o.countryColors === trafficColors ? null : trafficColors });
+      syncControls();
+    });
+    document.getElementById("autoColors").addEventListener("click", () => {
+      g.setOptions({ countryColors: g.o.countryColors === "auto" ? null : "auto", landStyle: "fill" });
+      syncControls();
+    });
+    document.getElementById("arcs").addEventListener("click", () => {
+      g.setArcs(g.o.arcs.length ? [] : arcs);
+      syncControls();
     });
 
-    window.fit = () => {
-      document.getElementById("c").classList.toggle("flat", g.o.mode === "map");
-      setTimeout(() => g.resize(), 30);
-    };
-    window.download = () => {
+    document.getElementById("india").addEventListener("click", () => g.fitTo([68, 6, 98, 36]));
+    document.getElementById("fitMarkers").addEventListener("click", () => g.fitToMarkers());
+    document.getElementById("ahmedabad").addEventListener("click", () => g.flyTo(72.58, 23.03, { zoom: 2.5 }));
+    document.getElementById("dateline").addEventListener("click", () => {
+      g.setOptions({ mode: "map" });
+      syncAspect();
+      g.setZoom(3.2).flyTo(179, -17, { instant: true });
+      syncControls();
+    });
+    document.getElementById("scatter").addEventListener("click", () => {
+      const many = Array.from({ length: 5000 }, () => ({ lat: (Math.random() - 0.5) * 140, lon: (Math.random() - 0.5) * 360 }));
+      g.setOptions({ cluster: true, markers: many });
+      syncControls();
+    });
+    document.getElementById("reset").addEventListener("click", () => {
+      window.resetView?.();
+      g.setOptions({ markers: cities, cluster: false, countryColors: null });
+      g.setArcs(arcs);
+      syncControls();
+    });
+    document.getElementById("png").addEventListener("click", () => {
       const a = document.createElement("a");
       a.href = g.snapshot();
-      a.download = "globe.png";
+      a.download = `globe-${g.o.preset || "custom"}.png`;
       a.click();
+    });
+
+    /* --------------------------- new capabilities -------------------------- */
+
+    const where = document.getElementById("where");
+
+    // Stylised equirectangular texture built from the bundled geometry — proves
+    // the texture pipeline with no external asset and no CORS to worry about.
+    let earthTexture = null;
+    const buildTexture = () => {
+      if (earthTexture) return earthTexture;
+      const tex = document.createElement("canvas");
+      tex.width = 2048;
+      tex.height = 1024;
+      const c = tex.getContext("2d");
+      const sea = c.createLinearGradient(0, 0, 0, 1024);
+      sea.addColorStop(0, "#0b2f4f");
+      sea.addColorStop(0.5, "#11507e");
+      sea.addColorStop(1, "#0b2f4f");
+      c.fillStyle = sea;
+      c.fillRect(0, 0, 2048, 1024);
+      const fwd = (lon, lat) => [((lon + 180) / 360) * 2048, ((90 - lat) / 180) * 1024];
+      const land = c.createLinearGradient(0, 0, 0, 1024);
+      land.addColorStop(0, "#cfd8c0");
+      land.addColorStop(0.28, "#5d7d46");
+      land.addColorStop(0.5, "#8d8a52");
+      land.addColorStop(0.72, "#5d7d46");
+      land.addColorStop(1, "#e8eef0");
+      c.beginPath();
+      const trace = (geom) => {
+        const polys = geom.type === "Polygon" ? [geom.coordinates] : geom.coordinates;
+        for (const poly of polys) for (const ring of poly) {
+          let prev = null, open = false;
+          for (const p of ring) {
+            const [x, y] = fwd(p[0], p[1]);
+            if (!open || Math.abs(p[0] - prev) > 180) { if (open) c.closePath(); c.moveTo(x, y); open = true; }
+            else c.lineTo(x, y);
+            prev = p[0];
+          }
+          if (open) c.closePath();
+        }
+      };
+      for (const s of g.world) trace(s.geometry);
+      if (g.india) trace(g.india);
+      c.fillStyle = land;
+      c.fill();
+      earthTexture = tex;
+      return tex;
     };
-  </script>
+
+    document.getElementById("texture").addEventListener("click", (e) => {
+      const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+      press(e.currentTarget, on);
+      g.setOptions({ texture: on ? buildTexture() : null, landStyle: on ? "outline" : "fill" });
+      syncControls();
+    });
+
+    document.getElementById("labels").addEventListener("click", (e) => {
+      const next = g.o.labels === false ? "markers" : g.o.labels === "markers" ? "both" : false;
+      press(e.currentTarget, next !== false);
+      e.currentTarget.textContent = next === false ? "🏷 Labels" : next === "markers" ? "🏷 Labels: markers" : "🏷 Labels: both";
+      g.setOptions({ labels: next });
+    });
+
+    document.getElementById("legendBtn").addEventListener("click", (e) => {
+      const on = !g.o.legend;
+      press(e.currentTarget, on);
+      g.setOptions({ legend: on ? { title: "Visits", scale: { domain: [0, 1000], range: ["#1e293b", "#a78bfa"] } } : null });
+    });
+
+    const km = (m) => (m >= 1000 ? `${Math.round(m / 1000)} km` : `${Math.round(m)} m`);
+
+    // "You are here" — time zone only, so it is instant and never prompts.
+    document.getElementById("viewer").addEventListener("click", (e) => {
+      const on = !g.o.showViewer;
+      press(e.currentTarget, on);
+      g.setOptions({ showViewer: on ? { label: "You", ping: true, flyTo: true } : false });
+      const v = g._viewer;
+      where.textContent = on && v
+        ? `${v.timeZone} → ${v.lat.toFixed(2)}, ${v.lon.toFixed(2)} · anchored on ${v.anchor} · accurate to about ${km(v.accuracyMeters)}. No prompt, no network.`
+        : "Time zone detection runs with no prompt and no network call.";
+    });
+
+    document.getElementById("precise").addEventListener("click", async (e) => {
+      press(e.currentTarget, true);
+      where.textContent = "Asking for location permission…";
+      const found = await g.locateViewer({ precise: true });
+      if (!found) return void (where.textContent = "Could not determine a location.");
+      g.setOptions({ showViewer: { label: "You", live: true } });
+      g.setViewerLocation(found);
+      const v = g._viewer;
+      g.flyTo(v.lon, v.lat, { zoom: found.source === "geolocation" ? 5 : 1.6 });
+      g.ping({ lat: v.lat, lon: v.lon, label: "You are here" });
+      where.textContent = found.source === "geolocation"
+        ? `GPS → ${v.lat.toFixed(4)}, ${v.lon.toFixed(4)} · device reports ±${km(v.accuracyMeters)}.`
+        : `Permission denied or unavailable — fell back to ${v.timeZone} (±${km(v.accuracyMeters)}).`;
+      press(e.currentTarget, false);
+      press(document.getElementById("viewer"), true);
+    });
+
+    let feed = null;
+    document.getElementById("feed").addEventListener("click", (e) => {
+      if (feed) {
+        feed.stop();
+        feed = null;
+        press(e.currentTarget, false);
+        return;
+      }
+      press(e.currentTarget, true);
+      const names = ["Priya", "Marcus", "Yuki", "Ana", "Kwame", "Elena", "Rahul", "Sofia"];
+      const events = cities.map((c, i) => ({
+        lat: c.lat + (Math.random() - 0.5) * 3,
+        lon: c.lon + (Math.random() - 0.5) * 3,
+        emoji: "✨",
+        label: `${names[i % names.length]} just signed up in ${c.name}`,
+      }));
+      feed = g.pingFeed(events, { interval: 1800 });
+    });
+
+    let tourHandle = null;
+    document.getElementById("tourBtn").addEventListener("click", (e) => {
+      if (tourHandle) {
+        tourHandle.stop();
+        tourHandle = null;
+        press(e.currentTarget, false);
+        return;
+      }
+      press(e.currentTarget, true);
+      tourHandle = g.tour(cities.map((c) => [c.lon, c.lat]), { dwell: 2600, zoom: 2.2 });
+    });
+
+    const recordBtn = document.getElementById("record");
+    recordBtn.disabled = !GeoGlobe.canRecord;
+    if (!GeoGlobe.canRecord) recordBtn.textContent = "⏺ Recording unsupported";
+    recordBtn.addEventListener("click", async () => {
+      press(recordBtn, true);
+      recordBtn.textContent = "⏺ Recording…";
+      try {
+        await g.record({ duration: 6000, filename: `globe-${g.o.preset || "custom"}.webm` }).promise;
+        recordBtn.textContent = "⏺ Saved";
+      } catch {
+        recordBtn.textContent = "⏺ Failed";
+      }
+      press(recordBtn, false);
+      setTimeout(() => (recordBtn.textContent = "⏺ Record 6s"), 2200);
+    });
+
+    /* ---------------------------- country canvas --------------------------- */
+
+    const focusPick = document.getElementById("focusPick");
+    for (const name of ["India", "Brazil", "United States of America", "Australia", "Japan", "France", "Kenya", "Indonesia"]) {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name === "United States of America" ? "United States" : name;
+      focusPick.appendChild(opt);
+    }
+
+    // A procedurally animated canvas stands in for a video file — same
+    // drawImage path every frame, with no asset to ship.
+    let reel = null;
+    const buildReel = () => {
+      if (reel) return reel;
+      reel = document.createElement("canvas");
+      reel.width = 960;
+      reel.height = 540;
+      const c = reel.getContext("2d");
+      const paint = () => {
+        const t = Date.now() / 1000;
+        const grad = c.createLinearGradient(0, 0, 960, 540);
+        grad.addColorStop(0, `hsl(${(t * 26) % 360} 85% 55%)`);
+        grad.addColorStop(1, `hsl(${(t * 26 + 90) % 360} 85% 42%)`);
+        c.fillStyle = grad;
+        c.fillRect(0, 0, 960, 540);
+        c.strokeStyle = "rgba(255,255,255,.32)";
+        c.lineWidth = 12;
+        for (let i = 0; i < 7; i++) {
+          c.beginPath();
+          for (let x = 0; x <= 960; x += 12) {
+            const y = 270 + Math.sin(x / 130 + t * 1.6 + i) * (36 + i * 15);
+            x ? c.lineTo(x, y) : c.moveTo(x, y);
+          }
+          c.stroke();
+        }
+        c.fillStyle = "rgba(255,255,255,.95)";
+        c.font = "700 92px Inter,system-ui,sans-serif";
+        c.textAlign = "center";
+        c.fillText("HELLO", 480, 300);
+        requestAnimationFrame(paint);
+      };
+      paint();
+      return reel;
+    };
+
+    const focusTarget = () => focusPick.value;
+    const isolateBtn = () => document.getElementById("isolate");
+    const isolating = () => isolateBtn().getAttribute("aria-pressed") === "true";
+
+    // Reshape the canvas to the country so it is not letterboxed into the
+    // world-map aspect ratio. Neighbours only dim when Isolate is on.
+    const frame = (opts = {}) => {
+      g.setOptions({ mode: "map" });
+      canvas.classList.add("flat");
+      const aspect = g.countryAspect(focusTarget()) || 1;
+      canvas.style.setProperty("--map-aspect", String(1 / Math.min(2.2, Math.max(0.55, aspect))));
+      g.resize();
+      const isolate = opts.isolate ?? isolating();
+      g.focusOn(focusTarget(), { padding: 0.86, outlineWidth: 2, isolate, dim: 1 });
+      syncControls();
+    };
+
+    const restoreView = () => {
+      g.setOptions({ countryMedia: null, focus: null, zoom: 1, center: { lon: 10, lat: 20 } });
+      canvas.classList.remove("flat");
+      g.setMode("globe");
+      syncAspect();
+      press(isolateBtn(), false);
+      press(document.getElementById("mediaCam"), false);
+      syncControls();
+    };
+
+    document.getElementById("focusBtn").addEventListener("click", () => frame());
+    isolateBtn().addEventListener("click", (e) => {
+      const on = !isolating();
+      press(e.currentTarget, on);
+      frame({ isolate: on });
+    });
+    document.getElementById("mediaAnim").addEventListener("click", () => {
+      g.setCountryMedia(focusTarget(), buildReel());
+      frame();
+    });
+    document.getElementById("mediaCam").addEventListener("click", async (e) => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 960, height: 540 } });
+        g.setCountryMedia(focusTarget(), stream);
+        frame();
+        press(e.currentTarget, true);
+      } catch {
+        e.currentTarget.textContent = "📷 Denied";
+        setTimeout(() => (e.currentTarget.textContent = "📷 Webcam"), 1800);
+      }
+    });
+    document.getElementById("mediaClear").addEventListener("click", restoreView);
+    window.resetView = restoreView;
+
+    syncControls();
+    addEventListener("beforeunload", () => { g.destroy(); thumbs.forEach((t) => t.destroy()); });  </script>
 </body>
 </html>

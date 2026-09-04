@@ -10,6 +10,26 @@ import { feature } from "topojson-client";
 const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "data");
 const WORLD_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const INDIA_URL = "https://cdn.jsdelivr.net/gh/datameet/maps@master/Country/india-composite.geojson";
+const ISO_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
+
+/** Numeric id → ISO alpha-2, so `countryColors` can be keyed by country code. */
+async function fetchIsoCodes() {
+  try {
+    const fc = await fetch(ISO_URL).then((r) => r.json());
+    const map = new Map();
+    for (const f of fc.features) {
+      const p = f.properties || {};
+      const num = String(p.ISO_N3 ?? p.iso_n3 ?? "").replace(/^0+/, "");
+      const a2 = p.ISO_A2_EH || p.ISO_A2 || p.iso_a2;
+      if (num && a2 && a2 !== "-99") map.set(num, a2);
+    }
+    console.log(`  ${map.size} ISO codes`);
+    return map;
+  } catch (e) {
+    console.warn(`  ISO lookup unavailable (${e.message}) — continuing without codes`);
+    return new Map();
+  }
+}
 
 /** Distance-based decimation: cheap, stable, and good enough at screen scale. */
 function simplifyRing(ring, tol) {
@@ -57,12 +77,19 @@ async function main() {
 
   console.log("→ world-atlas 110m");
   const topo = await fetch(WORLD_URL).then((r) => r.json());
+  const iso = await fetchIsoCodes();
   const countries = feature(topo, topo.objects.countries).features;
   const shapes = [];
   for (const f of countries) {
     const g = simplifyGeometry(f.geometry, { tol: 0.14, minSpan: 0.45, round: 2 });
-    if (g) shapes.push({ id: f.id, name: f.properties?.name, geometry: g });
+    if (!g) continue;
+    const shape = { id: f.id, name: f.properties?.name, geometry: g };
+    const code = iso.get(String(f.id).replace(/^0+/, ""));
+    if (code) shape.iso = code;
+    shapes.push(shape);
   }
+  const missing = shapes.filter((s) => !s.iso).length;
+  if (missing) console.log(`  ${missing} countries without an ISO code`);
   const worldPoints = shapes.reduce((a, s) => a + countPoints(s.geometry), 0);
   const worldJson = JSON.stringify(shapes);
   writeFileSync(

@@ -13,7 +13,12 @@
     "markers",
     "orthographic",
     "interactive",
-    "no-dependencies"
+    "no-dependencies",
+    "choropleth",
+    "great-circle",
+    "arcs",
+    "react",
+    "web-component"
   ],
   "type": "module",
   "main": "./src/index.js",
@@ -27,6 +32,16 @@
       "import": "./src/index.js",
       "default": "./src/index.js"
     },
+    "./element": {
+      "types": "./types/element.d.ts",
+      "import": "./src/element.js",
+      "default": "./src/element.js"
+    },
+    "./react": {
+      "types": "./types/react.d.ts",
+      "import": "./src/react.js",
+      "default": "./src/react.js"
+    },
     "./data/world": "./src/data/world.js",
     "./data/india": "./src/data/india.js",
     "./package.json": "./package.json"
@@ -36,6 +51,7 @@
     "dist",
     "types",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "sideEffects": false,
@@ -44,11 +60,23 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "data": "node scripts/generate-data.mjs",
-    "example": "node scripts/serve.mjs"
+    "data": "node scripts/generate-data.mjs && node scripts/generate-timezones.mjs",
+    "example": "node scripts/serve.mjs",
+    "test": "node --test \"test/*.test.js\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "topojson-client": "^3.1.0"
+    "topojson-client": "^3.1.0",
+    "typescript": "^5.5.0"
   },
   "engines": {
     "node": ">=18"

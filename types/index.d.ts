@@ -17,6 +17,49 @@ export interface Marker {
   [key: string]: unknown;
 }
 
+/** Synthetic marker produced when `cluster` is on. */
+export interface ClusterMarker {
+  cluster: true;
+  count: number;
+  markers: Marker[];
+  lat: number;
+  lon: number;
+}
+
+export type Coordinate = { lat: number; lon: number } | [lon: number, lat: number];
+
+export interface Arc {
+  from: Coordinate;
+  to: Coordinate;
+  /** Stroke colour. Defaults to the theme's `arc`. */
+  color?: string;
+  /** Colour of the animated leading segment. Defaults to `color`. */
+  headColor?: string;
+  /** Line width in px. Default 1.6. */
+  width?: number;
+  /** Peak height above the sphere as a fraction of the radius. Default 0.28. */
+  lift?: number;
+  /** Great-circle sample count. Default 72. */
+  steps?: number;
+  /** Milliseconds for one travel cycle. Default 2400. */
+  duration?: number;
+  /** Length of the moving segment, 0…1. Default 0.22. */
+  headLength?: number;
+  /** Opacity of the static base line, 0…1. Default 0.28. */
+  baseAlpha?: number;
+  /** Set false to draw a plain static line. */
+  animate?: boolean;
+  [key: string]: unknown;
+}
+
+/** A country as carried by the bundled geometry. */
+export interface CountryShape {
+  id?: string | number;
+  name?: string;
+  iso?: string;
+  geometry: unknown;
+}
+
 export interface Theme {
   /** [inner, outer] ocean gradient stops. */
   ocean: [string, string];
@@ -31,73 +74,456 @@ export interface Theme {
   bubble: string;
   label: string;
   stars: string;
+  /** Colour of the land dots when `landStyle` is "dots". */
+  dot: string;
+  /** Halo colour when `landStyle` is "glow". */
+  glow: string;
+  /** Colour of decorative orbit rings. */
+  orbit: string;
+  /** Base colour for great-circle arcs. */
+  arc: string;
+  /** Colour of the comet head on animated arcs. */
+  arcHead: string;
+  /** Overlay painted on the night side when `terminator` is on. */
+  night: string;
+  cluster: string;
+  clusterLabel: string;
+  /** Ring drawn around the keyboard-focused marker. */
+  focus: string;
+  /** Wash painted over the hovered country. */
+  countryHover: string;
   shade: boolean;
 }
 
+export type ThemeName = "atlas" | "midnight" | "mono" | "hologram" | "neon" | "blueprint" | "aurora" | "noir" | "political";
+export type PresetName = ThemeName | "constellation";
+export type MapProjection = "equirectangular" | "mercator" | "naturalEarth";
+/** How landmasses are drawn: solid, halftone dots, line art, neon glow, or nothing. */
+export type LandStyle = "fill" | "dots" | "outline" | "glow" | "none";
+
+export interface ViewerLocation {
+  lat: number;
+  lon: number;
+  /** IANA zone the browser reported, when available. */
+  timeZone: string | null;
+  /** ISO 3166-1 alpha-2, when known. */
+  country: string | null;
+  source: "timezone" | "locale" | "geolocation";
+  accuracy: "region" | "country" | "precise";
+  /** Radius the position is good to. Null until the globe derives one. */
+  accuracyMeters: number | null;
+  /** Which reference point the pin was placed on. */
+  anchor?: "gps" | "country" | "timezone";
+}
+
+export interface ShowViewerOptions {
+  /** Glyph for the pin. Defaults to a map marker. */
+  emoji?: string;
+  label?: string;
+  color?: string;
+  live?: boolean;
+  /** Ask for GPS permission and upgrade the pin if granted. Default false. */
+  precise?: boolean;
+  /** Passed through to the Geolocation API. Defaults to true for `precise`. */
+  enableHighAccuracy?: boolean;
+  timeout?: number;
+  maximumAge?: number;
+  /**
+   * Where to put the pin for a non-GPS fix. "auto" (default) uses the country
+   * centroid for countries wider than 8° — one time zone covers all of India,
+   * so its published city would be confidently wrong — and the time-zone city
+   * everywhere else.
+   */
+  anchor?: "auto" | "country" | "timezone";
+  /** Draw the uncertainty radius around the pin. Default true. */
+  accuracyCircle?: boolean;
+  accuracyColor?: string;
+  /** Centre the view on the viewer once located. */
+  flyTo?: boolean;
+  flyToOptions?: FlyToOptions;
+  /** Fire a ping at the viewer's position. */
+  ping?: boolean;
+  onLocate?: (location: ViewerLocation) => void;
+}
+
+export interface PingSpec {
+  lat: number;
+  lon: number;
+  label?: string;
+  emoji?: string;
+  color?: string;
+  /** Number of expanding rings. Default 3. */
+  rings?: number;
+  /** Peak ring radius in px. Default 46. */
+  radius?: number;
+  /** Lifetime in ms. Default 2600. */
+  duration?: number;
+  flyTo?: boolean;
+  flyToOptions?: FlyToOptions;
+}
+
+export interface Handle {
+  stop(): void;
+}
+
+export interface StoryStep extends Partial<GeoGlobeOptions> {
+  /** Scroll progress, 0–1. */
+  at: number;
+  center?: [lon: number, lat: number];
+  zoom?: number;
+}
+
+export interface HeatmapOptions {
+  /** Blob radius in px at full weight. Default 30. */
+  radius?: number;
+  /** Peak opacity, 0–1. Default 0.5. */
+  intensity?: number;
+  color?: string;
+}
+
+export interface SpikeOptions {
+  /** Tallest spike as a fraction of the globe radius. Default 0.28. */
+  height?: number;
+  /** Line width in px. Default 2.4. */
+  width?: number;
+}
+
+export interface LegendSpec {
+  title?: string;
+  /** Discrete swatches. */
+  items?: { color: string; label: string }[];
+  /** Continuous ramp; mirrors `colorScale` arguments. */
+  scale?: { domain?: number[]; range?: string[] };
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  width?: number;
+  height?: number;
+}
+
+export interface RecordingHandle {
+  promise: Promise<Blob>;
+  mimeType?: string;
+  stop(): Promise<Blob>;
+}
+
+/** Anything `drawImage` accepts, plus a URL or a live stream. */
+export type MediaSource = string | CanvasImageSource | MediaStream;
+
+export interface MediaSpec {
+  src: MediaSource;
+  /** How the media fills the country's box. Default "cover". */
+  fit?: "cover" | "contain" | "fill";
+  /** Force the source type when the URL has no useful extension. */
+  type?: "image" | "video";
+  opacity?: number;
+  /** Any canvas composite operation, e.g. "screen" or "multiply". */
+  blend?: GlobalCompositeOperation;
+  /** Extra zoom on top of the fit. Default 1. */
+  scale?: number;
+  /** Pixel nudge, `[x, y]`. */
+  offset?: [number, number];
+  loop?: boolean;
+  muted?: boolean;
+  crossOrigin?: string | null;
+}
+
+export interface FocusSpec {
+  /** ISO alpha-2 code, numeric id or country name. */
+  country: string;
+  /** Drop every other country instead of dimming it. */
+  isolate?: boolean;
+  /** Opacity for unfocused countries when not isolating. Default 0.16. */
+  dim?: number;
+  /** Outline width for the focused country. Default 1.6. */
+  outlineWidth?: number;
+  /** Fraction of the viewport to fill. Default 0.82. */
+  padding?: number;
+}
+
+export interface Orbit {
+  /** Tilt of the ring in degrees. Default varies per generated ring. */
+  inclination?: number;
+  /** Starting rotation in degrees. */
+  phase?: number;
+  /** Ring radius as a multiple of the globe radius. Default ~1.15. */
+  radius?: number;
+  /** Degrees per second; negative counter-rotates. */
+  speed?: number;
+  color?: string;
+  width?: number;
+}
+
+export interface RenderMarkerContext {
+  x: number;
+  y: number;
+  /** 0…1 foreshortening factor; always 1 in map mode. */
+  depth: number;
+  scale: number;
+  theme: Theme;
+  /** Largest `count` in the current set, for relative sizing. */
+  max: number;
+  globe: GeoGlobe;
+}
+
+export type TooltipKind = "marker" | "cluster" | "country";
+
 export interface GeoGlobeOptions {
-  /** "globe" (orthographic, spinnable) or "map" (equirectangular). Default "globe". */
+  /** "globe" (orthographic, spinnable) or "map" (flat). Default "globe". */
   mode?: "globe" | "map";
+  /** Flat-map projection. Default "equirectangular". */
+  projection?: MapProjection;
   /** Built-in theme name or a partial theme object. Default "atlas". */
-  theme?: "atlas" | "midnight" | "mono" | Partial<Theme>;
+  theme?: ThemeName | Partial<Theme>;
+  /** Named bundle of theme + render style, applied under your own options. */
+  preset?: PresetName;
+  /** Theme name, a partial theme, "auto" for the OS colour scheme, or "css"
+   * to read `--geo-*` custom properties off the canvas. */
+  theme?: ThemeName | "auto" | "css" | Partial<Theme>;
+  /** How landmasses are drawn. Default "fill". */
+  landStyle?: LandStyle;
+  /** Dot grid spacing in degrees when `landStyle` is "dots". Default 2. */
+  dotSpacing?: number;
+  /** Dot radius in px when `landStyle` is "dots". Default 1.15. */
+  dotSize?: number;
+  /** Decorative great-circle rings: a count (0–6) or explicit ring specs. */
+  orbits?: number | Orbit[];
+  /** Fills used by `countryColors: "auto"`. */
+  countryPalette?: string[] | null;
+  /** Equirectangular image painted onto the sphere. URL, image or canvas. */
+  texture?: string | CanvasImageSource | null;
+  /** Pixel step for the texture pass; higher is faster. Default "auto". */
+  textureQuality?: "auto" | number;
+  /** Frame a single country, optionally dropping the rest of the world. */
+  focus?: string | FocusSpec | null;
+  /** Media painted inside each country's outline, keyed by ISO, id or name. */
+  countryMedia?: Record<string, MediaSource | MediaSpec> | null;
+  /** Additive density blobs instead of, or under, markers. */
+  heatmap?: boolean | HeatmapOptions;
+  /** Bars standing off the surface, scaled by each marker's `count`. */
+  spikes?: boolean | SpikeOptions;
+  /** Text labels with collision avoidance. */
+  labels?: boolean | "markers" | "countries" | "both";
+  /** Draws a legend card in a corner. */
+  legend?: LegendSpec | null;
+  /** Pin the current viewer using their time zone — no prompt, no network. */
+  showViewer?: boolean | ShowViewerOptions;
+  /** Coast after a drag instead of stopping dead. Default true. */
+  momentum?: boolean;
   markers?: Marker[];
+  /** Great-circle connections drawn above the surface. */
+  arcs?: Arc[];
   /** Initial view centre. Default { lon: 10, lat: 20 }. */
   center?: { lon: number; lat: number };
+  /** Initial zoom. Default 1. */
+  zoom?: number;
+  /** Default 1. */
+  minZoom?: number;
+  /** Default 8. */
+  maxZoom?: number;
+  /** Wheel and pinch zoom. Default true. */
+  zoomable?: boolean;
   /** Spin when idle. Default true. */
   autoRotate?: boolean;
   /** Degrees per frame. Default 0.09. */
   rotateSpeed?: number;
-  /** Drag to rotate and hover/click markers. Default true. */
+  /** Drag, zoom and hover/click. Default true. */
   interactive?: boolean;
+  /** Arrow keys, +/-, 0 and PageUp/PageDown. Default true. */
+  keyboard?: boolean;
   graticule?: boolean;
   /** Starfield outside the sphere. Default true. */
   stars?: boolean;
   /** Lit-from-upper-left shading. Default true. */
   shade?: boolean;
+  /** Shade the night side using the real solar position. Default false. */
+  terminator?: boolean;
+  /** Clock for the terminator. null tracks the current time. */
+  time?: Date | number | null;
   /** "auto" uses bubbles when a marker has an emoji or count > 1. Default "auto". */
   markerStyle?: "auto" | "bubble" | "dot";
   markerScale?: number;
+  /** Draw markers yourself. Return the hit radius in px. */
+  renderMarker?: (ctx: CanvasRenderingContext2D, marker: Marker | ClusterMarker, info: RenderMarkerContext) => number | void;
+  /** Merge nearby markers into count bubbles. Default false. */
+  cluster?: boolean;
+  /** Cluster grid size in px. Default 42. */
+  clusterRadius?: number;
+  /** Default arc height as a fraction of the globe radius. Default 0.28. */
+  arcLift?: number;
+  /** Multiplies every arc's travel speed. Default 1. */
+  arcSpeed?: number;
+  /** Fill colours keyed by ISO code, numeric id or country name. */
+  countryColors?: Record<string, string> | null;
+  /** Per-country fill callback; wins over `countryColors`. */
+  countryColor?: ((shape: CountryShape) => string | null | undefined) | null;
+  /** Maps a shape to the key used against `countryColors`. */
+  countryKey?: ((shape: CountryShape) => string | null | undefined) | null;
   /** Globe radius as a fraction of the smaller canvas side. Default 0.4. */
   radiusRatio?: number;
   /** [north, south] latitude bounds for map mode. Default [83, -56]. */
   latRange?: [number, number];
   /** Draw India with its official Survey of India boundary. Default true. */
   officialIndia?: boolean;
-  /** Replace the bundled country geometry. Accepts GeoJSON or the bundled shape array. */
+  /** Replace the bundled country geometry. Accepts GeoJSON or the shape array. */
   world?: unknown;
   /** Replace the bundled India geometry. */
   india?: unknown;
   /** Frame cap. Default 30. */
   fps?: number;
-  onHover?: (marker: Marker | null, position: { x: number; y: number } | null) => void;
-  onClick?: (marker: Marker, position: { x: number; y: number }) => void;
+  /** Built-in tooltip. `true` uses the default text, or pass a formatter. */
+  tooltip?: boolean | ((target: Marker | ClusterMarker | CountryShape, kind: TooltipKind) => string);
+  /** Honour `prefers-reduced-motion`. Default true. */
+  respectReducedMotion?: boolean;
+  /** Accessible name for the canvas. */
+  ariaLabel?: string;
+  onHover?: (marker: Marker | ClusterMarker | null, position: { x: number; y: number } | null) => void;
+  onClick?: (marker: Marker | ClusterMarker, position: { x: number; y: number }) => void;
+  onCountryHover?: (country: CountryShape | null, position: { x: number; y: number } | null) => void;
+  onCountryClick?: (country: CountryShape, position: { x: number; y: number }) => void;
   onRender?: (instance: GeoGlobe) => void;
+}
+
+export interface FlyToOptions {
+  /** Jump instead of easing. */
+  instant?: boolean;
+  /** Also set the zoom level. */
+  zoom?: number;
 }
 
 export declare class GeoGlobe {
   constructor(canvas: HTMLCanvasElement, options?: GeoGlobeOptions);
   readonly canvas: HTMLCanvasElement;
+  readonly ctx: CanvasRenderingContext2D;
   readonly theme: Theme;
+  readonly zoom: number;
+  /** Resolved country geometry currently in use. */
+  readonly world: CountryShape[];
   lon: number;
   lat: number;
   markers: Marker[];
   setMarkers(markers: Marker[]): this;
+  setArcs(arcs: Arc[]): this;
   setOptions(patch: Partial<GeoGlobeOptions>): this;
   setMode(mode: "globe" | "map"): this;
   setTheme(theme: GeoGlobeOptions["theme"]): this;
+  setProjection(projection: MapProjection): this;
+  /** Applies a named look. Keys the preset omits return to their defaults. */
+  setPreset(name: PresetName): this;
+  setLandStyle(style: LandStyle): this;
+  /** Equirectangular image painted onto the sphere; null removes it. */
+  setTexture(source: string | CanvasImageSource | null): this;
+  /** Frames a country and, with `isolate`, drops the rest of the world away. */
+  focusOn(country: string | FocusSpec | null, opts?: Partial<FocusSpec> & FlyToOptions): this;
+  clearFocus(): this;
+  /** Media painted inside a country's outline; null clears it. */
+  setCountryMedia(country: string, source: MediaSource | MediaSpec | null): this;
+  /** Height / width ratio that frames a country without letterboxing. */
+  countryAspect(country: string): number | null;
+  /** Fires a one-shot expanding ring at a coordinate. */
+  ping(spec: PingSpec): this;
+  ping(lat: number, rest: Omit<PingSpec, "lat">): this;
+  /** Replays a list of pings on a timer. */
+  pingFeed(items: PingSpec[], options?: { interval?: number; loop?: boolean; flyTo?: boolean; onPing?: (item: PingSpec) => void }): Handle;
+  clearPings(): this;
+  /** Flies between points on a timer. */
+  tour(points: (Coordinate)[], options?: { dwell?: number; zoom?: number; loop?: boolean; onStep?: (point: Coordinate, index: number) => void }): Handle;
+  stopTour(): this;
+  /** Drives the view from an element's scroll progress. */
+  story(element: Element, steps: StoryStep[], options?: { onStep?: (step: StoryStep, index: number) => void }): this;
+  stopStory(): this;
+  /** Records the canvas to a WebM Blob, entirely in the tab. */
+  record(options?: { duration?: number; fps?: number; bitrate?: number; type?: string; filename?: string }): RecordingHandle;
+  /** Where the viewer is, from their time zone. `precise` prompts for GPS. */
+  locateViewer(options?: { precise?: false }): ViewerLocation | null;
+  locateViewer(options: { precise: true }): Promise<ViewerLocation | null>;
+  /** Applies a resolved location as the viewer pin. */
+  setViewerLocation(location: ViewerLocation, spec?: ShowViewerOptions): this;
+  /** null tracks the current time. */
+  setTime(time: Date | number | null): this;
+  setZoom(zoom: number): this;
+  zoomBy(factor: number): this;
+  getCenter(): { lon: number; lat: number };
   /** Eases the view to a coordinate; `{ instant: true }` jumps there. */
-  flyTo(lon: number, lat: number, opts?: { instant?: boolean }): this;
+  flyTo(lon: number, lat: number, opts?: FlyToOptions): this;
+  /** Frames a `[west, south, east, north]` bounding box. */
+  fitTo(bounds: [number, number, number, number], opts?: FlyToOptions & { padding?: number }): this;
+  /** Frames every marker, picking the shortest longitude arc that covers them. */
+  fitToMarkers(opts?: FlyToOptions & { padding?: number }): this;
   /** Screen position of a coordinate, or null when it is behind the globe. */
   project(lon: number, lat: number): { x: number; y: number; visible: boolean } | null;
+  /** Coordinate `[lon, lat]` under a canvas pixel, or null when it misses. */
+  unproject(x: number, y: number): [number, number] | null;
+  /** Country shape at a canvas pixel, or null. */
+  countryAt(x: number, y: number): CountryShape | null;
+  /** Marks the next frame as needing a redraw. */
+  invalidate(): this;
   resize(): this;
   render(): this;
   snapshot(type?: string, quality?: number): string;
+  toBlob(type?: string, quality?: number): Promise<Blob | null>;
   destroy(): this;
 }
 
 export declare function createGlobe(canvas: HTMLCanvasElement, options?: GeoGlobeOptions): GeoGlobe;
-export declare const themes: Record<"atlas" | "midnight" | "mono", Theme>;
+export declare const themes: Record<ThemeName, Theme>;
+/** Named bundles of theme + render style. */
+export declare const presets: Record<PresetName, Partial<GeoGlobeOptions>>;
+/** Distinct fills used by `countryColors: "auto"`. */
+export declare const countryPalette: string[];
+/** Named bundles of theme + render style. */
+export declare const presets: Record<PresetName, Partial<GeoGlobeOptions>>;
+/** Distinct fills used by `countryColors: "auto"`. */
+export declare const countryPalette: string[];
 /** Height / width ratio a flat map should use for a latitude range. */
-export declare function mapAspect(latRange?: [number, number]): number;
-export declare const world: unknown[];
+export declare function mapAspect(latRange?: [number, number], projection?: MapProjection): number;
+/** Builds a linear colour ramp for choropleths. */
+export declare function colorScale(domain?: number[], range?: string[]): (value: number) => string | null;
+/** Coordinate where the sun is directly overhead. */
+export declare function subsolarPoint(when?: Date | number): { lon: number; lat: number };
+/** Samples the shorter great-circle path between two coordinates. */
+export declare function greatCircle(lon1: number, lat1: number, lon2: number, lat2: number, steps?: number): [number, number][];
+/** Angular distance between two coordinates, in degrees. */
+export declare function angularDistance(lon1: number, lat1: number, lon2: number, lat2: number): number;
+/** Ray-casting hit test against a GeoJSON Polygon or MultiPolygon. */
+export declare function pointInGeometry(geometry: unknown, lon: number, lat: number): boolean;
+/** `[west, south, east, north]` bounds of a Polygon or MultiPolygon. */
+export declare function geometryBounds(geometry: unknown): [number, number, number, number];
+export declare const projections: Record<MapProjection, {
+  forward(lon: number, lat: number): [number, number];
+  inverse(x: number, y: number): [number, number];
+}>;
+export declare const world: CountryShape[];
 export declare const india: unknown;
+
+/** Viewer location from the browser time zone. No prompt, no network call. */
+export declare function locateViewer(): ViewerLocation | null;
+/** Upgrades to GPS if the viewer allows it; falls back to the time zone. Never rejects. */
+export declare function locateViewerPrecise(options?: { timeout?: number; maximumAge?: number; enableHighAccuracy?: boolean }): Promise<ViewerLocation | null>;
+/** Published coordinate for an IANA zone name, resolving legacy aliases. */
+export declare function timeZoneLocation(name: string): { lat: number; lon: number; country: string; timeZone: string } | null;
+/** Representative coordinate for an ISO 3166-1 alpha-2 country code. */
+export declare function countryLocation(code: string): { lat: number; lon: number; country: string; timeZone: string } | null;
+
+/** True when this browser can encode a clip from a canvas. */
+export declare function canRecord(): boolean;
+export declare function supportedRecordingType(): string | null;
+export declare function recordCanvas(canvas: HTMLCanvasElement, options?: { duration?: number; fps?: number; bitrate?: number; type?: string }): RecordingHandle;
+export declare function downloadBlob(blob: Blob, filename: string): void;
+
+/** Equirectangular image mapped onto the orthographic sphere. */
+export declare class SphereTexture {
+  constructor(source: string | CanvasImageSource, options?: { maxWidth?: number; onLoad?: (texture: SphereTexture) => void });
+  readonly ready: boolean;
+  readonly error: Error | null;
+}
+
+/** A drawable media source: image, GIF, video, canvas or live stream. */
+export declare class Media {
+  constructor(spec: MediaSource | MediaSpec, onReady?: (media: Media) => void);
+  readonly ready: boolean;
+  readonly error: Error | null;
+  readonly animated: boolean;
+  size(): [number, number] | null;
+  destroy(): void;
+}
+
 export default createGlobe;
