@@ -1,0 +1,193 @@
+---
+title: Shipping and delivery routes
+description: Freight lanes, delivery networks and fulfilment coverage drawn as animated great circles — the map that makes a supply chain feel like an asset.
+keywords:
+  - shipping route map
+  - delivery network globe
+  - logistics visualisation
+  - freight lanes map
+  - supply chain map
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Shipping and delivery routes
+
+Logistics companies sell reliability, and reliability is hard to photograph. A route map is the one
+visual that makes an abstract network feel like infrastructure — which is why every airline, freight
+forwarder and 3PL has one.
+
+<GlobeDemo
+  options={{
+    preset: "atlas",
+    rotateSpeed: 0.05,
+    center: { lon: 55, lat: 25 },
+    arcLift: 0.3,
+    arcSpeed: 0.85,
+    tooltip: true,
+    labels: "markers",
+    markerScale: 0.9,
+    markers: [
+      { label: "Shanghai", lat: 31.23, lon: 121.47, count: 9 },
+      { label: "Dubai", lat: 25.28, lon: 55.3, count: 7 },
+      { label: "Rotterdam", lat: 51.95, lon: 4.14, count: 8 },
+      { label: "Los Angeles", lat: 33.75, lon: -118.19, count: 6 },
+      { label: "New York", lat: 40.67, lon: -74.05, count: 5 },
+      { label: "Singapore", lat: 1.26, lon: 103.83, count: 6 },
+      { label: "Sydney", lat: -33.86, lon: 151.2, count: 3 },
+    ],
+    arcs: [
+      { from: { lat: 31.23, lon: 121.47 }, to: { lat: 33.75, lon: -118.19 }, icon: "🚢", duration: 4200 },
+      { from: { lat: 31.23, lon: 121.47 }, to: { lat: 51.95, lon: 4.14 }, icon: "🚢", duration: 4800 },
+      { from: { lat: 25.28, lon: 55.3 }, to: { lat: 1.26, lon: 103.83 }, icon: "✈️", duration: 2600 },
+      { from: { lat: 25.28, lon: 55.3 }, to: { lat: 51.95, lon: 4.14 }, icon: "✈️", duration: 3000 },
+      { from: { lat: 51.95, lon: 4.14 }, to: { lat: 40.67, lon: -74.05 }, icon: "🚢", duration: 3800 },
+      { from: { lat: 33.75, lon: -118.19 }, to: { lat: -33.86, lon: 151.2 }, icon: "🚢", duration: 4600 },
+    ],
+  }}
+  controls={[
+    { type: "select", label: "Look", option: "preset", values: ["atlas", "midnight", "blueprint", "mono", "hologram"] },
+    { type: "range", label: "Arc height", option: "arcLift", min: 0.05, max: 0.6, step: 0.05 },
+    { type: "range", label: "Speed", option: "arcSpeed", min: 0.2, max: 2, step: 0.1 },
+    { type: "select", label: "Mode", option: "mode", values: ["globe", "map"] },
+  ]}
+  caption="Arcs are great circles — the route a ship or aircraft would actually take, not a straight line on a flat map."
+/>
+
+## The code
+
+```js
+import { createGlobe } from "@swiftools/geo-globe";
+
+const hubs = [
+  { label: "Shanghai", lat: 31.23, lon: 121.47, count: 9 },
+  { label: "Dubai", lat: 25.28, lon: 55.3, count: 7 },
+  { label: "Rotterdam", lat: 51.95, lon: 4.14, count: 8 },
+  // …
+];
+
+const lanes = [
+  { from: hubs[0], to: hubs[2], icon: "🚢", duration: 4800 },
+  { from: hubs[1], to: hubs[2], icon: "✈️", duration: 3000 },
+  // …
+];
+
+const globe = createGlobe(canvas, {
+  preset: "atlas",
+  rotateSpeed: 0.05,
+  center: { lon: 55, lat: 25 },
+
+  markers: hubs,
+  labels: "markers",
+
+  arcs: lanes,
+  arcLift: 0.3,
+  arcSpeed: 0.85,
+
+  tooltip: (m) => `${m.label} — ${m.count} lanes`,
+});
+```
+
+## Great circles, not lines
+
+An arc is drawn along the shortest path over the sphere, so Shanghai to Los Angeles bends north past
+the Aleutians the way a real sailing lets it. On a **map** the same arc is projected, which means it
+curves and — where it crosses the antimeridian — correctly splits at the seam rather than sweeping
+back across the Pacific.
+
+This matters more than it sounds. Straight-line route maps are the single most common way logistics
+marketing gets the geography wrong, and anyone in the industry spots it immediately.
+
+## Encoding volume
+
+Three variables are available before the map gets noisy. Use two:
+
+| Variable | Good for |
+| --- | --- |
+| Arc `width` | Volume on the lane |
+| Arc `color` | Mode (sea, air, road) or status |
+| Arc `duration` | Transit time — slower arc, longer journey |
+| Marker `count` | Hub throughput, via bubble size |
+| `icon` | Mode, when you have three or fewer |
+
+```js
+const lanes = rows.map((r) => ({
+  from: hubs[r.origin],
+  to: hubs[r.destination],
+  width: 0.6 + (r.teu / maxTeu) * 3,
+  color: r.mode === "air" ? "#38bdf8" : "#f97316",
+  duration: r.transitDays * 400,
+}));
+```
+
+Mapping transit time to `duration` is the quiet win here: fast lanes visibly zip, slow lanes crawl,
+and nobody has to read a legend to understand it.
+
+## Too many lanes
+
+A real network has hundreds. All of them at once is a ball of wool.
+
+1. **Show the top N.** Twenty lanes reads as a network; two hundred reads as static.
+2. **Aggregate to hub pairs**, not shipment pairs. One arc per lane, weighted.
+3. **Let people filter.** Origin region, mode, service level — one `setArcs` call per change.
+
+```js
+function show(mode) {
+  globe.setArcs(mode === "all" ? lanes : lanes.filter((l) => l.mode === mode));
+}
+```
+
+`setArcs` swaps the whole set without rebuilding the globe, and cached geometry means repeated
+filtering is cheap. See [Arcs](/guides/arcs).
+
+## Tracking a single shipment
+
+The same primitive works in-product for "where is my order":
+
+```js
+globe.setArcs([{ from: origin, to: destination, icon: "📦", duration: 3000 }]);
+globe.setMarkers([
+  { ...origin, label: "Picked up" },
+  { ...current, label: "In transit", live: true },
+  { ...destination, label: "Destination" },
+]);
+globe.fitToMarkers({ padding: 0.3 });
+```
+
+`fitToMarkers` frames exactly the points you set, so a domestic delivery zooms in and an
+international one pulls out — no per-route configuration.
+
+## Coverage instead of routes
+
+If the claim is "we deliver to 190 countries", routes are the wrong picture — you would need 190
+arcs and it would say nothing. Shade the countries instead:
+
+```js
+{
+  mode: "map",
+  countryColors: Object.fromEntries(servedCountries.map((iso) => [iso, "#f97316"])),
+  title: { text: "Delivering to 190 countries" },
+}
+```
+
+Routes answer *how*, choropleths answer *where*. Pick the one that matches the sentence you are
+trying to prove. See [Choropleth](/guides/choropleth).
+
+## Performance
+
+Arcs are the most expensive layer in the library — each one is a resampled polyline with a moving
+head.
+
+- **Budget around 60 animated arcs** at 60 fps on a mid-range laptop. Beyond that, cap `fps` to 30.
+- **Static arcs are nearly free.** If the network does not need to animate, set `animate: false` on
+  each arc and the whole thing renders once.
+- **Reuse arc objects** across `setArcs` calls where you can — resampled points are cached per
+  object, so recreating identical arcs every frame throws that cache away.
+
+See [Performance](/guides/performance).
+
+## Next
+
+- [Arcs](/guides/arcs) — lift, speed, icons and the antimeridian
+- [Coverage dashboard](/examples/coverage-dashboard) — the choropleth version
+- [Store and office locator](/examples/store-locator) — the last-mile end of the same story

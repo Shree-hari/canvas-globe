@@ -1334,6 +1334,8 @@ const DEFAULTS = {
   countryMedia: null,
   annotations: null,
   counter: null,
+  title: null,
+  watermark: null,
   timeline: null,
   transparentBackground: false,
   heatmap: false,
@@ -1385,6 +1387,10 @@ const DEFAULTS = {
 };
 
 const INDIA_SHAPE = { id: "356", name: "India", iso: "IN" };
+
+/** Matches whatever the source world data calls India, so it can be superseded. */
+const isIndiaShape = (shape) =>
+  shape.iso === "IN" || String(shape.id) === "356" || String(shape.name).toLowerCase() === "india";
 
 const coord = (v) => (Array.isArray(v) ? [v[0], v[1]] : [v.lon ?? v.lng ?? v.longitude, v.lat ?? v.latitude]);
 
@@ -1468,6 +1474,7 @@ class GeoGlobe {
   }
 
   setOptions(patch = {}) {
+    patch = this._expandLooks(patch);
     Object.assign(this.o, patch);
     if ("world" in patch) this._applyWorld();
     if ("india" in patch || "officialIndia" in patch) this._applyIndia();
@@ -1493,6 +1500,35 @@ class GeoGlobe {
     return this.resize();
   }
 
+  /**
+   * A bare `preset` or `scene` in a patch is meaningless on its own — it has to
+   * expand into the keys it owns, or `setOptions({ preset })` would rename the
+   * look without changing it. Explicit keys in the patch always win.
+   */
+  _expandLooks(patch) {
+    const under = [];
+    const scene = "scene" in patch ? scenes[patch.scene] : null;
+    if (scene) {
+      const base = {};
+      for (const key of sceneKeys) base[key] = key in scene ? scene[key] : DEFAULTS[key];
+      // The scene's preset fills in every look key the scene does not name itself.
+      const scenePreset = presets[scene.preset];
+      if (scenePreset) {
+        for (const key of presetKeys) {
+          if (!(key in scene)) base[key] = key in scenePreset ? scenePreset[key] : DEFAULTS[key];
+        }
+      }
+      under.push(base);
+    }
+    const preset = "preset" in patch ? presets[patch.preset] : null;
+    if (preset) {
+      const base = {};
+      for (const key of presetKeys) base[key] = key in preset ? preset[key] : DEFAULTS[key];
+      under.push(base);
+    }
+    return under.length ? Object.assign({}, ...under, patch) : patch;
+  }
+
   setMode(mode) {
     return this.setOptions({ mode });
   }
@@ -1507,11 +1543,8 @@ class GeoGlobe {
 
   /** Applies a named look. Keys the preset omits return to their defaults. */
   setPreset(name) {
-    const preset = presets[name];
-    if (!preset) return this;
-    const patch = { preset: name };
-    for (const key of presetKeys) patch[key] = key in preset ? preset[key] : DEFAULTS[key];
-    return this.setOptions(patch);
+    if (!presets[name]) return this;
+    return this.setOptions({ preset: name });
   }
 
   setLandStyle(landStyle) {
@@ -1569,15 +1602,8 @@ class GeoGlobe {
 
   /** Applies a whole composition. Keys the scene omits return to defaults. */
   setScene(name, overrides = {}) {
-    const scene = scenes[name];
-    if (!scene) return this;
-    const patch = { scene: name };
-    for (const key of sceneKeys) patch[key] = key in scene ? scene[key] : DEFAULTS[key];
-    if (scene.preset) {
-      const preset = presets[scene.preset];
-      for (const key of presetKeys) if (!(key in scene)) patch[key] = key in preset ? preset[key] : DEFAULTS[key];
-    }
-    return this.setOptions({ ...patch, ...overrides });
+    if (!scenes[name]) return this;
+    return this.setOptions({ scene: name, ...overrides });
   }
 
   /* -------------------------------- export -------------------------------- */
@@ -2030,10 +2056,8 @@ class GeoGlobe {
   /* ------------------------------ setup bits ------------------------------ */
 
   _applyWorld() {
-    this.world = normalizeShapes(this.o.world) || bundledWorld;
-    this._bbox = null;
-    this._mask = undefined;
-    this._dotPts = null;
+    this._worldAll = normalizeShapes(this.o.world) || bundledWorld;
+    this._syncShapes();
   }
 
   _applyIndia() {
@@ -2044,8 +2068,28 @@ class GeoGlobe {
       this.india = normalizeShapes(this.o.india)?.[0]?.geometry || bundledIndia;
       this._indiaShape = { ...INDIA_SHAPE, geometry: this.india };
     }
+    this._syncShapes();
+  }
+
+  /**
+   * The official boundary supersedes whatever India the source data ships, so
+   * that shape is dropped rather than drawn underneath — two India outlines at
+   * a stroked land style is exactly the artefact this avoids.
+   */
+  _syncShapes() {
+    const all = this._worldAll;
+    const rest = this.india ? all.filter((s) => !isIndiaShape(s)) : all;
+    this.world = rest.length === all.length ? all : rest;
+    this._bbox = null;
     this._mask = undefined;
     this._dotPts = null;
+    this._isoIndex = null;
+    this._autoFor = null;
+  }
+
+  /** Every shape that gets painted, official India included. */
+  _shapes() {
+    return this._indiaShape ? this.world.concat([this._indiaShape]) : this.world;
   }
 
   _applyMarkers(markers) {
@@ -3014,8 +3058,8 @@ class GeoGlobe {
    */
   _autoColors() {
     const palette = this.o.countryPalette || countryPalette;
+    const shapes = this._shapes();
     if (this._autoFor === this.world && this._autoPalette === palette) return this._autoMap;
-    const shapes = this.world;
     const boxes = shapes.map((s) => this._shapeBox(s));
     const adjacency = shapes.map(() => []);
     for (let i = 0; i < shapes.length; i++) {
@@ -3206,11 +3250,110 @@ class GeoGlobe {
     ctx.restore();
   }
 
-  _paintCountries(t, trace, textured) {
+  /** Resolves a corner keyword to a top-left origin for a box. */
+  _anchor(position = "top-left", w, h, boxW, boxH, pad = 20) {
+    const x = position.includes("right")
+      ? w - pad - boxW
+      : position.includes("center")
+        ? (w - boxW) / 2
+        : pad;
+    const y = position.includes("bottom") ? h - pad - boxH : pad;
+    return [x, y];
+  }
+
+  /** Headline and subheadline drawn straight onto the canvas. */
+  _paintTitle(t, w, h) {
+    const spec = this.o.title;
+    if (!spec || !spec.text) return;
+    const { ctx } = this;
+    const size = spec.size ?? Math.round(Math.min(w, h) * 0.062);
+    const subSize = spec.subtitleSize ?? Math.round(size * 0.42);
+    const gap = spec.subtitle ? Math.round(subSize * 1.5) : 0;
+    const pad = spec.padding ?? 22;
+    const pos = spec.position || "top-left";
+
+    ctx.save();
+    ctx.font = `${spec.weight ?? 800} ${size}px ${spec.font || "Inter,system-ui,sans-serif"}`;
+    const titleWidth = ctx.measureText(spec.text).width;
+    let boxWidth = titleWidth;
+    if (spec.subtitle) {
+      ctx.font = `600 ${subSize}px ${spec.font || "Inter,system-ui,sans-serif"}`;
+      boxWidth = Math.max(boxWidth, ctx.measureText(spec.subtitle).width);
+    }
+    const [x, y] = this._anchor(pos, w, h, boxWidth, size + gap, pad);
+    const centred = pos.includes("center");
+    ctx.textAlign = centred ? "center" : "start";
+    const originX = centred ? x + boxWidth / 2 : x;
+
+    ctx.shadowColor = "rgba(0,0,0,.4)";
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = spec.color || t.label;
+    ctx.font = `${spec.weight ?? 800} ${size}px ${spec.font || "Inter,system-ui,sans-serif"}`;
+    ctx.fillText(spec.text, originX, y + size);
+    if (spec.subtitle) {
+      ctx.font = `600 ${subSize}px ${spec.font || "Inter,system-ui,sans-serif"}`;
+      ctx.fillStyle = spec.subtitleColor || withAlpha(spec.color || t.label, 0.72);
+      ctx.fillText(spec.subtitle, originX, y + size + gap);
+    }
+    ctx.textAlign = "start";
+    ctx.restore();
+  }
+
+  /** Logo or wordmark, so an exported asset comes out branded. */
+  _paintWatermark(t, w, h) {
+    const spec = this.o.watermark;
+    if (!spec) return;
+    const { ctx } = this;
+    const pad = spec.padding ?? 18;
+    const pos = spec.position || "bottom-right";
+    ctx.save();
+    ctx.globalAlpha = spec.opacity ?? 0.85;
+
+    if (spec.image) {
+      const media = this._markerImage(spec.image);
+      const size = media.ready && media.size();
+      if (size) {
+        const height = spec.height ?? Math.round(Math.min(w, h) * 0.07);
+        const width = (size[0] / size[1]) * height;
+        const [x, y] = this._anchor(pos, w, h, width, height, pad);
+        ctx.drawImage(media.element, x, y, width, height);
+      }
+    }
+    if (spec.text) {
+      const size = spec.size ?? Math.round(Math.min(w, h) * 0.032);
+      ctx.font = `${spec.weight ?? 700} ${size}px ${spec.font || "Inter,system-ui,sans-serif"}`;
+      const width = ctx.measureText(spec.text).width;
+      const offset = spec.image ? (spec.height ?? Math.round(Math.min(w, h) * 0.07)) + 8 : 0;
+      const [x, y] = this._anchor(pos, w, h, width, size + offset, pad);
+      ctx.fillStyle = spec.color || t.label;
+      ctx.fillText(spec.text, x, y + size + offset);
+    }
+    ctx.restore();
+  }
+
+  /**
+   * Neighbouring states carry their de-facto lines straight through Jammu and
+   * Kashmir, so everything but India is clipped to the area outside the
+   * official boundary. Painting India on top is not enough — at any stroked
+   * land style the claim line still shows through.
+   */
+  _clipOutsideIndia(trace, w, h) {
+    if (!this.india) return false;
+    const { ctx } = this;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, w, h);
+    trace(this.india);
+    ctx.clip("evenodd");
+    return true;
+  }
+
+  _paintCountries(t, trace, textured, w, h) {
     if (this.o.landStyle === "dots" || this.o.landStyle === "none") return;
     const { ctx } = this;
     const focus = this._focusSpec;
     const hasMedia = this._media.size > 0;
+    const clipped = this._clipOutsideIndia(trace, w, h);
 
     if (focus || hasMedia || this._choropleth()) {
       const dim = focus?.dim ?? 0.16;
@@ -3228,12 +3371,13 @@ class GeoGlobe {
         }
         ctx.restore();
       }
-      return;
+    } else {
+      ctx.beginPath();
+      for (const shape of this.world) trace(shape.geometry);
+      this._paintLand(t, t.land, textured);
     }
 
-    ctx.beginPath();
-    for (const shape of this.world) trace(shape.geometry);
-    this._paintLand(t, t.land, textured);
+    if (clipped) ctx.restore();
   }
 
   _outline(t, width) {
@@ -3261,13 +3405,16 @@ class GeoGlobe {
     ctx.restore();
   }
 
-  _paintHighlight(t, trace) {
+  _paintHighlight(t, trace, w, h) {
     if (!this._hoveredCountry) return;
     const { ctx } = this;
+    const clipped =
+      this._hoveredCountry === this._indiaShape ? false : this._clipOutsideIndia(trace, w, h);
     ctx.beginPath();
     trace(this._hoveredCountry.geometry);
     ctx.fillStyle = t.countryHover;
     ctx.fill();
+    if (clipped) ctx.restore();
   }
 
   /* --------------------------------- arcs --------------------------------- */
@@ -3513,7 +3660,7 @@ class GeoGlobe {
     };
 
     if (mode === "countries" || mode === "both") {
-      const shapes = [...this.world].sort((a, b) => {
+      const shapes = [...this._shapes()].sort((a, b) => {
         const ba = this._shapeBox(a), bb = this._shapeBox(b);
         return (bb[2] - bb[0]) * (bb[3] - bb[1]) - (ba[2] - ba[0]) * (ba[3] - ba[1]);
       });
@@ -3775,10 +3922,10 @@ class GeoGlobe {
       }
     }
 
-    this._paintCountries(t, trace, textured);
+    this._paintCountries(t, trace, textured, w, h);
     this._paintIndia(t, trace, textured);
     if (this.o.landStyle === "dots") this._paintDotsGlobe(cx, cy, r, t);
-    this._paintHighlight(t, trace);
+    this._paintHighlight(t, trace, w, h);
     if (this.o.terminator) this._paintTerminatorGlobe(cx, cy, r, t);
     ctx.restore();
 
@@ -3825,6 +3972,8 @@ class GeoGlobe {
     this._paintPings(t);
     this._paintLegend(t, w, h);
     this._paintCounter(t, w, h);
+    this._paintTitle(t, w, h);
+    this._paintWatermark(t, w, h);
     return hits;
   }
 
@@ -3873,10 +4022,10 @@ class GeoGlobe {
       }
     }
 
-    this._paintCountries(t, trace, textured);
+    this._paintCountries(t, trace, textured, w, h);
     this._paintIndia(t, trace, textured);
     if (this.o.landStyle === "dots") this._paintDotsMap(t, fwd, w, h);
-    this._paintHighlight(t, trace);
+    this._paintHighlight(t, trace, w, h);
     if (this.o.terminator) this._paintTerminatorMap(t, fwd, w, h, lonC);
 
     this._paintArcs(t, (lon, lat, _lift, prevLon) => {
@@ -3901,6 +4050,8 @@ class GeoGlobe {
     this._paintPings(t);
     this._paintLegend(t, w, h);
     this._paintCounter(t, w, h);
+    this._paintTitle(t, w, h);
+    this._paintWatermark(t, w, h);
     return hits;
   }
 

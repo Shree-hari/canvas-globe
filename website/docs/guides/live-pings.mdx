@@ -1,0 +1,138 @@
+---
+title: Live pings and tours
+description: Social proof, cinematic fly-throughs and scroll-linked stories.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Live pings and tours
+
+## Pings
+
+A one-shot expanding ring with an optional label — the "someone in Berlin just signed up" moment,
+with no backend.
+
+```js
+globe.ping({
+  lat: 52.52,
+  lon: 13.4,
+  emoji: "✨",
+  label: "Someone in Berlin just signed up",
+});
+```
+
+<GlobeDemo
+  options={{ preset: "hologram", rotateSpeed: 0.04 }}
+  controls={[
+    {
+      type: "action",
+      label: "Fire a ping",
+      action: (g) => {
+        const spots = [
+          [52.52, 13.4, "Berlin"], [23.03, 72.58, "Ahmedabad"], [-23.55, -46.63, "São Paulo"],
+          [35.68, 139.69, "Tokyo"], [40.71, -74.01, "New York"],
+        ];
+        const [lat, lon, name] = spots[Math.floor(Math.random() * spots.length)];
+        g.ping({ lat, lon, emoji: "✨", label: `Someone in ${name} just signed up` });
+      },
+    },
+    {
+      type: "action",
+      label: "Milestone burst",
+      action: (g) => g.ping({ lat: 23.03, lon: 72.58, label: "10,000 users 🎉", burst: 18, duration: 2800 }),
+    },
+    { type: "action", label: "Clear", action: (g) => g.clearPings() },
+  ]}
+/>
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `lat`, `lon` | required | Where |
+| `label`, `emoji` | — | Text shown in a pill above the point |
+| `color` | theme `live` | |
+| `rings` | `3` | Expanding rings |
+| `radius` | `46` | Peak radius in px |
+| `duration` | `2600` | Lifetime in ms |
+| `burst` | `false` | `true` for 14 particles, or a count |
+| `flyTo` | `false` | Centre the view on it |
+
+## A feed
+
+`pingFeed` replays a list on a timer and returns a handle.
+
+```js
+const feed = globe.pingFeed(events, { interval: 1800, loop: true });
+feed.stop();
+```
+
+Wire it to whatever you already have — a websocket, a polling endpoint, or a canned list for a
+landing page. The library takes no position on where events come from.
+
+```js
+socket.on("signup", (e) => {
+  globe.ping({ lat: e.lat, lon: e.lon, label: `${e.name} joined from ${e.city}` });
+});
+```
+
+## Tours
+
+Fly between points on a timer. Good for kiosks, demo videos and office dashboards.
+
+```js
+const tour = globe.tour(cities, { dwell: 2600, zoom: 2.2, loop: true });
+tour.stop();
+```
+
+<GlobeDemo
+  options={{ preset: "midnight", autoRotate: false, tooltip: true, markers: [
+    { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨" },
+    { city: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻" },
+    { city: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀" },
+    { city: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬" },
+  ] }}
+  controls={[
+    {
+      type: "action",
+      label: "Start tour",
+      action: (g) => g.tour([[72.58, 23.03], [-0.12, 51.5], [-74.01, 40.71], [139.69, 35.68]], { dwell: 2600, zoom: 2.2 }),
+    },
+    { type: "action", label: "Stop", action: (g) => g.stopTour() },
+  ]}
+/>
+
+Points accept `{ lat, lon }` or `[lon, lat]`. `onStep` fires on each hop, so you can sync a caption.
+
+## Scroll stories
+
+`story()` drives the view from an element's scroll progress. `center` and `zoom` interpolate between
+steps; every other key applies at the step boundary.
+
+```js
+globe.story(document.querySelector("#section"), [
+  { at: 0,   center: [0, 20],   zoom: 1 },
+  { at: 0.4, center: [72, 23],  zoom: 3, markers: indiaMarkers, preset: "hologram" },
+  { at: 0.8, center: [-74, 40], zoom: 2.5, preset: "midnight" },
+], {
+  onStep: (step, i) => setCaption(i),
+});
+
+globe.stopStory();
+```
+
+The element should be tall — that is what gives the scroll something to travel through:
+
+```css
+#section { height: 300vh; }
+#section canvas { position: sticky; top: 10vh; }
+```
+
+## Reduced motion
+
+All of this respects `prefers-reduced-motion`. Pulses hold still, arcs stop travelling, `flyTo`
+jumps instead of easing, and ping bursts do not fire. Set
+[`respectReducedMotion: false`](/api/options#accessibility) to opt out — but consider not to.
+
+## Cleaning up
+
+`destroy()` stops tours, stories, timelines and feeds. If you start them outside a component
+lifecycle, keep the handles and stop them yourself.

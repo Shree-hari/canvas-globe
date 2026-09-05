@@ -1,0 +1,175 @@
+---
+title: Waitlist milestone
+description: Celebrate hitting a number — a rolling counter, a confetti burst on the map and a shareable graphic, all from the same globe.
+keywords:
+  - waitlist counter
+  - milestone celebration animation
+  - 10000 users graphic
+  - signup goal progress
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Waitlist milestone
+
+"**We just crossed 10,000.**" It is the easiest post a startup ever writes and usually the worst
+looking one — a screenshot of a dashboard, or nothing at all. This turns the number into an event
+with a place attached, which is the difference between a stat and a story.
+
+<GlobeDemo
+  options={{
+    preset: "neon",
+    rotateSpeed: 0.06,
+    markerStyle: "dot",
+    counter: { value: 9847, label: "on the waitlist", position: "top-left" },
+    markers: [
+      { lat: 23.03, lon: 72.58 }, { lat: 12.97, lon: 77.59 }, { lat: 51.5, lon: -0.12 },
+      { lat: 40.71, lon: -74.01 }, { lat: 37.77, lon: -122.42 }, { lat: 52.52, lon: 13.4 },
+      { lat: 43.65, lon: -79.38 }, { lat: -23.55, lon: -46.63 }, { lat: 1.35, lon: 103.82 },
+      { lat: -33.87, lon: 151.21 }, { lat: 35.68, lon: 139.69 }, { lat: 25.2, lon: 55.27 },
+      { lat: -1.29, lon: 36.82 }, { lat: 6.52, lon: 3.38 },
+    ],
+    showViewer: { label: "You", live: true },
+  }}
+  controls={[
+    {
+      type: "action",
+      label: "Cross 10,000",
+      action: (g, say) => {
+        g.setOptions({ counter: { value: 10000, label: "on the waitlist", position: "top-left" } });
+        g.ping({ lat: 23.03, lon: 72.58, emoji: "🎉", label: "10,000 on the waitlist", burst: 26, flyTo: true });
+        say("Counter eases to the new value; the burst marks where it happened.");
+      },
+    },
+    {
+      type: "action",
+      label: "Reset",
+      action: (g) => {
+        g.clearPings();
+        g.setOptions({ counter: { value: 9847, label: "on the waitlist", position: "top-left" } });
+      },
+    },
+    { type: "select", label: "Look", option: "preset", values: ["neon", "aurora", "hologram", "midnight"] },
+  ]}
+  caption="The counter eases between values rather than snapping — that easing is most of the effect."
+/>
+
+## The code
+
+```js
+import { createGlobe } from "@swiftools/geo-globe";
+
+const globe = createGlobe(canvas, {
+  preset: "neon",
+  rotateSpeed: 0.06,
+  markers: signupCities,
+  markerStyle: "dot",
+  counter: { value: total, label: "on the waitlist" },
+  showViewer: { label: "You", live: true },
+});
+
+// When the number lands.
+function celebrate(signup) {
+  globe.setOptions({ counter: { value: 10000, label: "on the waitlist" } });
+  globe.ping({
+    lat: signup.lat,
+    lon: signup.lon,
+    emoji: "🎉",
+    label: `${signup.city} made it 10,000`,
+    burst: 26,
+    flyTo: true,
+  });
+}
+```
+
+## The three moving parts
+
+**The counter eases.** `counter` interpolates from the old value to the new one over roughly a
+second. A number that rolls reads as *live*; a number that snaps reads as a page refresh. You get
+this for free by calling `setOptions` with a new value rather than re-creating the globe.
+
+**The burst is a ping, not a marker.** `burst: 26` throws particles out of the point and fades. It
+is loud on purpose and it should be rare — once per milestone, not once per signup. See
+[Live pings](/guides/live-pings).
+
+**`flyTo` moves the camera.** The globe rotates so the celebrated point is facing the viewer. Use it
+for the one signup that crossed the line; never for a feed, or the globe never settles.
+
+## Progress, not just arrival
+
+Most of the value is in the week *before* the milestone. Show the gap:
+
+```js
+const goal = 10000;
+
+globe.setOptions({
+  counter: {
+    value: total,
+    label: `of ${goal.toLocaleString()} · ${Math.round((total / goal) * 100)}% there`,
+    format: (n) => Math.round(n).toLocaleString(),
+  },
+});
+```
+
+A visible target is the oldest conversion trick there is, and it still works because it gives a
+visitor a reason to act *now* rather than bookmark you.
+
+:::caution Do not fake the gap
+Sitting the counter at "9,847 of 10,000" for three weeks is transparent, and the people most likely
+to notice are the ones you want. If growth is slow, show the total without the goal.
+:::
+
+## The graphic
+
+The whole reason to build this is the post. Bake the headline in and export:
+
+```js
+globe.setOptions({
+  title: { text: "10,000 people are waiting", subtitle: "Thank you. Doors open in March." },
+  watermark: { image: "/logo.svg", text: "acme.com" },
+});
+
+const png = globe.exportImage({ preset: "og" });
+```
+
+For a moving version, record the celebration itself — the counter rolling and the burst firing is a
+far better six seconds than a static card:
+
+```js
+const { promise } = globe.record({ duration: 6000, filename: "10k.webm" });
+celebrate(latestSignup);
+await promise;
+```
+
+See [Exporting](/guides/exporting) for browser support and how to convert WebM to MP4.
+
+## Milestones worth marking
+
+Not every round number deserves a globe. The ones that land:
+
+| Milestone | Why it works |
+| --- | --- |
+| First customer on a new continent | Genuinely new information |
+| Nth country | Reach, not size — small numbers still impress |
+| A round user number | Only if the number is actually large for your category |
+| Anniversary | Pair it with growth over the year via [`playTimeline`](/guides/overlays) |
+| Funding | The map answers "what will you do with it" better than the amount does |
+
+What does not work: celebrating 1,000 signups twice because the first post did well, or picking a
+metric because it happens to be round. Pick the milestone before you hit it.
+
+## Accessibility
+
+A burst of particles and a rolling number are exactly what `prefers-reduced-motion` exists for. The
+library already honours it — rotation stops, transitions become instant — but announce the number
+in text too, because a canvas counter is invisible to a screen reader:
+
+```html
+<p class="sr-only" aria-live="polite">10,000 people on the waitlist</p>
+```
+
+## Next
+
+- [Live pings](/guides/live-pings) — bursts, feeds and camera moves
+- [Overlays](/guides/overlays) — the `counter`, `title` and `watermark` reference
+- [Social share card generator](/examples/social-card) — turning the moment into an image

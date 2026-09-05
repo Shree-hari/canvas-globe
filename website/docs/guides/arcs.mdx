@@ -1,0 +1,125 @@
+---
+title: Arcs
+description: Animated great-circle connections that bow over the surface.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Arcs
+
+Arcs connect two coordinates along the **great circle** — the actual shortest path across a sphere,
+which is why a New York to Tokyo route bends over the Arctic rather than running straight across the
+Pacific.
+
+```js
+globe.setArcs([
+  { from: { lat: 23.03, lon: 72.58 }, to: [-0.12, 51.5] },
+  { from: [72.58, 23.03], to: [139.69, 35.68], color: "#f97316", duration: 3200 },
+]);
+```
+
+Endpoints accept either `{ lat, lon }` or `[lon, lat]`.
+
+<GlobeDemo
+  options={{
+    preset: "blueprint",
+    arcs: [
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: 51.5, lon: -0.12 } },
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: 40.71, lon: -74.01 }, duration: 2800 },
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: 35.68, lon: 139.69 }, duration: 3200 },
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: -33.87, lon: 151.21 }, duration: 3600 },
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: -23.55, lon: -46.63 }, duration: 2400 },
+    ],
+    markers: [{ lat: 23.03, lon: 72.58, count: 5, emoji: "🏠" }],
+  }}
+  controls={[
+    { type: "range", label: "arcLift", option: "arcLift", min: 0, max: 0.7, step: 0.02 },
+    { type: "range", label: "arcSpeed", option: "arcSpeed", min: 0.2, max: 3, step: 0.1 },
+    { label: "Spin", option: "autoRotate" },
+  ]}
+  caption="Watch an arc pass behind the globe — it is clipped at the horizon, not drawn over the top."
+/>
+
+## Options per arc
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `from`, `to` | required | `{ lat, lon }` or `[lon, lat]` |
+| `color` | theme `arc` | Stroke colour |
+| `headColor` | `color` | Colour of the travelling segment |
+| `icon` | — | Emoji drawn at the head instead of a dot |
+| `width` | `1.6` | Line width in px |
+| `lift` | `arcLift` (`0.28`) | Peak height as a fraction of the globe radius |
+| `steps` | `72` | Great-circle sample count |
+| `duration` | `2400` | Milliseconds for one travel cycle |
+| `headLength` | `0.22` | Length of the moving segment, `0…1` |
+| `baseAlpha` | `0.28` | Opacity of the static base line |
+| `animate` | `true` | `false` draws a plain static line |
+
+## A travelling icon
+
+Give an arc an `icon` and the comet head becomes a glyph — a plane for routes, a parcel for
+logistics, a bolt for events.
+
+<GlobeDemo
+  options={{
+    preset: "atlas",
+    arcs: [
+      { from: [72.58, 23.03], to: [-0.12, 51.5], icon: "✈️", duration: 4200, width: 2 },
+      { from: [-74.01, 40.71], to: [139.69, 35.68], icon: "📦", duration: 5200, width: 2 },
+    ],
+    autoRotate: false,
+    center: { lon: 40, lat: 35 },
+  }}
+/>
+
+## Height
+
+`lift` bows the arc away from the surface. The projection is genuinely three-dimensional: a lifted
+point stays visible slightly past the horizon, exactly as a real object at altitude would.
+
+| Lift | Reads as |
+| --- | --- |
+| `0` | Drawn flat on the surface |
+| `0.28` *(default)* | A confident flight path |
+| `0.5+` | Dramatic, good for hero graphics |
+
+## Static arcs
+
+For a printed or exported graphic, turn the animation off. The full line is drawn at solid opacity.
+
+```js
+arcs: [{ from, to, animate: false, width: 2 }];
+```
+
+Arcs also hold still automatically when the visitor prefers reduced motion.
+
+## On a flat map
+
+Arcs follow the same great circle in map mode, so they curve — which is correct, and is what makes a
+route map read as a route map. Paths that cross the antimeridian are split cleanly rather than
+streaking back across the world.
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    preset: "midnight",
+    arcs: [
+      { from: [-122.42, 37.77], to: [139.69, 35.68], duration: 3400 },
+      { from: [139.69, 35.68], to: [151.21, -33.87], duration: 2600 },
+      { from: [-0.12, 51.5], to: [72.58, 23.03], duration: 3000 },
+    ],
+  }}
+/>
+
+## Performance
+
+Sample points are cached per arc **object**, so keep your arc array stable between frames rather
+than rebuilding it inline. If you regenerate arcs on every render the cache misses every time and
+the great circle is recomputed.
+
+```js
+// Good: build once, pass the same array
+const arcs = routes.map(toArc);
+globe.setArcs(arcs);
+```

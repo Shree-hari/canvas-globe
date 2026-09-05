@@ -1,0 +1,177 @@
+---
+title: Event and webinar registrations
+description: A registration map that fills up as the countdown runs — for webinars, conferences, launch days and community meetups.
+keywords:
+  - webinar registration map
+  - event attendee map
+  - conference globe
+  - meetup locations map
+  - live event countdown
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Event and webinar registrations
+
+Registration pages have one job and a hard deadline. The thing that moves the number is not another
+bullet point about the agenda — it is evidence that other people are going. A map that visibly fills
+up over the two weeks before the event does that better than a counter alone, because it also
+answers "will anyone be awake in my time zone".
+
+<GlobeDemo
+  options={{
+    preset: "midnight",
+    rotateSpeed: 0.05,
+    markerStyle: "bubble",
+    markerScale: 0.85,
+    tooltip: true,
+    cluster: true,
+    counter: { value: 1284, label: "registered", position: "top-left" },
+    markers: [
+      { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 96, date: "2024-05-02" },
+      { city: "Bengaluru", lat: 12.97, lon: 77.59, count: 84, date: "2024-05-02" },
+      { city: "London", lat: 51.5, lon: -0.12, count: 71, date: "2024-05-04" },
+      { city: "New York", lat: 40.71, lon: -74.01, count: 64, date: "2024-05-05" },
+      { city: "San Francisco", lat: 37.77, lon: -122.42, count: 58, date: "2024-05-06" },
+      { city: "Berlin", lat: 52.52, lon: 13.4, count: 41, date: "2024-05-07" },
+      { city: "Toronto", lat: 43.65, lon: -79.38, count: 34, date: "2024-05-08" },
+      { city: "São Paulo", lat: -23.55, lon: -46.63, count: 29, date: "2024-05-09" },
+      { city: "Singapore", lat: 1.35, lon: 103.82, count: 27, date: "2024-05-10" },
+      { city: "Sydney", lat: -33.87, lon: 151.21, count: 22, date: "2024-05-11" },
+      { city: "Tokyo", lat: 35.68, lon: 139.69, count: 19, date: "2024-05-12" },
+      { city: "Nairobi", lat: -1.29, lon: 36.82, count: 12, date: "2024-05-13" },
+    ],
+    showViewer: { label: "You", live: true },
+  }}
+  controls={[
+    { type: "action", label: "Play the fortnight", action: (g, say) => { g.playTimeline({ duration: 6000, loop: true }); say("Markers appear as their registration date arrives."); } },
+    { type: "action", label: "Stop", action: (g) => { g.stopTimeline(); g.setTimelineAt(null); } },
+    { type: "select", label: "Look", option: "preset", values: ["midnight", "aurora", "hologram", "neon"] },
+  ]}
+  caption="Press play to watch two weeks of registrations land."
+/>
+
+## The code
+
+```jsx
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Globe } from "@swiftools/geo-globe/react";
+
+export function RegistrationGlobe({ attendees, total }) {
+  const globe = useRef(null);
+
+  useEffect(() => {
+    const id = setInterval(async () => {
+      const { cities, total } = await fetch("/api/event/registrations").then((r) => r.json());
+      globe.current?.setMarkers(cities);
+      globe.current?.setOptions({ counter: { value: total, label: "registered" } });
+    }, 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <Globe
+      ref={globe}
+      preset="midnight"
+      rotateSpeed={0.05}
+      markers={attendees}
+      markerStyle="bubble"
+      cluster
+      counter={{ value: total, label: "registered" }}
+      showViewer={{ label: "You", live: true }}
+      tooltip={(m) => `${m.city} — ${m.count} attending`}
+    />
+  );
+}
+```
+
+## The time-zone problem
+
+For a live webinar, "where are the attendees" and "what time is this for them" are the same
+question. Turn the terminator on and the map answers it without a table of conversions:
+
+```js
+{
+  terminator: true,
+  time: new Date("2024-05-16T15:00:00Z"),   // the event start, not now
+}
+```
+
+Anyone in the shaded half is being asked to attend at night. If that is a large share of your
+registrations, run a second session — the map just made the business case for you.
+
+See [Overlays](/guides/overlays) for day/night shading.
+
+## Replaying the run-up
+
+`playTimeline` reveals markers as their `date` arrives, which turns a registration list into a
+fourteen-second clip you can post the day before:
+
+```js
+const markers = registrations.map((r) => ({ ...r, date: r.registeredAt }));
+
+globe.setMarkers(markers);
+globe.playTimeline({ duration: 6000, loop: true });
+```
+
+With no `from`/`to` it derives the range from the data. Record it and you have the reminder post:
+
+```js
+const { promise } = globe.record({ duration: 7000, filename: "registrations.webm" });
+globe.playTimeline({ duration: 6000 });
+await promise;
+```
+
+## During the event
+
+The same globe does a second job on the day. Swap the counter to attendance and ping questions as
+they come in:
+
+```js
+socket.on("question", ({ name, city, lat, lon }) => {
+  globe.ping({ lat, lon, emoji: "🙋", label: `${name} from ${city} asked a question` });
+});
+```
+
+On a shared screen between sessions this is genuinely good filler — it shows the room how far the
+audience reaches, and it costs nothing to run.
+
+## After the event
+
+Do not throw it away. The map is now an asset for the *next* event:
+
+```js
+globe.setOptions({
+  title: { text: "1,284 people joined from 47 countries", subtitle: "Thanks for coming" },
+  watermark: { image: "/logo.svg", text: "acme.com/events" },
+  counter: null,
+});
+const png = globe.exportImage({ preset: "og" });
+```
+
+That image goes on the recording page, in the follow-up email, and at the top of next quarter's
+registration page — where it is the social proof this whole page is about.
+
+## Community meetups
+
+Same shape, different data. For a user group or a conference roadshow, mark the cities you are
+visiting and let people click through:
+
+```js
+{
+  markers: cities.map((c) => ({ ...c, label: `${c.name} · ${c.date}`, live: c.next })),
+  labels: "markers",
+  onClick: (m) => m && router.push(`/events/${m.slug}`),
+}
+```
+
+`live: true` on the next stop makes it pulse — one pulsing dot on a still map is a very strong
+"click here".
+
+## Next
+
+- [Overlays](/guides/overlays) — timeline, counter, terminator
+- [Live signup social proof](/examples/live-signups) — the always-on version
+- [Social share card generator](/examples/social-card) — the wrap-up graphic

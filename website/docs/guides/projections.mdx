@@ -1,0 +1,118 @@
+---
+title: Projections and zoom
+description: Globe, three flat projections, panning, and crossing the dateline.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Projections and zoom
+
+## Two modes
+
+| `mode` | What you get |
+| --- | --- |
+| `"globe"` *(default)* | Orthographic sphere. Drag to spin, momentum carries |
+| `"map"` | Flat map. Drag to pan, wraps past the antimeridian |
+
+## Three flat projections
+
+<GlobeDemo
+  options={{ mode: "map", graticule: true, autoRotate: false, preset: "atlas" }}
+  controls={[
+    { type: "select", label: "Projection", option: "projection", values: ["equirectangular", "mercator", "naturalEarth"] },
+    { label: "Grid", option: "graticule" },
+  ]}
+  caption="Meridians are sampled, so they bend correctly under Mercator and Natural Earth."
+/>
+
+| Projection | Character |
+| --- | --- |
+| `equirectangular` *(default)* | Longitude and latitude map linearly. Simple, slightly stretched at the poles |
+| `mercator` | Familiar web-map look. Preserves angles, exaggerates polar area badly |
+| `naturalEarth` | A compromise projection. Rounded, pleasant, good for print-style graphics |
+
+Each canvas ratio suits one projection — see [Sizing the canvas](/getting-started/sizing).
+
+## Latitude window
+
+`latRange` is `[north, south]` and defaults to `[83, -56]`, which trims the polar caps where almost
+nobody lives.
+
+```js
+latRange: [90, -90];   // full height, includes Antarctica
+```
+
+:::caution Markers outside the window
+With the default range, a marker south of −56° or north of 83° projects outside the drawn map.
+`project()` correctly reports `visible: false`, but nothing else warns you. Widen `latRange` if you
+plot research stations.
+:::
+
+## Zoom
+
+```js
+globe.setZoom(3);
+globe.zoomBy(1.4);
+globe.fitTo([68, 6, 98, 36]);      // [west, south, east, north]
+globe.fitToMarkers();
+```
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `zoom` | `1` | Starting zoom |
+| `minZoom` | `1` | Lower bound |
+| `maxZoom` | `8` | Upper bound |
+| `zoomable` | `true` | Wheel and pinch |
+
+Wheel zoom in map mode is **anchored to the pointer** — the coordinate under the cursor stays put.
+On the globe, zoom is about the centre, because rotation already does the panning.
+
+<GlobeDemo
+  options={{ mode: "map", autoRotate: false, maxZoom: 20 }}
+  controls={[
+    { type: "action", label: "Fit India", action: (g) => g.fitTo([68, 6, 98, 36]) },
+    { type: "action", label: "Fit Japan", action: (g) => g.fitTo([129, 31, 146, 46]) },
+    { type: "action", label: "Cross the dateline", action: (g) => g.setZoom(4).flyTo(179, -17) },
+    { type: "action", label: "Reset", action: (g) => g.setZoom(1).flyTo(10, 20) },
+  ]}
+  caption="Scroll to zoom — the point under the cursor stays fixed."
+/>
+
+## Crossing the antimeridian
+
+Once the world is wider than the viewport, horizontal panning is unbounded and the map wraps. Fiji
+at 178°E and Samoa at 172°W render side by side, as they should.
+
+Internally, longitudes are wrapped around the **visible centre**, which puts the seam half a world
+away — off screen whenever you are zoomed in. At zoom 1 the seam sits at ±180°, the natural map edge.
+
+`fitToMarkers()` understands this too: it picks the shortest longitude arc covering your points, so
+a set straddling the dateline frames tightly instead of zooming out to the whole world.
+
+## Flying
+
+```js
+globe.flyTo(139.69, 35.68);                        // eased, damped spring
+globe.flyTo(139.69, 35.68, { instant: true });     // jump
+globe.flyTo(139.69, 35.68, { zoom: 4 });           // and change zoom
+```
+
+`flyTo` jumps rather than eases when the visitor prefers reduced motion.
+
+## Coordinates in and out
+
+```js
+globe.project(lon, lat);    // → { x, y, visible } or null if behind the globe
+globe.unproject(x, y);      // → [lon, lat] or null if the pointer missed
+globe.getCenter();          // → { lon, lat }
+```
+
+Both speak CSS pixels. `project` is exact to floating point — the pixel position matches the
+closed-form projection, so a marker sits precisely where you put it.
+
+:::info The coastline is the approximation, not your marker
+Bundled geometry is Natural Earth 1:110m, decimated to about 5 km. A harbourside marker can look
+slightly offshore because the drawn shoreline moved, not the dot. Natural Earth 1:110m also omits
+microstates such as Singapore and Malta. Pass higher-detail GeoJSON via
+[`world`](/api/options#geometry) if that matters.
+:::

@@ -125,6 +125,8 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `countryMedia` | — | Media clipped to each country, keyed by ISO, id or name |
 | `scene` | — | Whole composition — preset plus the layers a job needs |
 | `counter` | — | `{ value, label, format, position }` rolling headline number |
+| `title` | — | `{ text, subtitle, position }` headline painted onto the canvas |
+| `watermark` | — | `{ image, text, position, opacity }` logo baked into every export |
 | `annotations` | — | `[{ lat, lon, text, dx, dy }]` leader-line callouts |
 | `timeline` | — | `{ at }` — hides markers whose `date` has not arrived |
 | `transparentBackground` | `false` | Skip the ocean fill so exports keep an alpha channel |
@@ -161,7 +163,7 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `arcSpeed` | `1` | Multiplies every arc's travel speed |
 | `radiusRatio` | `0.4` | Globe radius vs the smaller canvas side |
 | `latRange` | `[83, -56]` | Map mode north/south bounds |
-| `officialIndia` | `true` | Draw India per the Survey of India boundary |
+| `officialIndia` | `true` | Use the Survey of India boundary instead of the source data's India |
 | `world` / `india` | bundled | Your own GeoJSON |
 | `fps` | `30` | Frame cap |
 | `tooltip` | `false` | `true`, or `(target, kind) => string` |
@@ -360,6 +362,8 @@ Switching scenes resets every key the new scene does not set, so nothing leaks b
 ```js
 createGlobe(canvas, {
   counter: { value: 21947, label: "customers worldwide" },   // rolls when it changes
+  title: { text: "Trusted in 68 countries", subtitle: "Join 21,947 teams" },
+  watermark: { image: "/logo.svg", text: "acme.com" },       // baked into every export
   annotations: [{ lat: 23.03, lon: 72.58, text: "HQ — Ahmedabad" }],
   timeline: { at: "2024-06-01" },                            // hides later markers
 });
@@ -561,9 +565,18 @@ drawn, so a typical globe frame skips 20–60% of the world. On a laptop a 560 p
 ## India's boundary
 
 Natural Earth depicts de-facto administrative lines, which do not match India's official map. This
-package layers Datameet's CC-0 `india-composite` geometry — India's land area including disputed
-territories, per the official Survey of India boundary — over the base map, hiding the conflicting
-lines. Disable with `officialIndia: false`.
+package ships Datameet's CC-0 `india-composite` geometry — India's land area including disputed
+territories, per the official Survey of India boundary — and uses it instead of the source shape.
+
+Two things make that hold up at every land style:
+
+- **Natural Earth's India is dropped**, so there is no second outline crossing Jammu and Kashmir.
+- **Neighbouring countries are clipped to the area outside the official boundary**, so their claim
+  lines cannot stroke across it. Painting India on top only hides their fills, not their strokes —
+  which is why `outline`, `glow` and the `noir` / `blueprint` / `neon` presets need the clip.
+
+India is therefore not in `globe.world`; use `globe._shapes()` for every painted country. Disable
+the whole behaviour with `officialIndia: false`, or supply your own geometry via `india`.
 
 ## Data & licences
 
@@ -580,7 +593,12 @@ Regenerate the bundled data any time with `npm run data`.
 npm test        # node --test, no test framework to install
 npm run build   # dist/geo-globe.umd.js, with a gzipped size budget
 npm run example # demo at http://localhost:8099
+npm run docs    # documentation site at http://localhost:3000
 ```
+
+The documentation site lives in `website/` and is built with Docusaurus. It links the package with
+`file:..`, so every demo on it runs the live source rather than a published build. Install its
+dependencies separately with `npm --prefix website install`.
 
 ## Browser support
 

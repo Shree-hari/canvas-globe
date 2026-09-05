@@ -1,0 +1,119 @@
+---
+title: Your first globe
+description: From an empty canvas to an interactive globe with markers.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Your first globe
+
+## One canvas, one call
+
+`createGlobe` takes a `<canvas>` and an options object. That is the entire setup.
+
+```html
+<canvas id="globe" style="width: 480px; aspect-ratio: 1"></canvas>
+```
+
+```js
+import { createGlobe } from "@swiftools/geo-globe";
+
+const globe = createGlobe(document.querySelector("#globe"), {
+  markers: [{ lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true }],
+});
+```
+
+<GlobeDemo
+  options={{
+    markers: [{ name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true }],
+    center: { lon: 72, lat: 23 },
+  }}
+  caption="That is the code above, running."
+/>
+
+:::warning Size the canvas with CSS, not attributes
+Give the element a width and an `aspect-ratio` in CSS. geo-globe reads the rendered size, sets the
+backing store for the device pixel ratio, and re-reads it whenever the element resizes. Setting
+`width="480"` as an HTML attribute will look blurry on retina screens.
+:::
+
+## Add some data
+
+A marker needs `lat` and `lon`. Everything else is optional and comes straight back to your
+callbacks, so you can hang whatever you like on it.
+
+```js
+const globe = createGlobe(canvas, {
+  markers: [
+    { lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true, city: "Ahmedabad" },
+    { lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻", city: "London" },
+    { lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀", city: "New York" },
+  ],
+  tooltip: (m) => `${m.city} — ${m.count} people`,
+  onClick: (m) => globe.flyTo(m.lon, m.lat, { zoom: 2.5 }),
+});
+```
+
+<GlobeDemo
+  options={{
+    markers: [
+      { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true },
+      { city: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻" },
+      { city: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀" },
+      { city: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬" },
+    ],
+    tooltip: true,
+  }}
+  caption="Hover a marker for the built-in tooltip."
+/>
+
+## Switch to a flat map
+
+Same instance, same markers — one option.
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    markers: [
+      { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨" },
+      { city: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻" },
+      { city: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀" },
+      { city: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬" },
+    ],
+    tooltip: true,
+  }}
+  controls={[
+    { type: "select", label: "Mode", option: "mode", values: ["map", "globe"] },
+    { type: "select", label: "Projection", option: "projection", values: ["equirectangular", "mercator", "naturalEarth"] },
+  ]}
+  caption="Map mode needs a wider canvas — see Sizing the canvas."
+/>
+
+## Drive it afterwards
+
+Every method returns the instance, so calls chain.
+
+```js
+globe
+  .setMarkers(next)
+  .setTheme("midnight")
+  .flyTo(139.69, 35.68, { zoom: 3 });
+```
+
+## Clean up
+
+If your framework unmounts the canvas, destroy the instance. It cancels the animation frame, removes
+listeners, and releases the tooltip, live region and any media.
+
+```js
+globe.destroy();
+```
+
+The [React component](/integrations/react) and [custom element](/integrations/web-component) do this
+for you.
+
+## Next
+
+- [Sizing the canvas](./sizing) — the one thing that trips people up
+- [Markers](/guides/markers) — weights, emoji, logos, avatars
+- [Looks and presets](/guides/looks) — make it match your brand

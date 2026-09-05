@@ -1,0 +1,217 @@
+---
+title: Social share card generator
+description: Generate OG images, LinkedIn cards and story graphics from real data — headline, logo and globe baked into one PNG by a single call to exportImage.
+keywords:
+  - generate og image
+  - social share card generator
+  - twitter card image map
+  - open graph image from canvas
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Social share card generator
+
+Marketing teams burn hours making the same graphic over and over: a globe, a number, a headline, the
+logo bottom-right. This makes it **one function call**, driven by live data, at whatever size the
+platform wants.
+
+The two pieces that make it work are [`title`](/guides/overlays) and
+[`watermark`](/guides/overlays) — both are painted onto the canvas, so the exported PNG is finished
+art rather than something you still have to take into a design tool.
+
+<GlobeDemo
+  options={{
+    preset: "aurora",
+    rotateSpeed: 0.05,
+    radiusRatio: 0.36,
+    center: { lon: 20, lat: 18 },
+    title: {
+      text: "Now in 68 countries",
+      subtitle: "21,947 teams shipping with Acme",
+      position: "top-center",
+      size: 34,
+    },
+    watermark: { text: "acme.com", position: "bottom-right", size: 15 },
+    markerStyle: "dot",
+    markers: [
+      { lat: 23.03, lon: 72.58 }, { lat: 12.97, lon: 77.59 }, { lat: 51.5, lon: -0.12 },
+      { lat: 40.71, lon: -74.01 }, { lat: 37.77, lon: -122.42 }, { lat: 52.52, lon: 13.4 },
+      { lat: 43.65, lon: -79.38 }, { lat: -23.55, lon: -46.63 }, { lat: 1.35, lon: 103.82 },
+      { lat: -33.87, lon: 151.21 }, { lat: 35.68, lon: 139.69 }, { lat: 25.2, lon: 55.27 },
+      { lat: -1.29, lon: 36.82 }, { lat: 6.52, lon: 3.38 }, { lat: 19.43, lon: -99.13 },
+    ],
+  }}
+  controls={[
+    { type: "select", label: "Look", option: "preset", values: ["aurora", "midnight", "neon", "hologram", "noir", "atlas"] },
+    { type: "select", label: "Headline", option: "title.position", values: ["top-center", "top-left", "bottom-left", "bottom-center"] },
+    { type: "select", label: "Watermark", option: "watermark.position", values: ["bottom-right", "bottom-left", "top-right"] },
+    {
+      type: "action",
+      label: "Download OG image",
+      action: (g, say) => {
+        const a = document.createElement("a");
+        a.href = g.exportImage({ preset: "og" });
+        a.download = "share-card.png";
+        a.click();
+        say("Saved share-card.png — 1200 × 630, headline and watermark included.");
+      },
+    },
+    {
+      type: "action",
+      label: "Download story",
+      action: (g, say) => {
+        const a = document.createElement("a");
+        a.href = g.exportImage({ preset: "story" });
+        a.download = "share-story.png";
+        a.click();
+        say("Saved share-story.png — 1080 × 1920.");
+      },
+    },
+  ]}
+  caption="The download is rendered off-screen at full size. What you see here is a preview, not the export."
+/>
+
+## The code
+
+```js
+import { createGlobe } from "@swiftools/geo-globe";
+
+function shareCard({ countries, teams, markers }) {
+  const canvas = document.createElement("canvas");
+
+  const globe = createGlobe(canvas, {
+    preset: "aurora",
+    autoRotate: false,
+    interactive: false,
+    center: { lon: 20, lat: 18 },
+    radiusRatio: 0.36,
+
+    markers,
+    markerStyle: "dot",
+
+    title: {
+      text: `Now in ${countries} countries`,
+      subtitle: `${teams.toLocaleString()} teams shipping with Acme`,
+      position: "top-center",
+    },
+    watermark: { image: "/logo.svg", text: "acme.com", position: "bottom-right" },
+  });
+
+  const png = globe.exportImage({ preset: "og" });   // 1200 × 630 data URL
+  globe.destroy();
+  return png;
+}
+```
+
+`exportImage` renders **one frame off-screen** at the requested size — it does not touch the visible
+canvas, so you can generate a 1200 × 630 card from a globe that is 320 px wide on screen.
+
+## Sizes
+
+| Preset | Pixels | For |
+| --- | --- | --- |
+| `og` | 1200 × 630 | Open Graph — Facebook, Slack, LinkedIn unfurls |
+| `twitter` | 1600 × 900 | X / Twitter summary card |
+| `linkedin` | 1200 × 627 | LinkedIn posts |
+| `square` | 1080 × 1080 | Instagram feed |
+| `story` | 1080 × 1920 | Instagram and LinkedIn stories |
+| `portrait` | 1080 × 1350 | Instagram portrait |
+| `wide` | 1920 × 1080 | Slides and video thumbnails |
+| `thumbnail` | 640 × 640 | Cards inside your own app |
+
+Or ask for exact pixels: `globe.exportImage({ width: 2400, height: 1260 })`.
+
+:::tip Type scales with the canvas
+`title.size` and `watermark.size` default to a fraction of the smaller canvas side, so one config
+produces sensible type at 630 px and at 1920 px. Only set explicit sizes when you are targeting a
+single output.
+:::
+
+## Cards per page, per customer, per week
+
+The point of generating these is that you can make thousands.
+
+**Per marketing page** — a different centre and headline for each geo landing page:
+
+```js
+const card = shareCard({
+  countries: region.countries,
+  teams: region.teams,
+  markers: region.cities,
+});
+```
+
+**Per customer, in-product** — the "your year with us" graphic people actually post:
+
+```js
+globe.setOptions({
+  title: { text: `${user.name} visited 14 countries`, subtitle: "2024 in review" },
+  watermark: { image: "/logo.svg", text: "acme.com" },
+  markers: user.trips,
+});
+const blob = await globe.exportBlob({ preset: "square" });
+```
+
+Then hand it straight to the share sheet — no upload round trip:
+
+```js
+const file = new File([blob], "2024.png", { type: "image/png" });
+if (navigator.canShare?.({ files: [file] })) {
+  await navigator.share({ files: [file], title: "My 2024" });
+}
+```
+
+**Weekly, in CI** — regenerate the OG image from live numbers so the unfurl is never stale.
+
+## Build-time and server-side
+
+`exportImage` needs a `document`, so it returns `null` in plain Node. Two ways round it:
+
+```js
+// 1. Headless browser at build time — the reliable option.
+const png = await page.evaluate(() => window.globe.exportImage({ preset: "og" }));
+await fs.writeFile("static/og/index.png", Buffer.from(png.split(",")[1], "base64"));
+```
+
+```js
+// 2. A DOM shim, if your host allows it.
+import { JSDOM } from "jsdom";
+// …provide document + a canvas implementation before importing the package.
+```
+
+For most teams option 1 inside a Playwright script is a twenty-line build step and it produces
+exactly what a browser produces.
+
+## Transparent exports
+
+If the card is going into a design template that already has a background, drop the ocean fill:
+
+```js
+globe.exportImage({ preset: "square", transparent: true });
+```
+
+Set `transparentBackground: true` on the live globe too if it sits on a coloured section.
+
+## Why bake the text in?
+
+The obvious alternative is HTML text over the canvas, which is better for accessibility and
+selectable copy. Do that **on the page**. But an OG image is a single flat PNG — there is no HTML
+layer at the other end. Anything not on the canvas is not in the card.
+
+So: HTML headline for the live page, `title` for the export. Setting both and hiding one is a
+perfectly reasonable amount of work for a graphic that goes out ten thousand times.
+
+```js
+// Live page: HTML heading, no canvas title.
+// Export: swap it in for one frame.
+globe.setOptions({ title: { text: headline, subtitle } });
+const png = globe.exportImage({ preset: "og" });
+globe.setOptions({ title: null });
+```
+
+## Next
+
+- [Exporting](/guides/exporting) — every size, transparency and video recording
+- [Overlays](/guides/overlays) — the full `title` and `watermark` reference
+- [Year in review](/examples/year-in-review) — the animated version of the same idea

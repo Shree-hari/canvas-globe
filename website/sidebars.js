@@ -1,0 +1,80 @@
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
+const sidebars = {
+  docs: [
+    "intro",
+    {
+      type: "category",
+      label: "Getting started",
+      collapsed: false,
+      items: [
+        "getting-started/installation",
+        "getting-started/first-globe",
+        "getting-started/no-build",
+        "getting-started/sizing",
+      ],
+    },
+    {
+      type: "category",
+      label: "Examples",
+      collapsed: false,
+      link: { type: "doc", id: "examples/index" },
+      items: [
+        "examples/saas-landing",
+        "examples/customer-map",
+        "examples/live-signups",
+        "examples/logo-map",
+        "examples/team-map",
+        "examples/launch-video",
+        "examples/social-card",
+        "examples/waitlist-milestone",
+        "examples/coverage-dashboard",
+        "examples/status-page",
+        "examples/shipping-routes",
+        "examples/store-locator",
+        "examples/event-map",
+        "examples/year-in-review",
+      ],
+    },
+    {
+      type: "category",
+      label: "Guides",
+      collapsed: false,
+      items: [
+        "guides/markers",
+        "guides/clustering",
+        "guides/arcs",
+        "guides/choropleth",
+        "guides/projections",
+        "guides/looks",
+        "guides/country-canvas",
+        "guides/viewer-location",
+        "guides/live-pings",
+        "guides/overlays",
+        "guides/motion",
+        "guides/data",
+        "guides/exporting",
+        "guides/accessibility",
+        "guides/performance",
+      ],
+    },
+    {
+      type: "category",
+      label: "Integrations",
+      items: ["integrations/react", "integrations/web-component", "integrations/vanilla"],
+    },
+    {
+      type: "category",
+      label: "API reference",
+      items: [
+        "api/options",
+        "api/methods",
+        "api/callbacks",
+        "api/helpers",
+        "api/themes-presets-scenes",
+      ],
+    },
+    "troubleshooting",
+  ],
+};
+
+export default sidebars;

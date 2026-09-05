@@ -275,6 +275,44 @@ export interface CounterSpec {
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
+export type OverlayPosition =
+  | "top-left" | "top-center" | "top-right"
+  | "bottom-left" | "bottom-center" | "bottom-right";
+
+export interface TitleSpec {
+  text: string;
+  subtitle?: string;
+  /** Defaults to 6.2% of the smaller canvas side. */
+  size?: number;
+  /** Defaults to 42% of `size`. */
+  subtitleSize?: number;
+  weight?: number | string;
+  font?: string;
+  color?: string;
+  subtitleColor?: string;
+  padding?: number;
+  position?: OverlayPosition;
+}
+
+export interface WatermarkSpec {
+  /** A logo URL or any drawable element. */
+  image?: string | CanvasImageSource;
+  /** Wordmark drawn under the logo, or on its own. */
+  text?: string;
+  /** Logo height in pixels. Defaults to 7% of the smaller canvas side. */
+  height?: number;
+  /** Wordmark size. Defaults to 3.2% of the smaller canvas side. */
+  size?: number;
+  weight?: number | string;
+  font?: string;
+  color?: string;
+  /** Defaults to 0.85. */
+  opacity?: number;
+  padding?: number;
+  /** Defaults to "bottom-right". */
+  position?: OverlayPosition;
+}
+
 export interface TimelineSpec {
   /** Markers with a later `date` are hidden. */
   at: string | number | Date;
@@ -378,6 +416,10 @@ export interface GeoGlobeOptions {
   annotations?: Annotation[] | null;
   /** Rolling headline number drawn over the scene. */
   counter?: CounterSpec | null;
+  /** Headline text painted onto the canvas, so exports come out finished. */
+  title?: TitleSpec | null;
+  /** Logo or wordmark painted onto the canvas, so exports come out branded. */
+  watermark?: WatermarkSpec | null;
   /** Hides markers whose `date` has not arrived. */
   timeline?: TimelineSpec | null;
   /** Skip the ocean fill so exports keep an alpha channel. */

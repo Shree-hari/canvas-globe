@@ -1,0 +1,162 @@
+---
+title: Trusted-by logo map
+description: Replace the grey logo strip with customer logos pinned where those customers actually are — geography turns a list of brands into a claim about reach.
+keywords:
+  - trusted by logos
+  - customer logo wall
+  - logo map
+  - social proof logos section
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Trusted-by logo map
+
+Every B2B site has the same row of six desaturated logos. It works — barely — and it says nothing
+except *these companies exist*. Put the same six logos **where those companies are** and the section
+suddenly makes a second claim for free: you sell across borders.
+
+<GlobeDemo
+  options={{
+    preset: "mono",
+    rotateSpeed: 0.045,
+    markerScale: 1.5,
+    tooltip: true,
+    title: { text: "Trusted in 24 countries", position: "top-left", size: 24 },
+    markers: [
+      { name: "Northwind", city: "London", lat: 51.5, lon: -0.12, image: "/geo-globe/img/logos/northwind.svg" },
+      { name: "Cobalt", city: "New York", lat: 40.71, lon: -74.01, image: "/geo-globe/img/logos/cobalt.svg" },
+      { name: "Meridian", city: "San Francisco", lat: 37.77, lon: -122.42, image: "/geo-globe/img/logos/meridian.svg" },
+      { name: "Solstice", city: "Singapore", lat: 1.35, lon: 103.82, image: "/geo-globe/img/logos/solstice.svg" },
+      { name: "Verdant", city: "Sydney", lat: -33.87, lon: 151.21, image: "/geo-globe/img/logos/verdant.svg" },
+      { name: "Kestrel", city: "Bengaluru", lat: 12.97, lon: 77.59, image: "/geo-globe/img/logos/kestrel.svg" },
+    ],
+  }}
+  controls={[
+    { type: "select", label: "Look", option: "preset", values: ["mono", "atlas", "midnight", "noir", "political"] },
+    { type: "range", label: "Logo size", option: "markerScale", min: 0.8, max: 2.4, step: 0.1 },
+    { label: "Labels", option: "labels", value: "markers" },
+    { label: "No labels", option: "labels", value: false },
+  ]}
+  caption="Logos are drawn as circular crops. Hover one for the company name."
+/>
+
+## The code
+
+```js
+import { createGlobe } from "@swiftools/geo-globe";
+
+const customers = [
+  { name: "Northwind", city: "London", lat: 51.5, lon: -0.12, image: "/logos/northwind.svg" },
+  { name: "Cobalt", city: "New York", lat: 40.71, lon: -74.01, image: "/logos/cobalt.svg" },
+  { name: "Meridian", city: "San Francisco", lat: 37.77, lon: -122.42, image: "/logos/meridian.svg" },
+  { name: "Solstice", city: "Singapore", lat: 1.35, lon: 103.82, image: "/logos/solstice.svg" },
+  { name: "Verdant", city: "Sydney", lat: -33.87, lon: 151.21, image: "/logos/verdant.svg" },
+  { name: "Kestrel", city: "Bengaluru", lat: 12.97, lon: 77.59, image: "/logos/kestrel.svg" },
+];
+
+const globe = createGlobe(canvas, {
+  preset: "mono",
+  rotateSpeed: 0.045,
+  markers: customers,
+  markerScale: 1.5,
+  title: { text: "Trusted in 24 countries" },
+  tooltip: (m) => `${m.name} — ${m.city}`,
+  onClick: (m) => (window.location.href = `/customers/${m.slug}`),
+});
+```
+
+## Preparing the logos
+
+Markers crop `image` to a circle, which is unforgiving of wordmarks. What works:
+
+- **Square source, 64–128 px.** Anything larger is wasted; the marker is rarely over 40 px on screen.
+- **A mark, not a wordmark.** "Northwind Trading Co." reduced to a 32 px circle is a grey smudge.
+  Use the icon half of the logo and put the full name in the tooltip.
+- **A filled background.** Transparent PNGs of dark logos vanish on a dark preset. Bake the brand
+  colour in, or add a plate:
+
+```svg
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="14" fill="#0f172a" />
+  <!-- mark -->
+</svg>
+```
+
+- **SVG or PNG, served from your own origin.** Hotlinking a customer's CDN will break your marketing
+  page the week they redesign.
+
+## Getting permission
+
+This one matters more than the styling.
+
+- Logo use is usually covered by a **mutual marketing clause** in the contract. Check before you
+  publish, not after their legal team emails you.
+- If you only have verbal approval, **ask for it in writing** — one line in an email is enough.
+- Some customers will allow the logo but not the location. Honour that: drop them to a country
+  centroid, or leave them out.
+
+## Only three logos?
+
+A globe with three markers looks empty, and empty reads as *small*. Options, in order of honesty:
+
+1. **Use a map and zoom to where you actually are.** Three logos across Ireland is a strong regional
+   claim; three logos on a world globe is a weak global one.
+2. **Mix logos with anonymous dots.** Named customers get an `image`, everyone else gets a plain
+   marker. The picture is full and the claim is still true.
+3. **Wait.** A logo map is a growth-stage asset. At six customers, a single quote with a real name
+   beats it.
+
+```js
+const markers = [
+  ...namedCustomers,                                       // with image
+  ...anonymousCustomers.map((c) => ({ ...c, count: 1 })),  // plain dots
+];
+```
+
+## Making it clickable
+
+A logo map is a navigation surface, not just decoration. Every logo should go somewhere — a case
+study, ideally.
+
+```js
+onClick: (m) => {
+  if (!m?.slug) return;
+  router.push(`/customers/${m.slug}`);
+},
+onHover: (m) => (canvas.style.cursor = m ? "pointer" : "grab"),
+```
+
+Because the whole thing is one canvas, those links are invisible to crawlers. Keep a plain list in
+the DOM as well — visually hidden if you must — so the case studies stay linked:
+
+```html
+<ul class="sr-only">
+  <li><a href="/customers/northwind">Northwind</a></li>
+  <li><a href="/customers/cobalt">Cobalt</a></li>
+</ul>
+```
+
+That is not a workaround for this library specifically; it applies to any canvas-rendered section.
+See [Accessibility](/guides/accessibility).
+
+## Static fallback
+
+Marketing pages get screenshotted, embedded and pasted into decks. Export the finished section once
+and keep the PNG around:
+
+```js
+const url = globe.exportImage({ preset: "og" });   // 1200 × 630, title and all
+```
+
+Add a `watermark` first if the image is going anywhere you do not control:
+
+```js
+globe.setOptions({ watermark: { image: "/logo.svg", text: "acme.com" } });
+```
+
+## Next
+
+- [Markers](/guides/markers) — image crops, labels, clustering
+- [Where our customers are](/examples/customer-map) — the volume version of the same section
+- [Social share card generator](/examples/social-card) — turning this into an OG image

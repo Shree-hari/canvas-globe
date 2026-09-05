@@ -268,7 +268,37 @@ test("custom world geometry replaces the bundled set", () => {
   assert.equal(g.world.length, 1);
   assert.equal(g.world[0].name, "Testland");
   g.setOptions({ world: null });
-  assert.equal(g.world, world);
+  assert.equal(g.world.length, world.length - 1, "the bundled India is superseded");
+  g.destroy();
+});
+
+test("the source data's India is dropped in favour of the official boundary", () => {
+  const g = globe({});
+  assert.ok(!g.world.some((s) => s.name === "India"), "two India outlines would overlap");
+  assert.equal(g._shapes().length, g.world.length + 1);
+  assert.equal(g._shapes().at(-1), g._indiaShape);
+  g.setOptions({ officialIndia: false });
+  assert.equal(g.world.length, world.length, "and comes back when the option is off");
+  assert.ok(g.world.some((s) => s.name === "India"));
+  g.destroy();
+});
+
+test("neighbours are clipped to the area outside official India", () => {
+  for (const mode of ["globe", "map"]) {
+    const canvas = makeCanvas(400, 400);
+    const g = new GeoGlobe(canvas, { mode, landStyle: "outline", autoRotate: false });
+    g.render();
+    const evenodd = canvas.calls.filter(([name, args]) => name === "clip" && args[0] === "evenodd");
+    assert.ok(evenodd.length, `${mode}: expected an even-odd clip around the official boundary`);
+    g.destroy();
+  }
+});
+
+test("no clip is emitted once officialIndia is off", () => {
+  const canvas = makeCanvas(400, 400);
+  const g = new GeoGlobe(canvas, { officialIndia: false, landStyle: "outline", autoRotate: false });
+  g.render();
+  assert.equal(canvas.calls.filter(([n, a]) => n === "clip" && a[0] === "evenodd").length, 0);
   g.destroy();
 });
 
@@ -315,6 +345,34 @@ test("setPreset returns keys the preset omits to their defaults", () => {
   g.destroy();
 });
 
+test("setOptions({ preset }) applies the look, not just the name", () => {
+  const g = globe({ preset: "blueprint" });
+  g.setOptions({ preset: "hologram" });
+  assert.equal(g.o.preset, "hologram");
+  assert.equal(g.o.theme, presets.hologram.theme);
+  assert.equal(g.o.landStyle, presets.hologram.landStyle);
+  assert.equal(g.o.orbits, 0, "blueprint's orbits should not leak");
+  g.destroy();
+});
+
+test("keys alongside a preset still win over it", () => {
+  const g = globe({});
+  g.setOptions({ preset: "hologram", landStyle: "outline" });
+  assert.equal(g.o.landStyle, "outline");
+  assert.equal(g.o.theme, presets.hologram.theme);
+  g.destroy();
+});
+
+test("setOptions({ scene }) expands the whole composition", () => {
+  const g = globe({});
+  g.setOptions({ scene: "coverage" });
+  assert.equal(g.o.scene, "coverage");
+  assert.equal(g.o.mode, "map");
+  assert.equal(g.o.autoRotate, false);
+  assert.equal(g.o.theme, presets.mono.theme, "the scene's preset should come through");
+  g.destroy();
+});
+
 test("every preset renders in both modes", () => {
   for (const name of Object.keys(presets)) {
     for (const mode of ["globe", "map"]) {
@@ -357,16 +415,17 @@ test("the dot grid is cached until spacing changes", () => {
 
 test("auto colours never repeat between neighbouring countries", () => {
   const g = globe({ countryColors: "auto" });
+  const shapes = g._shapes();
   const colors = g._autoColors();
-  assert.equal(colors.size, g.world.length);
+  assert.equal(colors.size, shapes.length);
   let checked = 0;
-  for (let i = 0; i < g.world.length; i++) {
-    const a = g._shapeBox(g.world[i]);
-    for (let j = i + 1; j < g.world.length; j++) {
-      const b = g._shapeBox(g.world[j]);
+  for (let i = 0; i < shapes.length; i++) {
+    const a = g._shapeBox(shapes[i]);
+    for (let j = i + 1; j < shapes.length; j++) {
+      const b = g._shapeBox(shapes[j]);
       if (a[0] > b[2] + 1 || b[0] > a[2] + 1 || a[1] > b[3] + 1 || b[1] > a[3] + 1) continue;
       checked++;
-      assert.notEqual(colors.get(g.world[i]), colors.get(g.world[j]), `${g.world[i].name} vs ${g.world[j].name}`);
+      assert.notEqual(colors.get(shapes[i]), colors.get(shapes[j]), `${shapes[i].name} vs ${shapes[j].name}`);
     }
   }
   assert.ok(checked > 100, "expected plenty of adjacent pairs");

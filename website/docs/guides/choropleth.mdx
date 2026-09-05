@@ -1,0 +1,179 @@
+---
+title: Choropleth
+description: Colour countries by your data, and react to clicks on them.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Choropleth
+
+Colour countries by value. The bundled geometry carries an ISO alpha-2 code, a numeric id and a name
+for each country, so most data joins without any mapping work.
+
+```js
+import { createGlobe, colorScale } from "@swiftools/geo-globe";
+
+const visits = { IN: 940, US: 720, GB: 480, JP: 300, BR: 260 };
+const scale = colorScale([0, 1000], ["#e0f2fe", "#0369a1"]);
+
+createGlobe(canvas, {
+  mode: "map",
+  countryColors: Object.fromEntries(
+    Object.entries(visits).map(([iso, value]) => [iso, scale(value)]),
+  ),
+  onCountryClick: (shape) => console.log(shape.iso, shape.name),
+});
+```
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    preset: "mono",
+    autoRotate: false,
+    tooltip: true,
+    onCountryHover: () => {},
+    countryColors: {
+      IN: "#0369a1",
+      US: "#0d7fb8",
+      GB: "#3fa0cd",
+      JP: "#63b3da",
+      BR: "#86c6e7",
+      AU: "#a5d5ef",
+      DE: "#4aa6d1",
+      FR: "#7bbfe3",
+      CA: "#9ccff0",
+      KE: "#c2e3f6",
+    },
+    legend: { title: "Visits", scale: { domain: [0, 1000], range: ["#e0f2fe", "#0369a1"] } },
+  }}
+  caption="Hover a country — it highlights, and the tooltip names it."
+/>
+
+## How keys are matched
+
+`countryColors` keys are matched **case-insensitively**, in this order:
+
+1. Your own [`countryKey`](/api/options#countries) function, if provided
+2. ISO alpha-2 code — `"IN"`, `"in"`
+3. Numeric id — `"356"`
+4. Country name — `"India"`, `"india"`
+
+```js
+countryColors: { IN: "#f00", Brazil: "#0f0", 250: "#00f" }
+```
+
+If your data uses something else — an internal region id, say — map it yourself:
+
+```js
+countryKey: (shape) => myRegionIdFor(shape.iso),
+```
+
+## A function instead of a map
+
+`countryColor` receives each country shape and returns a colour or `null`. It takes precedence over
+`countryColors`.
+
+```js
+createGlobe(canvas, {
+  countryColor: (shape) => {
+    const value = data[shape.iso];
+    return value == null ? null : scale(value);
+  },
+});
+```
+
+Returning `null` falls back to the theme's land colour, which is how you show "no data".
+
+## Colour scales
+
+`colorScale(domain, range)` builds a linear ramp. Multi-stop scales work too.
+
+```js
+const scale = colorScale([0, 500, 1000], ["#f7fbff", "#6baed6", "#08306b"]);
+
+scale(0);      // "rgb(247,251,255)"
+scale(250);    // interpolated
+scale(9999);   // clamped to the last stop
+scale("n/a");  // null — not a number
+```
+
+## A distinct colour per country
+
+`countryColors: "auto"` gives the printed-atlas look. It runs a greedy graph colouring over country
+adjacency, so **no two neighbours ever share a fill**.
+
+<GlobeDemo
+  options={{ preset: "political", autoRotate: false, center: { lon: 20, lat: 25 } }}
+  controls={[
+    { type: "select", label: "Mode", option: "mode", values: ["globe", "map"] },
+  ]}
+  caption="177 countries, 8 palette colours, zero adjacent collisions."
+/>
+
+Supply your own palette with [`countryPalette`](/api/options#countries):
+
+```js
+createGlobe(canvas, {
+  countryColors: "auto",
+  countryPalette: ["#e8c39e", "#a8c8a0", "#e5b8b8", "#c5b8dd"],
+});
+```
+
+## Interaction
+
+```js
+createGlobe(canvas, {
+  onCountryHover: (shape, position) => { /* shape is null on leave */ },
+  onCountryClick: (shape) => drillInto(shape.iso),
+});
+```
+
+Adding either handler enables country hit testing and the hover highlight. Hit testing
+un-projects the pointer to a coordinate and ray-casts against the polygons, so it works identically
+on the globe, on every flat projection, and at any zoom.
+
+You can also test a point directly:
+
+```js
+globe.countryAt(x, y);         // → shape or null
+globe.unproject(x, y);         // → [lon, lat] or null
+```
+
+## A legend
+
+```js
+legend: {
+  title: "Visits",
+  scale: { domain: [0, 1000], range: ["#e0f2fe", "#0369a1"] },
+  position: "bottom-left",
+}
+```
+
+Or discrete swatches:
+
+```js
+legend: {
+  title: "Tier",
+  items: [
+    { color: "#0369a1", label: "Enterprise" },
+    { color: "#7bbfe3", label: "Growth" },
+  ],
+}
+```
+
+## India
+
+The bundled world geometry uses Natural Earth, which draws de-facto administrative lines. geo-globe
+replaces it with the official Survey of India boundary by default, drops Natural Earth's India so
+there is no second outline, and clips the neighbouring countries to the area outside it. That shape
+participates in choropleth like any other country — key it as `IN`, `356` or `India`, and
+`countryColors: "auto"` gives it a fill that does not clash with Pakistan or China.
+
+Because it is not part of the source set, India is **not** in `globe.world`. Iterate
+`globe._shapes()` if you need every painted country:
+
+```js
+const rows = globe._shapes().map((s) => ({ iso: s.iso, name: s.name }));
+```
+
+See [the note on India's boundary](/troubleshooting#indias-boundary) for the full explanation.

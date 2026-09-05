@@ -1,0 +1,242 @@
+---
+title: Overlays
+description: Heatmaps, spikes, labels, legends, counters and callouts.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Overlays
+
+Layers that sit on top of the base map. All of them compose.
+
+## Heatmap
+
+Additive density blobs instead of — or underneath — individual markers.
+
+```js
+createGlobe(canvas, {
+  heatmap: { radius: 30, intensity: 0.5, color: "#f97316" },
+  markers,
+});
+```
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    preset: "midnight",
+    autoRotate: false,
+    heatmap: true,
+    markerStyle: "dot",
+    markers: [
+      { lat: 23.03, lon: 72.58, count: 40 }, { lat: 19.08, lon: 72.88, count: 30 },
+      { lat: 28.61, lon: 77.21, count: 35 }, { lat: 12.97, lon: 77.59, count: 28 },
+      { lat: 51.5, lon: -0.12, count: 25 }, { lat: 48.86, lon: 2.35, count: 18 },
+      { lat: 40.71, lon: -74.01, count: 30 }, { lat: 34.05, lon: -118.24, count: 22 },
+      { lat: 35.68, lon: 139.69, count: 20 }, { lat: -23.55, lon: -46.63, count: 16 },
+    ],
+  }}
+  controls={[
+    { label: "Heatmap", option: "heatmap" },
+    { label: "Spikes", option: "spikes" },
+    { type: "select", label: "Markers", option: "markerStyle", values: ["dot", "auto", "bubble"] },
+  ]}
+/>
+
+| Field | Default |
+| --- | --- |
+| `radius` | `30` — blob radius in px at full weight |
+| `intensity` | `0.5` — peak opacity |
+| `color` | theme `marker` |
+
+## Spikes
+
+Bars standing off the surface, scaled by `count`. Markers ride the tip, so the bar is never buried.
+
+```js
+createGlobe(canvas, { spikes: { height: 0.28, width: 2.4 }, markers });
+```
+
+`height` is the tallest spike as a fraction of the globe radius.
+
+## Labels
+
+Text with collision avoidance — the highest-weight label wins and overlapping ones are dropped
+rather than allowed to pile up.
+
+```js
+labels: "markers";     // marker.label / .name / .city
+labels: "countries";   // country names, sized to the shape
+labels: "both";
+```
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    preset: "atlas",
+    autoRotate: false,
+    labels: "markers",
+    markers: [
+      { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨" },
+      { name: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻" },
+      { name: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀" },
+      { name: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬" },
+      { name: "Nairobi", lat: -1.29, lon: 36.82, count: 2, emoji: "👨‍🍳" },
+    ],
+  }}
+  controls={[
+    { type: "select", label: "labels", option: "labels", values: ["markers", "countries", "both", false] },
+  ]}
+/>
+
+## Legend
+
+```js
+// Continuous ramp
+legend: { title: "Visits", scale: { domain: [0, 1000], range: ["#e0f2fe", "#0369a1"] } }
+
+// Discrete swatches
+legend: { title: "Tier", items: [{ color: "#0369a1", label: "Enterprise" }] }
+```
+
+`position` accepts `"top-left"`, `"top-right"`, `"bottom-left"` *(default)* or `"bottom-right"`.
+
+## Counter
+
+A rolling headline number. It eases whenever the value changes, which makes a live figure feel
+alive.
+
+```js
+createGlobe(canvas, {
+  counter: {
+    value: 21947,
+    label: "customers worldwide",
+    format: (n) => `$${Math.round(n).toLocaleString()}`,
+    position: "top-left",
+  },
+});
+```
+
+<GlobeDemo
+  options={{ preset: "neon", counter: { value: 14208, label: "customers worldwide" } }}
+  controls={[
+    { type: "action", label: "Add 7,739", action: (g) => g.setOptions({ counter: { ...g.o.counter, value: g.o.counter.value + 7739 } }) },
+    { type: "action", label: "Reset", action: (g) => g.setOptions({ counter: { value: 14208, label: "customers worldwide" } }) },
+  ]}
+/>
+
+## Title
+
+Headline text painted onto the canvas itself. It costs nothing in HTML, and — more usefully — it
+means `exportImage()` hands you a *finished* graphic rather than a globe you still have to drop
+into a design tool.
+
+```js
+createGlobe(canvas, {
+  title: {
+    text: "Trusted in 68 countries",
+    subtitle: "21,947 teams and counting",
+    position: "top-center",
+  },
+});
+```
+
+| Field | Default |
+| --- | --- |
+| `text` | required |
+| `subtitle` | — |
+| `size` | 6.2% of the smaller canvas side |
+| `subtitleSize` | 42% of `size` |
+| `weight` | `800` |
+| `font` | `Inter,system-ui,sans-serif` |
+| `color` / `subtitleColor` | theme `label` |
+| `position` | `"top-left"` — also `top-center`, `top-right`, `bottom-*` |
+| `padding` | `22` |
+
+<GlobeDemo
+  options={{
+    preset: "aurora",
+    title: { text: "Trusted in 68 countries", subtitle: "21,947 teams and counting", position: "top-center" },
+  }}
+  controls={[
+    { type: "select", label: "position", option: "title.position", values: ["top-center", "top-left", "top-right", "bottom-center"] },
+  ]}
+/>
+
+## Watermark
+
+A logo, a wordmark, or both. Anything you can draw works as `image` — a URL, an `<img>`, a
+`<canvas>` or an `ImageBitmap`.
+
+```js
+createGlobe(canvas, {
+  watermark: {
+    image: "/logo.svg",
+    text: "acme.com",
+    height: 32,
+    opacity: 0.85,
+    position: "bottom-right",
+  },
+});
+```
+
+Because it is part of the render, every `exportImage()`, `exportBlob()` and `record()` frame
+carries it. That is the difference between a screenshot someone can crop your brand out of and an
+asset that stays attributed wherever it gets reposted.
+
+<GlobeDemo
+  options={{ preset: "midnight", watermark: { text: "acme.com", position: "bottom-right" } }}
+  controls={[
+    { type: "select", label: "position", option: "watermark.position", values: ["bottom-right", "bottom-left", "top-right", "bottom-center"] },
+  ]}
+/>
+
+## Callouts
+
+Leader lines with a label — for explainer graphics where a tooltip will not do.
+
+```js
+annotations: [
+  { lat: 23.03, lon: 72.58, text: "HQ — Ahmedabad" },
+  { lat: 51.5, lon: -0.12, text: "EU office", dx: -70, dy: -40 },
+];
+```
+
+`dx`/`dy` offset the label from the point; negative `dx` flips the box to the left.
+
+## Timeline
+
+Hide markers whose `date` has not arrived yet, then animate the range.
+
+```js
+const markers = [
+  { lat: 23.03, lon: 72.58, date: "2024-01-15" },
+  { lat: 51.5, lon: -0.12, date: "2024-06-02" },
+];
+
+globe.setTimelineAt("2024-03-01");                       // static cut-off
+globe.playTimeline({ duration: 6000, loop: true });      // animate the whole range
+globe.stopTimeline();
+```
+
+With no `from`/`to`, `playTimeline` derives the range from your markers' dates. Markers with no
+`date` always show.
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    preset: "midnight",
+    autoRotate: false,
+    markers: [
+      { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", date: "2024-01-15" },
+      { name: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻", date: "2024-03-02" },
+      { name: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀", date: "2024-05-20" },
+      { name: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬", date: "2024-08-11" },
+      { name: "Nairobi", lat: -1.29, lon: 36.82, count: 2, emoji: "👨‍🍳", date: "2024-11-04" },
+    ],
+  }}
+  controls={[
+    { type: "action", label: "Play growth", action: (g) => g.playTimeline({ duration: 5000, loop: true }) },
+    { type: "action", label: "Stop", action: (g) => { g.stopTimeline(); g.setTimelineAt(null); } },
+  ]}
+  caption="Markers appear as their date arrives."
+/>

@@ -1,0 +1,106 @@
+---
+title: Clustering
+description: Keep thousands of markers readable and fast.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Clustering
+
+Real "where our users are" data has thousands of points. Drawn raw they overlap into a smear and
+every one of them has to be hit-tested. Clustering fixes both.
+
+```js
+createGlobe(canvas, { cluster: true, clusterRadius: 42, markers });
+```
+
+<GlobeDemo
+  options={{ mode: "map", cluster: true, clusterRadius: 42, tooltip: true, autoRotate: false }}
+  controls={[
+    { label: "Cluster", option: "cluster" },
+    { type: "range", label: "Radius", option: "clusterRadius", min: 20, max: 90, step: 2 },
+    {
+      type: "action",
+      label: "Scatter 5,000",
+      action: (g, say) => {
+        const many = Array.from({ length: 5000 }, () => ({
+          lat: (Math.random() - 0.5) * 140,
+          lon: (Math.random() - 0.5) * 360,
+        }));
+        g.setMarkers(many);
+        say(`5,000 markers → ${g.hits.length} bubbles on screen`);
+      },
+    },
+    { type: "action", label: "Clear", action: (g, say) => { g.setMarkers([]); say(""); } },
+  ]}
+  caption="Press Scatter, then drag the radius slider and watch the bubble count change."
+/>
+
+## How it works
+
+Clustering happens in **screen space**, not geographic space. Each frame, markers are projected,
+dropped into a grid of `clusterRadius` pixels, and each occupied cell becomes one bubble at the
+weighted centroid of its members.
+
+That has two useful consequences:
+
+- **It re-balances as you zoom.** Zoom in and clusters split apart on their own, because the grid is
+  measured in pixels.
+- **Off-screen markers do not inflate counts.** Map mode culls to the viewport before clustering, so
+  a cluster always describes what you can actually see.
+
+## What your callbacks receive
+
+A cluster is a synthetic marker. Cells with a single member pass the original marker through
+untouched.
+
+```ts
+{
+  cluster: true,
+  count: number,     // sum of the members' `count` (or 1 each)
+  markers: Marker[], // the originals
+  lat: number,       // weighted centroid
+  lon: number,
+}
+```
+
+```js
+createGlobe(canvas, {
+  cluster: true,
+  onClick: (target) => {
+    if (target.cluster) globe.fitTo(bounds(target.markers));
+    else openProfile(target);
+  },
+  tooltip: (target, kind) =>
+    kind === "cluster" ? `${target.count} people nearby` : target.city,
+});
+```
+
+## Choosing a radius
+
+| Radius | Feel |
+| --- | --- |
+| `24–32` | Dense, detailed. Good for zoomed-in regional maps |
+| `42` *(default)* | Balanced |
+| `60–80` | Sparse and calm. Good for a hero graphic |
+
+Bubbles are capped at `clusterRadius × 0.46` so neighbouring clusters never overlap, whatever the
+counts are.
+
+## Cost
+
+Measured on a 560 × 216 map with the full country geometry:
+
+| Scenario | Per frame |
+| --- | --- |
+| Geometry only | ~14 ms |
+| 5,000 markers, clustered | ~25 ms |
+
+Comfortably inside the 30 fps budget. And because the render loop
+[idles when nothing moves](/guides/performance), a static clustered map costs nothing after the
+first paint.
+
+## When not to cluster
+
+If you have fewer than a hundred markers and they are spread out, clustering only hides detail. Use
+[`heatmap`](./overlays#heatmap) instead when you want density rather than individual points.

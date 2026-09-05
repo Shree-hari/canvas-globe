@@ -236,3 +236,59 @@ test("arcs accept a travelling icon", () => {
   g.render();
   g.destroy();
 });
+
+/* ------------------------- title and watermark --------------------------- */
+
+test("a title and subtitle render in both modes", () => {
+  for (const mode of ["globe", "map"]) {
+    const g = globe({ mode, title: { text: "Trusted in 42 countries", subtitle: "Join 21,947 teams" } });
+    g.render();
+    g.destroy();
+  }
+});
+
+test("titles anchor to every corner without throwing", () => {
+  const g = globe({ mode: "map" });
+  for (const position of ["top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"]) {
+    g.setOptions({ title: { text: "Anywhere", subtitle: "Sub", position } });
+    g.render();
+  }
+  g.destroy();
+});
+
+test("a text watermark renders and an image one waits for load", () => {
+  const g = globe({ watermark: { text: "acme.com", position: "bottom-right" } });
+  g.render();
+  g.setOptions({ watermark: { image: "/logo.png", text: "acme.com" } });
+  g.render();
+  g.destroy();
+});
+
+test("a drawable watermark is used immediately", () => {
+  const image = { nodeName: "CANVAS", width: 240, height: 60 };
+  const g = globe({ mode: "map", watermark: { image, height: 30 } });
+  g.render();
+  g.destroy();
+});
+
+test("overlays survive an export", () => {
+  const g = globe({
+    mode: "map",
+    title: { text: "Where our customers are" },
+    watermark: { text: "acme.com" },
+    counter: { value: 4200, label: "teams" },
+  });
+  g.render();
+  // No document under node, so the export is a no-op — but it must not throw
+  // and must leave the live options untouched.
+  assert.equal(g.exportImage({ preset: "og" }), null);
+  assert.equal(g.o.title.text, "Where our customers are");
+  assert.equal(g.o.transparentBackground, false);
+  g.destroy();
+});
+
+test("no title and no watermark draw nothing", () => {
+  const g = globe({ title: null, watermark: null });
+  g.render();
+  g.destroy();
+});

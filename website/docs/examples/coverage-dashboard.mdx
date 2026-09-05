@@ -1,0 +1,160 @@
+---
+title: Coverage dashboard
+description: Revenue, usage or campaign reach by country — a choropleth with a legend, drill-down and a growth animation, for in-product dashboards.
+keywords:
+  - choropleth dashboard
+  - revenue by country map
+  - sales territory map
+  - usage by country visualisation
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Coverage dashboard
+
+Revenue, campaign spend or account coverage by country — with a legend, hover, click-to-drill and an
+animated timeline.
+
+<GlobeDemo
+  options={{
+    scene: "coverage",
+    mode: "map",
+    autoRotate: false,
+    tooltip: true,
+    onCountryHover: () => {},
+    countryColors: {
+      IN: "#08306b", US: "#08519c", GB: "#2171b5", DE: "#4292c6",
+      JP: "#6baed6", BR: "#9ecae1", FR: "#7fb6dc", CA: "#c6dbef",
+      AU: "#deebf7", KE: "#eff3ff", SG: "#4292c6", NL: "#9ecae1",
+    },
+    legend: {
+      title: "Revenue",
+      scale: { domain: [0, 1000], range: ["#eff3ff", "#08306b"] },
+      position: "bottom-left",
+    },
+  }}
+  controls={[
+    { type: "select", label: "Mode", option: "mode", values: ["map", "globe"] },
+    { type: "action", label: "Fit EMEA", action: (g) => g.fitTo([-25, 30, 60, 70]) },
+    { type: "action", label: "Fit APAC", action: (g) => g.fitTo([60, -45, 180, 50]) },
+    { type: "action", label: "Whole world", action: (g) => g.setZoom(1).flyTo(10, 20) },
+  ]}
+  caption="Hover a country to highlight it. Click handlers drill into a region."
+/>
+
+## The code
+
+```js
+import { createGlobe, colorScale } from "@swiftools/geo-globe";
+
+const revenue = { IN: 940, US: 880, GB: 620, DE: 540, JP: 430, BR: 280 };
+const scale = colorScale([0, 1000], ["#eff3ff", "#08306b"]);
+
+const globe = createGlobe(canvas, {
+  scene: "coverage",
+  countryColors: Object.fromEntries(
+    Object.entries(revenue).map(([iso, value]) => [iso, scale(value)]),
+  ),
+  legend: {
+    title: "Revenue",
+    scale: { domain: [0, 1000], range: ["#eff3ff", "#08306b"] },
+  },
+  tooltip: (shape, kind) =>
+    kind === "country"
+      ? `${shape.name}: ${revenue[shape.iso] ? `$${revenue[shape.iso]}k` : "no data"}`
+      : shape.label,
+  onCountryClick: (shape) => drillInto(shape.iso),
+});
+```
+
+## Data without a colour of its own
+
+Returning `null` from `countryColor` falls back to the theme's land colour, which is how you say
+"no data" without inventing a value:
+
+```js
+countryColor: (shape) => {
+  const value = revenue[shape.iso];
+  return value == null ? null : scale(value);
+},
+```
+
+Say so in the legend too — an unlabelled grey is easy to misread as zero.
+
+## Drill-down
+
+`onCountryClick` plus `focusOn` gives a two-level dashboard with no extra data:
+
+```js
+onCountryClick: (shape) => {
+  globe.focusOn(shape.iso, { isolate: false, dim: 0.12, outlineWidth: 2 });
+  showRegionPanel(shape.iso);
+},
+```
+
+Call `clearFocus()` to zoom back out. Sub-national geometry is not bundled — pass your own via
+[`world`](/api/options#geometry) if you need state-level detail.
+
+## Adding volume on top
+
+A choropleth shows rate; markers or spikes show volume. Layering both answers "where is it dense,
+and where is it valuable" in one graphic.
+
+```js
+createGlobe(canvas, {
+  countryColors,
+  spikes: { height: 0.24 },
+  markers: offices,
+});
+```
+
+## Growth over time
+
+Give each marker a `date` and animate the range:
+
+```js
+const markers = deals.map((d) => ({
+  lat: d.lat, lon: d.lon, count: d.value, date: d.closedAt,
+}));
+
+globe.setMarkers(markers);
+globe.playTimeline({ duration: 8000, loop: true });
+```
+
+<GlobeDemo
+  options={{
+    mode: "map",
+    preset: "midnight",
+    autoRotate: false,
+    spikes: true,
+    markerStyle: "dot",
+    markers: [
+      { lat: 23.03, lon: 72.58, count: 40, date: "2024-01-10" },
+      { lat: 51.5, lon: -0.12, count: 28, date: "2024-03-04" },
+      { lat: 40.71, lon: -74.01, count: 34, date: "2024-05-19" },
+      { lat: 35.68, lon: 139.69, count: 22, date: "2024-07-30" },
+      { lat: -23.55, lon: -46.63, count: 16, date: "2024-10-02" },
+      { lat: -33.87, lon: 151.21, count: 12, date: "2024-12-11" },
+    ],
+  }}
+  controls={[
+    { type: "action", label: "Play 2024", action: (g) => g.playTimeline({ duration: 6000, loop: true }) },
+    { type: "action", label: "Stop", action: (g) => { g.stopTimeline(); g.setTimelineAt(null); } },
+  ]}
+/>
+
+## Exporting for the board deck
+
+```js
+globe.exportImage({ preset: "wide" });      // 1920 × 1080 slide
+await globe.exportBlob({ preset: "og" });   // for an email or a link preview
+```
+
+## Keeping keys straight
+
+`countryColors` matches ISO alpha-2, then numeric id, then name — case-insensitively. If your
+warehouse uses alpha-3 or an internal id, map it once:
+
+```js
+countryKey: (shape) => alpha3For[shape.iso] ?? shape.iso,
+```

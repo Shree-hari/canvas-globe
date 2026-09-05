@@ -13,7 +13,9 @@ All notable changes to this package are documented here. The format follows
   `gazetteer` escape hatch and a `skipped` report. `exportImage()` / `exportBlob()` render one frame
   at any size off-screen — `square`, `story`, `linkedin`, `og` and friends — with
   `transparent` for an alpha channel. `scenes` bundle a preset with the layers a job needs.
-- **Overlays.** `counter` rolls a headline number, `annotations` draw leader-line callouts,
+- **Overlays.** `counter` rolls a headline number, `title` paints a headline and subheadline onto
+  the canvas, `watermark` bakes a logo or wordmark into every frame — so `exportImage()` returns a
+  finished, branded asset rather than raw art. `annotations` draw leader-line callouts,
   `timeline` reveals markers as their `date` arrives and `playTimeline()` animates the range.
   Markers accept `image` for logo and avatar crops, arcs accept `icon` for a travelling glyph,
   pings accept `burst`, and country media accepts `{ text }` to cut type out of an outline.
@@ -72,6 +74,9 @@ All notable changes to this package are documented here. The format follows
 
 ### Changed
 
+- `setOptions({ preset })` and `setOptions({ scene })` now expand into every option the preset or
+  scene owns, rather than only recording the name. `setPreset` and `setScene` delegate to it, and
+  options passed alongside still win.
 - India's boundary is now rounded to two decimals instead of three. At ~1 km it is still well
   inside the 0.05° decimation tolerance, keeps all 30 rings, shifts the area by 0.01%, and saves
   about 7 KB gzipped.
@@ -86,6 +91,13 @@ All notable changes to this package are documented here. The format follows
 
 ### Fixed
 
+- India's boundary broke apart at every stroked land style. Two causes: the source data's own India
+  was still drawn underneath the official one, leaving a second outline across Jammu and Kashmir;
+  and neighbouring countries stroked their de-facto claim lines straight through the region, which
+  painting India on top could hide the fill of but not the stroke. The source India is now dropped
+  when `officialIndia` is on, and every other country is clipped to the area outside the official
+  boundary. `globe.world` no longer contains India; `globe._shapes()` is world plus the official
+  boundary, and is what labels, auto-colouring and hit testing use.
 - `focusOn()` raised `maxZoom` to frame a country and never lowered it, so the ceiling leaked into
   every later view. `clearFocus()` now restores it, and an explicit `maxZoom` takes precedence.
 - A `focus` target that could not be resolved dimmed or hid every country instead of doing nothing.

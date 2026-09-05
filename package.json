@@ -64,6 +64,9 @@
     "example": "node scripts/serve.mjs",
     "test": "node --test \"test/*.test.js\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "docs": "npm --prefix website run start",
+    "docs:build": "npm --prefix website run build",
+    "docs:serve": "npm --prefix website run serve",
     "prepublishOnly": "npm run test && npm run build"
   },
   "peerDependencies": {

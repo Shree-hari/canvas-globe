@@ -1,0 +1,196 @@
+---
+title: Live signup social proof
+description: A globe that rings out every time someone signs up — the "37 people joined this week" widget, but geographic and impossible to fake convincingly.
+keywords:
+  - live signups map
+  - social proof widget
+  - realtime user activity globe
+  - recent signups notification
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# Live signup social proof
+
+The little "**Sarah from Berlin just started a trial**" toast is one of the most copied growth
+patterns on the web, and by now most visitors are immune to it. Putting it on a globe fixes the two
+things wrong with the toast: it is not in the way, and it accumulates into a picture instead of
+disappearing.
+
+<GlobeDemo
+  options={{
+    preset: "hologram",
+    rotateSpeed: 0.05,
+    tooltip: true,
+    markerStyle: "dot",
+    markerScale: 0.8,
+    counter: { value: 21947, label: "signups all time" },
+    markers: [
+      { city: "Ahmedabad", lat: 23.03, lon: 72.58 }, { city: "Bengaluru", lat: 12.97, lon: 77.59 },
+      { city: "London", lat: 51.5, lon: -0.12 }, { city: "New York", lat: 40.71, lon: -74.01 },
+      { city: "San Francisco", lat: 37.77, lon: -122.42 }, { city: "Berlin", lat: 52.52, lon: 13.4 },
+      { city: "Toronto", lat: 43.65, lon: -79.38 }, { city: "São Paulo", lat: -23.55, lon: -46.63 },
+      { city: "Singapore", lat: 1.35, lon: 103.82 }, { city: "Sydney", lat: -33.87, lon: 151.21 },
+      { city: "Tokyo", lat: 35.68, lon: 139.69 }, { city: "Dubai", lat: 25.2, lon: 55.27 },
+      { city: "Nairobi", lat: -1.29, lon: 36.82 }, { city: "Lagos", lat: 6.52, lon: 3.38 },
+    ],
+    showViewer: { label: "You", live: true },
+  }}
+  onReady={(globe) => {
+    const names = ["Priya", "Marcus", "Yuki", "Ana", "Kwame", "Elena", "Sam", "Noor"];
+    const spots = [
+      [23.03, 72.58, "Ahmedabad"], [51.5, -0.12, "London"], [40.71, -74.01, "New York"],
+      [35.68, 139.69, "Tokyo"], [-23.55, -46.63, "São Paulo"], [-1.29, 36.82, "Nairobi"],
+      [52.52, 13.4, "Berlin"], [1.35, 103.82, "Singapore"],
+    ];
+    globe.pingFeed(
+      spots.map(([lat, lon, city], i) => ({
+        lat: lat + (Math.random() - 0.5) * 1.5,
+        lon: lon + (Math.random() - 0.5) * 1.5,
+        emoji: "✨",
+        label: `${names[i]} just signed up in ${city}`,
+      })),
+      { interval: 2200 },
+    );
+  }}
+  caption="Your own location is pinned too — resolved from your time zone, with no permission prompt."
+/>
+
+## The code
+
+```jsx
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Globe } from "@swiftools/geo-globe/react";
+
+export function SocialProofGlobe({ cities, total }) {
+  const globe = useRef(null);
+
+  useEffect(() => {
+    const source = new EventSource("/api/signups/stream");
+
+    source.onmessage = (event) => {
+      const { name, city, lat, lon } = JSON.parse(event.data);
+      globe.current?.ping({
+        lat,
+        lon,
+        emoji: "✨",
+        label: `${name} just signed up in ${city}`,
+      });
+    };
+
+    return () => source.close();
+  }, []);
+
+  return (
+    <Globe
+      ref={globe}
+      preset="hologram"
+      rotateSpeed={0.05}
+      markers={cities}
+      markerStyle="dot"
+      counter={{ value: total, label: "signups all time" }}
+      showViewer={{ label: "You", live: true }}
+      style={{ maxWidth: 520 }}
+    />
+  );
+}
+```
+
+## Pings versus markers
+
+This is the distinction that makes or breaks the effect.
+
+| | Marker | Ping |
+| --- | --- | --- |
+| Represents | a place that exists | an event that happened |
+| Lifetime | until you remove it | ~1.4 s, then gone |
+| Effect of many | a denser map | a busier map |
+
+Signups are **events**. If you push each one into `setMarkers`, the map only ever grows and after a
+minute it is a solid smear. `ping()` fires an expanding ring that fades, so the map stays readable
+while still feeling alive:
+
+```js
+globe.ping({ lat, lon, label: "Priya just signed up in Ahmedabad", burst: 18 });
+```
+
+`burst` adds a particle spray — save it for genuinely notable events, not every trial start.
+
+## When you have no live feed
+
+Most sites do not have a websocket to spare for a marketing page. `pingFeed` replays a list on a
+timer, which is fine **as long as the events are real**:
+
+```js
+// Server-rendered from the last 24 hours of real signups, city-level only.
+const feed = globe.pingFeed(recentSignups, { interval: 2400, loop: true });
+
+// Later
+feed.stop();
+```
+
+The honest version of this widget is *"recent signups, on a loop"*. The dishonest version is a
+random name generator, and it is dishonest whether or not anyone catches it. If your last real
+signup was in March, this is not the pattern for you — use
+[Where our customers are](/examples/customer-map) instead.
+
+## Privacy
+
+A signup ping is personal data wearing a coat.
+
+- **Never plot a precise coordinate from an IP address.** Round to the city, or use the country
+  centroid. `countryPoint("DE")` gives you a defensible one.
+- **First names only, or no names.** "Someone in Berlin just signed up" converts nearly as well and
+  cannot embarrass a customer.
+- **Ask, or aggregate.** If you would not put the row in a public spreadsheet, do not put it on a
+  spinning globe on your home page.
+
+```js
+import { countryPoint } from "@swiftools/geo-globe";
+
+const place = countryPoint(event.countryCode);
+if (place) globe.ping({ ...place, label: `Someone in ${event.country} just signed up` });
+```
+
+## Pacing
+
+Too fast reads as noise, too slow reads as broken. Rules of thumb:
+
+- **One ping every 2–3 seconds** is the sweet spot for a hero. Below ~1.5 s it stops registering as
+  individual events.
+- If your real rate is higher, **sample it**. Nobody needs to see all 40 signups a minute.
+- If it is lower, **do not pad it**. Show a counter instead, and let `pingFeed` idle.
+- Pause when the tab is hidden — the library already stops rendering, but stop your feed too so it
+  does not queue up a burst on return.
+
+```js
+let feed = globe.pingFeed(recentSignups, { interval: 2400 });
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) feed.stop();
+  else feed = globe.pingFeed(recentSignups, { interval: 2400 });
+});
+```
+
+## The counter is doing half the work
+
+`counter` eases between values instead of snapping, which is why a number that ticks up feels like
+momentum rather than a static stat:
+
+```js
+setInterval(async () => {
+  const { total } = await fetch("/api/signups/total").then((r) => r.json());
+  globe.setOptions({ counter: { value: total, label: "signups all time" } });
+}, 30000);
+```
+
+Poll on a slow interval. The animation covers the gap, and nobody is watching closely enough to
+notice a 30-second lag on a vanity metric.
+
+## Next
+
+- [Live pings](/guides/live-pings) — the full `ping` and `pingFeed` API
+- [Landing page hero globe](/examples/saas-landing) — this, plus arcs and a scene
+- [Waitlist milestone](/examples/waitlist-milestone) — what to do when the number lands

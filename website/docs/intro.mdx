@@ -1,0 +1,84 @@
+---
+id: intro
+title: Introduction
+sidebar_label: Introduction
+description: A zero-dependency interactive globe and world map on a 2D canvas.
+---
+
+import GlobeDemo from "@site/src/components/GlobeDemo";
+
+# geo-globe
+
+An interactive **globe** and **world map** drawn on a plain 2D canvas. No WebGL, no D3, no map
+tiles, no API keys, and no network calls — the country geometry ships inside the package.
+
+Everything on this site is a **live instance**, not a screenshot. Drag it.
+
+<GlobeDemo
+  options={{
+    preset: "hologram",
+    markers: [
+      { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true },
+      { name: "London", lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻" },
+      { name: "New York", lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀" },
+      { name: "Tokyo", lat: 35.68, lon: 139.69, count: 4, emoji: "👨‍🔬" },
+      { name: "Nairobi", lat: -1.29, lon: 36.82, count: 2, emoji: "👨‍🍳" },
+    ],
+    arcs: [
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: 51.5, lon: -0.12 } },
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: 35.68, lon: 139.69 } },
+      { from: { lat: 23.03, lon: 72.58 }, to: { lat: -1.29, lon: 36.82 } },
+    ],
+    tooltip: true,
+  }}
+  controls={[
+    { label: "Spin", option: "autoRotate" },
+    { label: "Day / night", option: "terminator" },
+    { label: "Grid", option: "graticule" },
+    { type: "select", label: "Look", option: "preset", values: ["hologram", "atlas", "midnight", "neon", "blueprint"] },
+  ]}
+  caption="Drag to spin · scroll to zoom · hover a marker. Tab to it and use the arrow keys."
+/>
+
+## Why this exists
+
+Most globe libraries want three.js and a few hundred kilobytes of WebGL, or they want a Mapbox key
+and a billing account. This one wants a `<canvas>`.
+
+| | geo-globe |
+| --- | --- |
+| Runtime dependencies | none |
+| Network calls | none |
+| API keys | none |
+| Bundle | ~118 KB gzipped, geometry included |
+| Renderer | 2D canvas — works anywhere `<canvas>` does |
+| SSR | safe to import; nothing touches the DOM until you construct |
+
+## What it does
+
+- **Globe and flat map** — orthographic sphere plus equirectangular, Mercator and Natural Earth
+- **Markers** sized by weight, with emoji, logos, avatars, live pulse rings and clustering
+- **Great-circle arcs** that bow over the surface and clip correctly at the horizon
+- **Choropleth** by ISO code, numeric id or country name
+- **Ten presets** — dot-matrix hologram, neon, blueprint, printed atlas and more
+- **Country canvas** — an image, GIF or video clipped to a country's outline
+- **Viewer location** from the browser's time zone, with no permission prompt
+- **Live pings, tours, scroll stories, WebM recording and social-size exports**
+- **Accessible** — keyboard control, a live region and `prefers-reduced-motion`
+- **Correct India boundary** — Survey of India depiction, on by default
+
+## Where to go next
+
+| If you want to… | Read |
+| --- | --- |
+| Get something on screen | [Your first globe](/getting-started/first-globe) |
+| Use it without a build step | [No build step](/getting-started/no-build) |
+| Plot your data | [Markers](/guides/markers) and [Data in](/guides/data) |
+| Make it look right | [Looks and presets](/guides/looks) |
+| Build a share graphic | [Exporting](/guides/exporting) |
+| Look up an option | [API reference](/api/options) |
+
+:::tip Everything is live
+Code blocks marked **live** are editable. Change a value and the globe next to it re-renders
+immediately.
+:::
