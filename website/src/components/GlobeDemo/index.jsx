@@ -42,6 +42,9 @@ function Mounted({ options, height, aspect, controls, code, caption, onReady }) 
   const canvasRef = useRef(null);
   const globeRef = useRef(null);
   const [state, setState] = useState(() => ({ ...options }));
+  const stateRef = useRef(state);
+  // Options this demo set on purpose, so a preset switch can put them back.
+  const ownKeys = useRef(new Set(Object.keys(options)));
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -80,12 +83,25 @@ function Mounted({ options, height, aspect, controls, code, caption, onReady }) 
   }, [aspect, state.mode, state.projection, state.latRange]);
 
   const patch = useCallback((path, value) => {
-    setState((prev) => {
-      const next = write(prev, path, value);
-      const top = path.split(".")[0];
-      globeRef.current?.setOptions({ [top]: next[top] });
-      return next;
-    });
+    const next = write(stateRef.current, path, value);
+    stateRef.current = next;
+    const top = path.split(".")[0];
+    ownKeys.current.add(top);
+
+    const globe = globeRef.current;
+    if (globe) {
+      globe.setOptions({ [top]: next[top] });
+      if (top === "preset" || top === "scene") {
+        // A preset returns every key it owns to its default, which would drop
+        // whatever this demo is actually about — its colours, legend or title.
+        const restore = {};
+        for (const key of ownKeys.current) {
+          if (key !== "preset" && key !== "scene") restore[key] = next[key];
+        }
+        globe.setOptions(restore);
+      }
+    }
+    setState(next);
   }, []);
 
   const run = useCallback((fn) => {

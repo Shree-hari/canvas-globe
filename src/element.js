@@ -4,7 +4,7 @@
  */
 import { GeoGlobe } from "./geo-globe.js";
 
-const BOOLS = ["auto-rotate", "interactive", "keyboard", "graticule", "stars", "shade", "terminator", "cluster", "tooltip", "zoomable", "official-india"];
+const BOOLS = ["auto-rotate", "interactive", "keyboard", "graticule", "stars", "shade", "terminator", "cluster", "tooltip", "zoomable"];
 const NUMBERS = ["zoom", "min-zoom", "max-zoom", "rotate-speed", "marker-scale", "radius-ratio", "fps", "cluster-radius", "arc-lift", "arc-speed", "lat", "lon", "orbits", "dot-spacing", "dot-size"];
 const STRINGS = ["mode", "projection", "theme", "preset", "land-style", "marker-style", "aria-label"];
 const JSONS = ["markers", "arcs", "country-colors", "lat-range"];

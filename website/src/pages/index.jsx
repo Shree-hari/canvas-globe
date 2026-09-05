@@ -49,7 +49,7 @@ const FEATURES = [
   ["🎨", "Ten presets", "Dot-matrix hologram, neon, blueprint HUD, printed atlas. Every piece composes."],
   ["🎬", "Country canvas", "Play an image, GIF or video inside a country's outline."],
   ["📍", "Knows the viewer", "Places them from their time zone. No permission prompt, no network call."],
-  ["🇮🇳", "Correct India boundary", "Survey of India depiction, on by default."],
+  ["🇮🇳", "Correct India boundary", "Survey of India depiction, built into the geometry."],
 ];
 
 export default function Home() {

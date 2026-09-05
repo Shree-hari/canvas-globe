@@ -43,7 +43,6 @@
       "default": "./src/react.js"
     },
     "./data/world": "./src/data/world.js",
-    "./data/india": "./src/data/india.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -78,6 +77,7 @@
     }
   },
   "devDependencies": {
+    "polygon-clipping": "^0.15.7",
     "topojson-client": "^3.1.0",
     "typescript": "^5.5.0"
   },

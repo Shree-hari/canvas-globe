@@ -1,4 +1,4 @@
-export { GeoGlobe, createGlobe, world, india } from "./geo-globe.js";
+export { GeoGlobe, createGlobe, world } from "./geo-globe.js";
 export { themes, countryPalette } from "./themes.js";
 export { presets } from "./presets.js";
 export { scenes } from "./scenes.js";

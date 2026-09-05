@@ -110,12 +110,11 @@ Failing to call it in a single-page app leaks a `requestAnimationFrame` loop per
 
 ## Bundle size
 
-~118 KB gzipped, of which about 76 KB is map data:
+~120 KB gzipped, of which about 71 KB is map data:
 
 | Piece | Gzipped |
 | --- | --- |
-| Country geometry | ~52 KB |
-| India boundary | ~17 KB |
+| Country geometry | ~64 KB |
 | Time-zone table | ~7 KB |
 | All code | ~43 KB |
 

@@ -26,7 +26,6 @@ import { createGlobe } from "@swiftools/geo-globe";
 | `@swiftools/geo-globe/react` | The `<Globe>` React component |
 | `@swiftools/geo-globe/element` | Registers the `<geo-globe>` custom element |
 | `@swiftools/geo-globe/data/world` | Just the country geometry |
-| `@swiftools/geo-globe/data/india` | Just the Survey of India boundary |
 
 React is an **optional** peer dependency. You only need it if you import `/react`.
 
@@ -42,11 +41,10 @@ Everything lands on a `GeoGlobe` global. See [No build step](./no-build) for the
 
 | Piece | Gzipped |
 | --- | --- |
-| Country geometry (Natural Earth 1:110m) | ~52 KB |
-| India boundary (Survey of India) | ~17 KB |
+| Country geometry (Natural Earth 1:110m, India per Survey of India) | ~64 KB |
 | Time-zone table | ~7 KB |
 | All the code | ~43 KB |
-| **UMD bundle, everything included** | **~118 KB** |
+| **UMD bundle, everything included** | **~120 KB** |
 
 Most of the weight is map data, not code. If you bundle with a tree-shaking bundler and never touch
 a feature, its code drops out — but the geometry stays, because that is what makes a globe a globe.

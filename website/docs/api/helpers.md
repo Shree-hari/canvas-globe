@@ -172,7 +172,6 @@ Usable on any canvas, not just a globe.
 | Export | What |
 | --- | --- |
 | `world` | Bundled country geometry |
-| `india` | Bundled Survey of India boundary |
 | `themes` | The nine palettes |
 | `presets` | The ten looks |
 | `scenes` | The seven compositions |

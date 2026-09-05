@@ -3,7 +3,6 @@
  * No dependencies, no WebGL, no network calls, no API keys.
  */
 import { world as bundledWorld } from "./data/world.js";
-import { india as bundledIndia } from "./data/india.js";
 import { themes, countryPalette } from "./themes.js";
 import { presets, presetKeys } from "./presets.js";
 import { locateViewer, locateViewerPrecise } from "./viewer.js";
@@ -69,9 +68,7 @@ const DEFAULTS = {
   countryKey: null,
   radiusRatio: 0.4,
   latRange: [83, -56],
-  officialIndia: true,
   world: null,
-  india: null,
   fps: 30,
   tooltip: false,
   respectReducedMotion: true,
@@ -82,12 +79,6 @@ const DEFAULTS = {
   onCountryClick: null,
   onRender: null,
 };
-
-const INDIA_SHAPE = { id: "356", name: "India", iso: "IN" };
-
-/** Matches whatever the source world data calls India, so it can be superseded. */
-const isIndiaShape = (shape) =>
-  shape.iso === "IN" || String(shape.id) === "356" || String(shape.name).toLowerCase() === "india";
 
 const coord = (v) => (Array.isArray(v) ? [v[0], v[1]] : [v.lon ?? v.lng ?? v.longitude, v.lat ?? v.latitude]);
 
@@ -143,7 +134,6 @@ export class GeoGlobe {
     this._counterShown = null;
 
     this._applyWorld();
-    this._applyIndia();
     this._applyMarkers(this.o.markers);
     this._applyTexture();
     this._applyMedia();
@@ -174,7 +164,6 @@ export class GeoGlobe {
     patch = this._expandLooks(patch);
     Object.assign(this.o, patch);
     if ("world" in patch) this._applyWorld();
-    if ("india" in patch || "officialIndia" in patch) this._applyIndia();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
     if ("zoom" in patch) this._zoom = clamp(patch.zoom, this.o.minZoom, this.o.maxZoom);
     // An explicit ceiling takes over from the one focus raised.
@@ -679,7 +668,6 @@ export class GeoGlobe {
     const g = this.unproject(x, y);
     if (!g) return null;
     const [lon, lat] = g;
-    if (this.india && pointInGeometry(this.india, lon, lat)) return this._indiaShape;
     for (const shape of this.world) {
       const b = this._shapeBox(shape);
       if (lon < b[0] || lon > b[2] || lat < b[1] || lat > b[3]) continue;
@@ -753,40 +741,12 @@ export class GeoGlobe {
   /* ------------------------------ setup bits ------------------------------ */
 
   _applyWorld() {
-    this._worldAll = normalizeShapes(this.o.world) || bundledWorld;
-    this._syncShapes();
-  }
-
-  _applyIndia() {
-    if (!this.o.officialIndia) {
-      this.india = null;
-      this._indiaShape = null;
-    } else {
-      this.india = normalizeShapes(this.o.india)?.[0]?.geometry || bundledIndia;
-      this._indiaShape = { ...INDIA_SHAPE, geometry: this.india };
-    }
-    this._syncShapes();
-  }
-
-  /**
-   * The official boundary supersedes whatever India the source data ships, so
-   * that shape is dropped rather than drawn underneath — two India outlines at
-   * a stroked land style is exactly the artefact this avoids.
-   */
-  _syncShapes() {
-    const all = this._worldAll;
-    const rest = this.india ? all.filter((s) => !isIndiaShape(s)) : all;
-    this.world = rest.length === all.length ? all : rest;
+    this.world = normalizeShapes(this.o.world) || bundledWorld;
     this._bbox = null;
     this._mask = undefined;
     this._dotPts = null;
     this._isoIndex = null;
     this._autoFor = null;
-  }
-
-  /** Every shape that gets painted, official India included. */
-  _shapes() {
-    return this._indiaShape ? this.world.concat([this._indiaShape]) : this.world;
   }
 
   _applyMarkers(markers) {
@@ -998,9 +958,7 @@ export class GeoGlobe {
       }
       this._isoIndex = { world: this.world, map };
     }
-    const code = String(key).toLowerCase();
-    if ((code === "in" || code === "india" || code === "356") && this._indiaShape) return this._indiaShape;
-    return this._isoIndex.map.get(code) || null;
+    return this._isoIndex.map.get(String(key).toLowerCase()) || null;
   }
 
   _countryCentroid(shape) {
@@ -1610,7 +1568,6 @@ export class GeoGlobe {
     ctx.fillStyle = "#fff";
     ctx.beginPath();
     for (const shape of this.world) this._traceFlat(shape.geometry, fwd, null, ctx);
-    if (this.india) this._traceFlat(this.india, fwd, null, ctx);
     ctx.fill();
     try {
       const data = ctx.getImageData(0, 0, W, H).data;
@@ -1635,7 +1592,6 @@ export class GeoGlobe {
           return mask.bits[y * mask.W + x] === 1;
         }
       : (lon, lat) => {
-          if (this.india && pointInGeometry(this.india, lon, lat)) return true;
           for (const shape of this.world) {
             const b = this._shapeBox(shape);
             if (lon < b[0] || lon > b[2] || lat < b[1] || lat > b[3]) continue;
@@ -1755,7 +1711,7 @@ export class GeoGlobe {
    */
   _autoColors() {
     const palette = this.o.countryPalette || countryPalette;
-    const shapes = this._shapes();
+    const shapes = this.world;
     if (this._autoFor === this.world && this._autoPalette === palette) return this._autoMap;
     const boxes = shapes.map((s) => this._shapeBox(s));
     const adjacency = shapes.map(() => []);
@@ -2028,29 +1984,11 @@ export class GeoGlobe {
     ctx.restore();
   }
 
-  /**
-   * Neighbouring states carry their de-facto lines straight through Jammu and
-   * Kashmir, so everything but India is clipped to the area outside the
-   * official boundary. Painting India on top is not enough — at any stroked
-   * land style the claim line still shows through.
-   */
-  _clipOutsideIndia(trace, w, h) {
-    if (!this.india) return false;
-    const { ctx } = this;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, w, h);
-    trace(this.india);
-    ctx.clip("evenodd");
-    return true;
-  }
-
-  _paintCountries(t, trace, textured, w, h) {
+  _paintCountries(t, trace, textured) {
     if (this.o.landStyle === "dots" || this.o.landStyle === "none") return;
     const { ctx } = this;
     const focus = this._focusSpec;
     const hasMedia = this._media.size > 0;
-    const clipped = this._clipOutsideIndia(trace, w, h);
 
     if (focus || hasMedia || this._choropleth()) {
       const dim = focus?.dim ?? 0.16;
@@ -2068,13 +2006,12 @@ export class GeoGlobe {
         }
         ctx.restore();
       }
-    } else {
-      ctx.beginPath();
-      for (const shape of this.world) trace(shape.geometry);
-      this._paintLand(t, t.land, textured);
+      return;
     }
 
-    if (clipped) ctx.restore();
+    ctx.beginPath();
+    for (const shape of this.world) trace(shape.geometry);
+    this._paintLand(t, t.land, textured);
   }
 
   _outline(t, width) {
@@ -2084,34 +2021,13 @@ export class GeoGlobe {
     ctx.stroke();
   }
 
-  _paintIndia(t, trace, textured) {
-    if (!this.india || this.o.landStyle === "dots" || this.o.landStyle === "none") return;
-    const focus = this._focusSpec;
-    if (focus && focus.isolate && this._focusShape !== this._indiaShape) return;
-    const { ctx } = this;
-    // Painted opaque so neighbouring de-facto lines don't cut through it.
-    ctx.save();
-    if (focus && this._focusShape !== this._indiaShape) ctx.globalAlpha = focus.dim ?? 0.16;
-    ctx.beginPath();
-    trace(this.india);
-    if (this._paintCountryMedia(this._indiaShape, trace)) {
-      this._outline(t, focus ? focus.outlineWidth ?? 1.6 : 0.9);
-    } else {
-      this._paintLand(t, (this._choropleth() && this._fillFor(this._indiaShape)) || t.land, textured);
-    }
-    ctx.restore();
-  }
-
-  _paintHighlight(t, trace, w, h) {
+  _paintHighlight(t, trace) {
     if (!this._hoveredCountry) return;
     const { ctx } = this;
-    const clipped =
-      this._hoveredCountry === this._indiaShape ? false : this._clipOutsideIndia(trace, w, h);
     ctx.beginPath();
     trace(this._hoveredCountry.geometry);
     ctx.fillStyle = t.countryHover;
     ctx.fill();
-    if (clipped) ctx.restore();
   }
 
   /* --------------------------------- arcs --------------------------------- */
@@ -2357,7 +2273,7 @@ export class GeoGlobe {
     };
 
     if (mode === "countries" || mode === "both") {
-      const shapes = [...this._shapes()].sort((a, b) => {
+      const shapes = [...this.world].sort((a, b) => {
         const ba = this._shapeBox(a), bb = this._shapeBox(b);
         return (bb[2] - bb[0]) * (bb[3] - bb[1]) - (ba[2] - ba[0]) * (ba[3] - ba[1]);
       });
@@ -2619,10 +2535,9 @@ export class GeoGlobe {
       }
     }
 
-    this._paintCountries(t, trace, textured, w, h);
-    this._paintIndia(t, trace, textured);
+    this._paintCountries(t, trace, textured);
     if (this.o.landStyle === "dots") this._paintDotsGlobe(cx, cy, r, t);
-    this._paintHighlight(t, trace, w, h);
+    this._paintHighlight(t, trace);
     if (this.o.terminator) this._paintTerminatorGlobe(cx, cy, r, t);
     ctx.restore();
 
@@ -2719,10 +2634,9 @@ export class GeoGlobe {
       }
     }
 
-    this._paintCountries(t, trace, textured, w, h);
-    this._paintIndia(t, trace, textured);
+    this._paintCountries(t, trace, textured);
     if (this.o.landStyle === "dots") this._paintDotsMap(t, fwd, w, h);
-    this._paintHighlight(t, trace, w, h);
+    this._paintHighlight(t, trace);
     if (this.o.terminator) this._paintTerminatorMap(t, fwd, w, h, lonC);
 
     this._paintArcs(t, (lon, lat, _lift, prevLon) => {
@@ -2934,5 +2848,5 @@ export function createGlobe(canvas, options) {
   return new GeoGlobe(canvas, options);
 }
 
-export { bundledWorld as world, bundledIndia as india };
+export { bundledWorld as world };
 export default createGlobe;

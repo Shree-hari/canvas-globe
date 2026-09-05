@@ -44,7 +44,7 @@ Every scalar option is a dash-cased attribute.
 | --- | --- |
 | **Strings** | `mode`, `projection`, `theme`, `preset`, `land-style`, `marker-style`, `aria-label` |
 | **Numbers** | `zoom`, `min-zoom`, `max-zoom`, `rotate-speed`, `marker-scale`, `radius-ratio`, `fps`, `cluster-radius`, `arc-lift`, `arc-speed`, `orbits`, `dot-spacing`, `dot-size`, `lat`, `lon` |
-| **Booleans** | `auto-rotate`, `interactive`, `keyboard`, `graticule`, `stars`, `shade`, `terminator`, `cluster`, `tooltip`, `zoomable`, `official-india` |
+| **Booleans** | `auto-rotate`, `interactive`, `keyboard`, `graticule`, `stars`, `shade`, `terminator`, `cluster`, `tooltip`, `zoomable` |
 | **JSON** | `markers`, `arcs`, `country-colors`, `lat-range` |
 
 Booleans are true when present, unless set to `"false"` or `"0"`.

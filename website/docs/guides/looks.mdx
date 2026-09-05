@@ -60,13 +60,6 @@ makes changing `dotSpacing` cheap and lets the whole matrix draw in a single `fi
 polygon-testing fallback for environments with no canvas, such as SSR.
 :::
 
-:::note Stroked styles and India's boundary
-`"outline"` and `"glow"` — and the `noir`, `blueprint` and `neon` presets that use them — draw every
-country as a line rather than a fill. That would expose the neighbouring de-facto claim lines
-running through Jammu and Kashmir, so with `officialIndia` on those countries are clipped to the
-area outside the official boundary. See [India's boundary](/troubleshooting#indias-boundary).
-:::
-
 ## Orbit rings
 
 `orbits` takes a count from 0 to 6, or explicit ring specs. They are real great circles, so they

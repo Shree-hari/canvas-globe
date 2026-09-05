@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { installGlobals, makeCanvas } from "./helpers.js";
-import { GeoGlobe, createGlobe, themes, presets, world } from "../src/index.js";
+import { GeoGlobe, createGlobe, themes, presets, world, pointInGeometry } from "../src/index.js";
 
 installGlobals();
 
@@ -247,16 +247,37 @@ test("terminator renders in both modes", () => {
   }
 });
 
-test("official India geometry can be swapped and disabled", () => {
-  const g = globe();
-  assert.ok(g.india);
-  assert.equal(g._indiaShape.iso, "IN");
-  g.setOptions({ officialIndia: false });
-  assert.equal(g.india, null);
-  const custom = { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] };
-  g.setOptions({ officialIndia: true, india: custom });
-  assert.equal(g.india, custom);
-  g.destroy();
+test("India is part of the bundled geometry, on its official boundary", () => {
+  const india = world.find((s) => s.iso === "IN");
+  assert.ok(india, "India ships as an ordinary country shape");
+  assert.equal(india.name, "India");
+  assert.equal(india.id, "356");
+
+  for (const [lon, lat, place] of [
+    [74.4, 35.3, "Gilgit-Baltistan"],
+    [79.0, 35.0, "Aksai Chin"],
+    [74.8, 34.08, "Srinagar"],
+  ]) {
+    assert.ok(pointInGeometry(india.geometry, lon, lat), `${place} is inside India`);
+    const claimants = world.filter((s) => s !== india && pointInGeometry(s.geometry, lon, lat));
+    assert.deepEqual(claimants.map((s) => s.name), [], `${place} must belong to India alone`);
+  }
+});
+
+test("subtracting India left its neighbours intact", () => {
+  for (const [name, lon, lat] of [
+    ["Pakistan", 73.05, 33.68],
+    ["China", 116.4, 39.9],
+    ["Nepal", 85.32, 27.71],
+    ["Bhutan", 89.64, 27.47],
+    ["Bangladesh", 90.41, 23.81],
+    ["Myanmar", 96.15, 19.75],
+    ["Afghanistan", 69.17, 34.53],
+  ]) {
+    const shape = world.find((s) => s.name === name);
+    assert.ok(shape, `${name} is still in the dataset`);
+    assert.ok(pointInGeometry(shape.geometry, lon, lat), `${name}'s capital is still inside it`);
+  }
 });
 
 test("custom world geometry replaces the bundled set", () => {
@@ -268,37 +289,7 @@ test("custom world geometry replaces the bundled set", () => {
   assert.equal(g.world.length, 1);
   assert.equal(g.world[0].name, "Testland");
   g.setOptions({ world: null });
-  assert.equal(g.world.length, world.length - 1, "the bundled India is superseded");
-  g.destroy();
-});
-
-test("the source data's India is dropped in favour of the official boundary", () => {
-  const g = globe({});
-  assert.ok(!g.world.some((s) => s.name === "India"), "two India outlines would overlap");
-  assert.equal(g._shapes().length, g.world.length + 1);
-  assert.equal(g._shapes().at(-1), g._indiaShape);
-  g.setOptions({ officialIndia: false });
-  assert.equal(g.world.length, world.length, "and comes back when the option is off");
-  assert.ok(g.world.some((s) => s.name === "India"));
-  g.destroy();
-});
-
-test("neighbours are clipped to the area outside official India", () => {
-  for (const mode of ["globe", "map"]) {
-    const canvas = makeCanvas(400, 400);
-    const g = new GeoGlobe(canvas, { mode, landStyle: "outline", autoRotate: false });
-    g.render();
-    const evenodd = canvas.calls.filter(([name, args]) => name === "clip" && args[0] === "evenodd");
-    assert.ok(evenodd.length, `${mode}: expected an even-odd clip around the official boundary`);
-    g.destroy();
-  }
-});
-
-test("no clip is emitted once officialIndia is off", () => {
-  const canvas = makeCanvas(400, 400);
-  const g = new GeoGlobe(canvas, { officialIndia: false, landStyle: "outline", autoRotate: false });
-  g.render();
-  assert.equal(canvas.calls.filter(([n, a]) => n === "clip" && a[0] === "evenodd").length, 0);
+  assert.equal(g.world, world);
   g.destroy();
 });
 
@@ -415,7 +406,7 @@ test("the dot grid is cached until spacing changes", () => {
 
 test("auto colours never repeat between neighbouring countries", () => {
   const g = globe({ countryColors: "auto" });
-  const shapes = g._shapes();
+  const shapes = g.world;
   const colors = g._autoColors();
   assert.equal(colors.size, shapes.length);
   let checked = 0;

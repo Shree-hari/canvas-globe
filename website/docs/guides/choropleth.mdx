@@ -163,17 +163,9 @@ legend: {
 
 ## India
 
-The bundled world geometry uses Natural Earth, which draws de-facto administrative lines. geo-globe
-replaces it with the official Survey of India boundary by default, drops Natural Earth's India so
-there is no second outline, and clips the neighbouring countries to the area outside it. That shape
-participates in choropleth like any other country — key it as `IN`, `356` or `India`, and
-`countryColors: "auto"` gives it a fill that does not clash with Pakistan or China.
+India is drawn on the Survey of India boundary, as part of the bundled country geometry rather than
+as an overlay. It joins, colours, clicks and labels like every other country — key it as `IN`, `356`
+or `India`, and `countryColors: "auto"` gives it a fill that does not clash with its neighbours.
 
-Because it is not part of the source set, India is **not** in `globe.world`. Iterate
-`globe._shapes()` if you need every painted country:
-
-```js
-const rows = globe._shapes().map((s) => ({ iso: s.iso, name: s.name }));
-```
-
-See [the note on India's boundary](/troubleshooting#indias-boundary) for the full explanation.
+See [the note on India's boundary](/troubleshooting#indias-boundary) for where the geometry comes
+from.

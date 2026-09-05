@@ -96,14 +96,10 @@ Everything `createGlobe(canvas, options)` accepts. All options can also be patch
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `world` | GeoJSON \| shape array | bundled | Replace the country geometry |
-| `india` | GeoJSON | bundled | Replace the India boundary |
-| `officialIndia` | `boolean` | `true` | Use the Survey of India boundary instead of the source data's India, and clip neighbours out of it |
 | `texture` | `string \| CanvasImageSource` | — | Equirectangular image on the sphere |
 | `textureQuality` | `"auto" \| number` | `"auto"` | Pixel step; higher is faster |
 
-With `officialIndia` on, `globe.world` excludes the source data's India — the official boundary is
-drawn from `globe.india` instead, and neighbouring countries are clipped to the area outside it so
-their claim lines cannot cross it at any land style. See
+The bundled geometry draws India on the Survey of India boundary. See
 [India's boundary](/troubleshooting#indias-boundary).
 
 ## Viewer

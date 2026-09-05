@@ -489,12 +489,8 @@ export interface GeoGlobeOptions {
   radiusRatio?: number;
   /** [north, south] latitude bounds for map mode. Default [83, -56]. */
   latRange?: [number, number];
-  /** Draw India with its official Survey of India boundary. Default true. */
-  officialIndia?: boolean;
   /** Replace the bundled country geometry. Accepts GeoJSON or the shape array. */
   world?: unknown;
-  /** Replace the bundled India geometry. */
-  india?: unknown;
   /** Frame cap. Default 30. */
   fps?: number;
   /** Built-in tooltip. `true` uses the default text, or pass a formatter. */
@@ -645,7 +641,6 @@ export declare const projections: Record<MapProjection, {
   inverse(x: number, y: number): [number, number];
 }>;
 export declare const world: CountryShape[];
-export declare const india: unknown;
 
 /** Viewer location from the browser time zone. No prompt, no network call. */
 export declare function locateViewer(): ViewerLocation | null;

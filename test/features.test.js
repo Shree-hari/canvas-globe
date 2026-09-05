@@ -90,10 +90,10 @@ test("a wide single-timezone country anchors on its centroid, not one city", () 
 
 test("a small country keeps the time-zone city", () => {
   const g = globe({ showViewer: true });
-  const zone = { lat: 51.51, lon: -0.13, country: "GB", timeZone: "Europe/London", source: "timezone", accuracy: "region", accuracyMeters: null };
+  const zone = { lat: 52.37, lon: 4.9, country: "NL", timeZone: "Europe/Amsterdam", source: "timezone", accuracy: "region", accuracyMeters: null };
   g.setViewerLocation(zone, {});
   assert.equal(g._viewer.anchor, "timezone");
-  assert.ok(Math.abs(g._viewer.lon + 0.13) < 1e-9);
+  assert.ok(Math.abs(g._viewer.lon - 4.9) < 1e-9);
   g.destroy();
 });
 

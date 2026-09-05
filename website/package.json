@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
+    "prestart": "node scripts/drop-stale-cache.mjs",
     "start": "docusaurus start",
+    "prebuild": "node scripts/drop-stale-cache.mjs",
     "build": "docusaurus build",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear"

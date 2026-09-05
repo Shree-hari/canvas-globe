@@ -131,31 +131,26 @@ constructing during render. In Next.js App Router, add `"use client"` or load th
 
 ## India's boundary
 
-Natural Earth depicts **de-facto administrative lines**, which do not match India's official map.
-geo-globe ships Datameet's CC-0 `india-composite` geometry — India's land area including disputed
-territories, per the Survey of India boundary — and uses it instead. Two things happen:
+India is drawn on the **Survey of India** boundary — Jammu and Kashmir, Ladakh and Aksai Chin
+included. That is not an option or an overlay; it is what the bundled geometry says, the same way
+the geometry says where France is.
 
-1. **The source data's own India shape is dropped.** Drawing both would leave a second outline
-   running across Jammu and Kashmir, which is exactly what you see at a stroked land style
-   (`outline`, `glow`, and the `noir`, `blueprint` and `neon` presets).
-2. **Every other country is clipped to the area outside the official boundary.** Neighbouring
-   states carry their claim lines straight through the region; painting India on top hides their
-   *fills* but not their *strokes*, so they are clipped instead.
+Most world datasets, Natural Earth included, depict de-facto administrative lines instead. Rather
+than patch that at render time, the two sources are reconciled when the data is generated: India
+carries [Datameet's CC-0 `india-composite`](https://github.com/datameet/maps) outline, and that area
+is subtracted from the neighbouring countries so no two shapes claim the same ground. The result is
+one continuous boundary at every land style, theme and zoom level, with nothing overlapping and no
+special cases in the renderer.
 
-The result is one continuous boundary at every land style, theme and zoom level.
+India behaves like any other country throughout — [choropleth](/guides/choropleth),
+[country media](/guides/country-canvas), labels, `focusOn`, tooltips and hit testing. Key it as
+`IN`, `356` or `India`.
 
-This is on by default. Disable it with `officialIndia: false` — which restores the source data's
-India and removes the clip — or replace the geometry entirely with `india`.
+If you need a different depiction, replace the geometry:
 
 ```js
-createGlobe(canvas, { officialIndia: false });          // use the source data as-is
-createGlobe(canvas, { india: myGeoJson });              // or supply your own boundary
+createGlobe(canvas, { world: myGeoJson });
 ```
-
-The India shape participates in [choropleth](/guides/choropleth),
-[country media](/guides/country-canvas), labels and hit testing like any other country — key it as
-`IN`, `356` or `India`. It is **not** in `globe.world`, because it is not part of the source set;
-`globe._shapes()` is world plus the official boundary.
 
 ## Still stuck?
 

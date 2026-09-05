@@ -17,9 +17,9 @@ const EXPORTS = [
   "locateViewer", "locateViewerPrecise", "timeZoneLocation", "countryLocation", "placeLocation",
   "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
   "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
-  "geometryBounds", "projections", "world", "india",
+  "geometryBounds", "projections", "world",
 ];
-const SIZE_BUDGET_KB = Number(process.env.GEO_GLOBE_SIZE_BUDGET_KB || 120);
+const SIZE_BUDGET_KB = Number(process.env.GEO_GLOBE_SIZE_BUDGET_KB || 125);
 
 const strip = (src, file) => {
   const out = src
@@ -37,10 +37,8 @@ const stripData = (src) => src.replace(/^export default .*$/gm, "").replace(/^ex
 
 const parts = [
   stripData(read("src/data/world.js")),
-  stripData(read("src/data/india.js")),
   stripData(read("src/data/timezones.js")),
   "const bundledWorld = world;",
-  "const bundledIndia = india;",
   ...MODULES.map((m) => strip(read(m), m)),
   `return { ${EXPORTS.join(", ")}, default: createGlobe };`,
 ];

@@ -17,7 +17,7 @@ Interactive **globe** and **world map** on a plain 2D canvas.
 - 🗺 **Four projections** — orthographic globe plus equirectangular, Mercator and Natural Earth
 - ♿️ **Accessible** — keyboard controls, live region, `prefers-reduced-motion`
 - ⚛️ **Bindings included** — vanilla, `<geo-globe>` custom element, and React
-- 🇮🇳 **Correct India boundary** — Survey of India depiction, on by default
+- 🇮🇳 **Correct India boundary** — Survey of India depiction, built into the geometry
 
 Perfect for "where our users are" dashboards, launch pages, status boards and share graphics.
 
@@ -163,8 +163,7 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `arcSpeed` | `1` | Multiplies every arc's travel speed |
 | `radiusRatio` | `0.4` | Globe radius vs the smaller canvas side |
 | `latRange` | `[83, -56]` | Map mode north/south bounds |
-| `officialIndia` | `true` | Use the Survey of India boundary instead of the source data's India |
-| `world` / `india` | bundled | Your own GeoJSON |
+| `world` | bundled | Your own GeoJSON |
 | `fps` | `30` | Frame cap |
 | `tooltip` | `false` | `true`, or `(target, kind) => string` |
 | `respectReducedMotion` | `true` | Honour `prefers-reduced-motion` |
@@ -564,19 +563,18 @@ drawn, so a typical globe frame skips 20–60% of the world. On a laptop a 560 p
 
 ## India's boundary
 
-Natural Earth depicts de-facto administrative lines, which do not match India's official map. This
-package ships Datameet's CC-0 `india-composite` geometry — India's land area including disputed
-territories, per the official Survey of India boundary — and uses it instead of the source shape.
+India is drawn on the **Survey of India** boundary — Jammu and Kashmir, Ladakh and Aksai Chin
+included. There is no option for it and no overlay: it is what the bundled geometry says, the same
+way the geometry says where France is.
 
-Two things make that hold up at every land style:
+Most world datasets, Natural Earth included, ship de-facto administrative lines instead. Rather than
+patch that at render time, the sources are reconciled when the data is generated — India carries
+Datameet's CC-0 `india-composite` outline, and that area is subtracted from its neighbours so no two
+countries claim the same ground. One continuous boundary at every land style, nothing overlapping,
+no special cases in the renderer.
 
-- **Natural Earth's India is dropped**, so there is no second outline crossing Jammu and Kashmir.
-- **Neighbouring countries are clipped to the area outside the official boundary**, so their claim
-  lines cannot stroke across it. Painting India on top only hides their fills, not their strokes —
-  which is why `outline`, `glow` and the `noir` / `blueprint` / `neon` presets need the clip.
-
-India is therefore not in `globe.world`; use `globe._shapes()` for every painted country. Disable
-the whole behaviour with `officialIndia: false`, or supply your own geometry via `india`.
+India behaves like any other country for choropleth, country media, labels, `focusOn`, tooltips and
+hit testing. Pass your own `world` GeoJSON if you need a different depiction.
 
 ## Data & licences
 
