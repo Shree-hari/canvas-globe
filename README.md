@@ -33,7 +33,7 @@ great-circle arcs, choropleths, keyboard interaction, and image/video export,
 especially when WebGL or external map services are not acceptable. Use a 3D
 engine such as globe.gl or Cesium instead when you need terrain, perspective
 cameras, custom shaders, or thousands of independent 3D objects. See the
-[globe-library comparison](https://swiftools.github.io/canvas-globe/compare/javascript-globe-libraries).
+[globe-library comparison](https://shree-hari.github.io/canvas-globe/compare/javascript-globe-libraries).
 
 ## Licensing
 
@@ -45,7 +45,7 @@ CanvasGlobe is dual-licensed:
 The full package and feature set are the same on both paths. GPL permits
 commercial activity; whether a particular distribution can comply is
 fact-specific. See [LICENSING.md](LICENSING.md) and the
-[commercial plans](https://swiftools.github.io/canvas-globe/pricing).
+[commercial plans](https://shree-hari.github.io/canvas-globe/pricing).
 
 Select the GPL path explicitly, or use the key supplied by the commerce
 platform with a commercial order:
@@ -640,7 +640,10 @@ dependencies separately with `npm --prefix website install`.
 
 ## Author
 
-Harsh
+Harsh Jhunjhunuwala
+
+Copyright (C) 2026 Harsh Jhunjhunuwala. CanvasGlobe is published under the
+Swiftools brand.
 
 ## Browser support
 

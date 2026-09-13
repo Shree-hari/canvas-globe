@@ -2,11 +2,13 @@
 
 Canonical package: `canvas-globe`
 
-Canonical website: https://swiftools.github.io/canvas-globe/
+Canonical website: https://shree-hari.github.io/canvas-globe/
 
-Canonical repository: https://github.com/swiftools/canvas-globe
+Canonical repository: https://github.com/Shree-hari/canvas-globe
 
-Author: Harsh
+Author: Harsh Jhunjhunuwala
+Copyright owner: Harsh Jhunjhunuwala
+Brand: Swiftools
 
 ## Definition
 
@@ -112,12 +114,12 @@ the documentation is not legal advice.
 
 ## Canonical links
 
-- Documentation: https://swiftools.github.io/canvas-globe/
-- JavaScript guide: https://swiftools.github.io/canvas-globe/javascript-interactive-globe
-- React guide: https://swiftools.github.io/canvas-globe/react-globe
-- API options: https://swiftools.github.io/canvas-globe/api/options
-- API methods: https://swiftools.github.io/canvas-globe/api/methods
-- Examples: https://swiftools.github.io/canvas-globe/examples
-- Comparison: https://swiftools.github.io/canvas-globe/compare/javascript-globe-libraries
-- Licensing: https://swiftools.github.io/canvas-globe/licensing
-- Pricing: https://swiftools.github.io/canvas-globe/pricing
+- Documentation: https://shree-hari.github.io/canvas-globe/
+- JavaScript guide: https://shree-hari.github.io/canvas-globe/javascript-interactive-globe
+- React guide: https://shree-hari.github.io/canvas-globe/react-globe
+- API options: https://shree-hari.github.io/canvas-globe/api/options
+- API methods: https://shree-hari.github.io/canvas-globe/api/methods
+- Examples: https://shree-hari.github.io/canvas-globe/examples
+- Comparison: https://shree-hari.github.io/canvas-globe/compare/javascript-globe-libraries
+- Licensing: https://shree-hari.github.io/canvas-globe/licensing
+- Pricing: https://shree-hari.github.io/canvas-globe/pricing

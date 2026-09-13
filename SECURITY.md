@@ -9,7 +9,7 @@ versions.
 ## Reporting a vulnerability
 
 Use GitHub's private vulnerability reporting / Security Advisory flow for the
-public `swiftools/canvas-globe` repository. Do not open a public issue with
+public `Shree-hari/canvas-globe` repository. Do not open a public issue with
 exploit details or customer information.
 
 Include:

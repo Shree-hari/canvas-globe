@@ -6,10 +6,11 @@
 
 **Effective date:** [DATE]
 
-This Commercial License Agreement (“Agreement”) is between **[LEGAL ENTITY,
-ADDRESS]** (“Licensor”) and the customer identified on an accepted order form
-(“Customer”). The order form, this Agreement, and any incorporated policies
-form the complete commercial license.
+This Commercial License Agreement (“Agreement”) is between **Harsh
+Jhunjhunuwala, operating under the Swiftools brand, of [ADDRESS]** (“Licensor”)
+and the customer identified on an accepted order form (“Customer”). The order
+form, this Agreement, and any incorporated policies form the complete
+commercial license.
 
 ## 1. Definitions
 
@@ -125,7 +126,7 @@ precedence, electronic signatures, and entire-agreement language.]
 
 ## Counsel decisions required
 
-1. Confirm the copyright owner and legal seller entity.
+1. Confirm the legal seller status, address, and Swiftools trade-name wording.
 2. Confirm that every contributor has granted commercial relicensing rights.
 3. Define “product,” “internal,” “affiliate,” “redistribution,” and
    contractor access precisely.

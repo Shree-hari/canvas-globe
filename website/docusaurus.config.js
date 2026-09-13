@@ -1,7 +1,7 @@
 // @ts-check
 import { themes as prismThemes } from "prism-react-renderer";
 
-const canonicalUrl = "https://swiftools.github.io/canvas-globe/";
+const canonicalUrl = "https://shree-hari.github.io/canvas-globe/";
 const softwareSchema = {
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
@@ -11,7 +11,7 @@ const softwareSchema = {
   description:
     "A zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D, without WebGL.",
   url: canonicalUrl,
-  codeRepository: "https://github.com/swiftools/canvas-globe",
+  codeRepository: "https://github.com/Shree-hari/canvas-globe",
   downloadUrl: "https://www.npmjs.com/package/canvas-globe",
   programmingLanguage: "JavaScript",
   runtimePlatform: "Web browser with Canvas 2D",
@@ -20,7 +20,9 @@ const softwareSchema = {
   isAccessibleForFree: true,
   keywords:
     "JavaScript globe, interactive globe, Canvas globe, React globe, world map, Canvas 2D, no WebGL, choropleth map, great-circle arcs",
-  author: { "@type": "Person", name: "Harsh" },
+  author: { "@type": "Person", name: "Harsh Jhunjhunuwala" },
+  copyrightHolder: { "@type": "Person", name: "Harsh Jhunjhunuwala" },
+  brand: { "@type": "Brand", name: "Swiftools" },
   targetProduct: {
     "@type": "SoftwareApplication",
     name: "CanvasGlobe",
@@ -37,9 +39,9 @@ const config = {
   tagline: "Interactive 3D globes and world maps: Canvas 2D, zero dependencies, no WebGL.",
   favicon: "img/favicon.svg",
 
-  url: "https://swiftools.github.io",
+  url: "https://shree-hari.github.io",
   baseUrl: "/canvas-globe/",
-  organizationName: "swiftools",
+  organizationName: "Shree-hari",
   projectName: "canvas-globe",
   headTags: [
     {
@@ -95,7 +97,7 @@ const config = {
         docs: {
           sidebarPath: "./sidebars.js",
           routeBasePath: "/",
-          editUrl: "https://github.com/swiftools/canvas-globe/tree/main/website/",
+          editUrl: "https://github.com/Shree-hari/canvas-globe/tree/master/website/",
         },
         blog: false,
         theme: { customCss: "./src/css/custom.css" },
@@ -127,7 +129,7 @@ const config = {
           { to: "/playground", label: "Playground", position: "left" },
           { to: "/pricing", label: "Pricing", position: "left" },
           { to: "/licensing", label: "License", position: "left" },
-          { href: "https://github.com/swiftools/canvas-globe", label: "GitHub", position: "right" },
+          { href: "https://github.com/Shree-hari/canvas-globe", label: "GitHub", position: "right" },
         ],
       },
       footer: {
@@ -161,12 +163,12 @@ const config = {
           {
             title: "More",
             items: [
-              { label: "GitHub", href: "https://github.com/swiftools/canvas-globe" },
+              { label: "GitHub", href: "https://github.com/Shree-hari/canvas-globe" },
               { label: "npm", href: "https://www.npmjs.com/package/canvas-globe" },
             ],
           },
         ],
-        copyright: `GPLv3 or commercial license. Geometry from Natural Earth (public domain) and Datameet (CC0).`,
+        copyright: `Copyright © ${new Date().getFullYear()} Harsh Jhunjhunuwala. CanvasGlobe is published under the Swiftools brand.`,
       },
       prism: {
         theme: prismThemes.github,

@@ -251,9 +251,8 @@ At preparation time the repository already had:
   not a reservation.
 - The public license was MIT, which cannot power a GPL/commercial conversion
   funnel. Copies already released under MIT would remain permissive forever.
-- The Git remote was `other-imp-projects/geo-globe` while the selected public
-  identity is `swiftools/canvas-globe`.
-- The expected public GitHub repository did not resolve without authentication.
+- The repository has been transferred to the selected public identity,
+  `Shree-hari/canvas-globe`.
 - Package metadata lacked repository, homepage, bugs, and author fields.
 - The website had no Pricing, Licensing, OEM, or commercial-support path.
 - The configured Open Graph image did not exist.
@@ -273,8 +272,8 @@ not expose the library's strongest differentiator. The selected public name is:
 
 - **Display name:** CanvasGlobe
 - **npm package:** `canvas-globe`
-- **repository:** `swiftools/canvas-globe`
-- **documentation path:** `https://swiftools.github.io/canvas-globe/`
+- **repository:** `Shree-hari/canvas-globe`
+- **documentation path:** `https://shree-hari.github.io/canvas-globe/`
 
 | Candidate | Search intent | Differentiation | Memorability | Decision |
 | --- | --- | --- | --- | --- |
@@ -360,8 +359,8 @@ public package at the checked slug:
   `globe` category terms.
 
 **Recommendation:** use the unscoped `canvas-globe` npm slug and style the
-public product as **CanvasGlobe** (one word). Identify **Harsh** separately as
-the author rather than placing an organization scope in the package name. This
+public product as **CanvasGlobe** (one word). Identify **Harsh Jhunjhunuwala**
+separately as the author rather than placing an organization scope in the package name. This
 captures the discovery value of the current name and creates a consistent token
 for documentation, third-party citations, and answer engines.
 No alternative above offers a large enough total advantage to justify changing
@@ -492,7 +491,9 @@ or approval, ⬜ still to execute.
 - ✅ Draft the commercial agreement for counsel in `legal/`.
 - ✅ Draft a contributor agreement that grants relicensing rights.
 - ✅ Add contribution and security policies.
-- 🟡 Confirm the legal copyright owner and seller entity.
+- ✅ Record Harsh Jhunjhunuwala as the copyright owner and Swiftools as the
+  operating brand.
+- 🟡 Confirm the legal seller status, address, and Swiftools trade-name wording.
 - 🟡 Have counsel review GPL applicability and all website language.
 - 🟡 Have counsel finalize the commercial agreement, order form, refund policy,
   privacy terms, liability allocation, jurisdiction, and tax/MoR relationship.
@@ -668,8 +669,8 @@ npm download counts are downloads, not unique people or production users.
 
 ### Phase 1: identity and public infrastructure
 
-1. Create or transfer the public repository to `swiftools/canvas-globe`.
-2. Update the local Git remote and protect `main`.
+1. Transfer the public repository to `Shree-hari/canvas-globe`. Completed.
+2. Update the local Git remote and protect `master`.
 3. Enable issues, Discussions if desired, private vulnerability reporting, and
    required CI checks.
 4. Confirm the owning npm account and enable 2FA or passkeys for maintainers.
@@ -751,7 +752,8 @@ Do not publish or accept payment until every applicable item is true.
 
 ### Legal
 
-- [ ] Copyright and seller entity confirmed.
+- [x] Copyright owner confirmed as Harsh Jhunjhunuwala.
+- [ ] Seller status, address, and Swiftools trade-name wording confirmed.
 - [ ] Commercial relicensing rights confirmed for every contribution.
 - [ ] GPL and commercial messaging reviewed by counsel.
 - [ ] Commercial agreement and order form approved and versioned.
@@ -881,11 +883,11 @@ and real adoption remain the foundation.
 
 Repository work can prepare these choices but cannot make them truthfully:
 
-1. **Legal identity:** exact copyright owner, seller name, address, governing
-   jurisdiction, and commercial contact.
+1. **Legal identity:** seller status, address, governing jurisdiction,
+   commercial contact, and the exact Swiftools trade-name wording.
 2. **License approval:** counsel-approved GPL guidance, CLA, commercial
    agreement, refunds, privacy, warranty, and liability language.
-3. **Public location:** create `swiftools/canvas-globe` and decide whether the
+3. **Public location:** use `Shree-hari/canvas-globe` and decide whether the
    docs remain on GitHub Pages or move to a custom domain. If the domain changes,
    update every canonical URL and add permanent redirects before launch.
 4. **Brand clearance:** confirm relevant trademarks, package names, domains,

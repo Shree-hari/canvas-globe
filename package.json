@@ -4,15 +4,15 @@
   "description": "Zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D. No WebGL or API key.",
   "license": "GPL-3.0-only",
   "author": {
-    "name": "Harsh"
+    "name": "Harsh Jhunjhunuwala"
   },
-  "homepage": "https://swiftools.github.io/canvas-globe/",
+  "homepage": "https://shree-hari.github.io/canvas-globe/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/swiftools/canvas-globe.git"
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git"
   },
   "bugs": {
-    "url": "https://github.com/swiftools/canvas-globe/issues"
+    "url": "https://github.com/Shree-hari/canvas-globe/issues"
   },
   "keywords": [
     "javascript-globe",
@@ -69,6 +69,7 @@
     "types",
     "README.md",
     "CHANGELOG.md",
+    "COPYRIGHT",
     "LICENSE",
     "LICENSING.md",
     "THIRD_PARTY_NOTICES.md",

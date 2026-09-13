@@ -12,7 +12,7 @@ By submitting a contribution and recording acceptance of this agreement, you:
 
 1. confirm that you are legally entitled to submit the contribution and, where
    an employer has rights in it, have obtained permission;
-2. grant **[COPYRIGHT OWNER LEGAL NAME]** and recipients a perpetual,
+2. grant **Harsh Jhunjhunuwala** and recipients a perpetual,
    worldwide, non-exclusive, royalty-free, irrevocable copyright license to
    reproduce, prepare derivative works of, publicly display, publicly perform,
    sublicense, distribute, and otherwise use the contribution;

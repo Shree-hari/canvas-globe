@@ -47,4 +47,4 @@ you are unsure.
 
 Natural Earth world data is public domain, and the India geometry is sourced
 from Datameet's CC0 mapping data. See
-[third-party notices](https://github.com/swiftools/canvas-globe/blob/main/THIRD_PARTY_NOTICES.md).
+[third-party notices](https://github.com/Shree-hari/canvas-globe/blob/master/THIRD_PARTY_NOTICES.md).

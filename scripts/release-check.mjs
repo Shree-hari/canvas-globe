@@ -14,6 +14,7 @@ const assert = (condition, message) => {
 const requiredFiles = [
   "README.md",
   "CHANGELOG.md",
+  "COPYRIGHT",
   "LICENSE",
   "LICENSING.md",
   "THIRD_PARTY_NOTICES.md",
@@ -27,19 +28,20 @@ const requiredFiles = [
 ];
 
 assert(pkg.name === "canvas-globe", "unexpected package name");
-assert(pkg.author?.name === "Harsh", "unexpected package author");
+assert(pkg.author?.name === "Harsh Jhunjhunuwala", "unexpected package author");
 assert(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(pkg.version), "version is not valid semver");
 assert(pkg.license === "GPL-3.0-only", "package license must be GPL-3.0-only");
 assert(pkg.private !== true, "package is marked private");
 assert(pkg.publishConfig?.access === "public", "package must publish with public access");
 assert(pkg.sideEffects?.includes("./src/element.js"), "custom-element registration must be marked as a side effect");
-assert(pkg.repository?.url === "git+https://github.com/swiftools/canvas-globe.git", "repository URL is not canonical");
-assert(pkg.homepage === "https://swiftools.github.io/canvas-globe/", "homepage URL is not canonical");
-assert(pkg.bugs?.url === "https://github.com/swiftools/canvas-globe/issues", "bugs URL is not canonical");
+assert(pkg.repository?.url === "git+https://github.com/Shree-hari/canvas-globe.git", "repository URL is not canonical");
+assert(pkg.homepage === "https://shree-hari.github.io/canvas-globe/", "homepage URL is not canonical");
+assert(pkg.bugs?.url === "https://github.com/Shree-hari/canvas-globe/issues", "bugs URL is not canonical");
 assert(pkg.keywords?.includes("javascript-globe"), "missing javascript-globe discovery keyword");
 assert(pkg.keywords?.includes("react-globe"), "missing react-globe discovery keyword");
 assert(pkg.keywords?.includes("no-webgl"), "missing no-webgl discovery keyword");
 assert(pkg.files?.includes("LICENSING.md"), "LICENSING.md is not in package files");
+assert(pkg.files?.includes("COPYRIGHT"), "COPYRIGHT is not in package files");
 assert(pkg.files?.includes("THIRD_PARTY_NOTICES.md"), "THIRD_PARTY_NOTICES.md is not in package files");
 assert(pkg.files?.includes("codemeta.json"), "codemeta.json is not in package files");
 for (const file of requiredFiles) assert(existsSync(join(root, file)), `missing required file: ${file}`);
@@ -50,8 +52,15 @@ if (existsSync(join(root, "LICENSE"))) {
   assert(license.includes("Version 3, 29 June 2007"), "LICENSE is not the canonical GPLv3 version");
 }
 
+if (existsSync(join(root, "COPYRIGHT"))) {
+  const copyright = readFileSync(join(root, "COPYRIGHT"), "utf8");
+  assert(copyright.includes("Copyright (C) 2026 Harsh Jhunjhunuwala"), "COPYRIGHT has the wrong owner");
+  assert(copyright.includes("Swiftools brand"), "COPYRIGHT is missing the brand statement");
+}
+
 if (existsSync(join(root, "dist/canvas-globe.umd.js"))) {
   const bundle = readFileSync(join(root, "dist/canvas-globe.umd.js"), "utf8");
+  assert(bundle.includes("Copyright (C) 2026 Harsh Jhunjhunuwala"), "UMD banner has stale ownership text");
   assert(bundle.includes("GPL-3.0-only OR commercial"), "UMD banner has stale license text");
 }
 
@@ -65,7 +74,7 @@ if (existsSync(join(root, "website/static/llms.txt"))) {
   const llms = readFileSync(join(root, "website/static/llms.txt"), "utf8");
   assert(llms.startsWith("# CanvasGlobe"), "llms.txt has the wrong project identity");
   assert(llms.includes("canvas-globe"), "llms.txt has a stale package identity");
-  assert(llms.includes("Author: Harsh"), "llms.txt has a stale author identity");
+  assert(llms.includes("Author: Harsh Jhunjhunuwala"), "llms.txt has a stale author identity");
 }
 
 const docsBuild = join(root, "website", "build");
@@ -85,7 +94,7 @@ if (existsSync(docsBuild)) {
   assert(indexHtml.includes('type=application/ld+json'), "built homepage is missing JSON-LD");
   assert(indexHtml.includes('"@type":"SoftwareSourceCode"'), "built homepage has the wrong JSON-LD type");
   assert(indexHtml.includes("rel=describedby"), "built homepage is missing llms.txt discovery link");
-  assert(indexHtml.includes("https://swiftools.github.io/canvas-globe/"), "built homepage has a stale canonical URL");
+  assert(indexHtml.includes("https://shree-hari.github.io/canvas-globe/"), "built homepage has a stale canonical URL");
   assert(indexHtml.includes("canvas-globe"), "built homepage has a stale package identity");
 }
 

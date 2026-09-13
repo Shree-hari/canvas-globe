@@ -9,6 +9,9 @@ licenses:
    under the terms shown on the applicable order form and commercial license
    agreement.
 
+Copyright (C) 2026 Harsh Jhunjhunuwala. CanvasGlobe is published under the
+Swiftools brand.
+
 The complete GPLv3 text is in [LICENSE](LICENSE). The commercial agreement is
 delivered during purchase and controls commercial use.
 
