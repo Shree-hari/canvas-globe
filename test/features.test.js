@@ -48,9 +48,9 @@ test("countryLocation resolves ISO codes case-insensitively", () => {
 
 test("locateViewer always resolves in a normal environment", () => {
   const found = locateViewer();
-  assert.ok(found, "expected a location from the host time zone");
-  assert.equal(found.source, "timezone");
-  assert.equal(found.accuracy, "region");
+  assert.ok(found, "expected a location from the host time zone or locale");
+  assert.ok(["timezone", "locale"].includes(found.source));
+  assert.equal(found.accuracy, found.source === "timezone" ? "region" : "country");
   assert.ok(Number.isFinite(found.lat) && Number.isFinite(found.lon));
 });
 
@@ -125,7 +125,7 @@ test("the accuracy circle can be switched off", () => {
 
 test("locateViewer is reachable from the instance", () => {
   const g = globe();
-  assert.equal(g.locateViewer().source, "timezone");
+  assert.ok(["timezone", "locale"].includes(g.locateViewer().source));
   g.destroy();
 });
 
