@@ -13,5 +13,9 @@ Describe the user-visible behavior and why it is needed.
 ## Contribution rights
 
 - [ ] I wrote this contribution or have the right to submit it.
-- [ ] I understand external code cannot be merged until the project's
-      contributor agreement has legal approval and my acceptance is recorded.
+- [ ] I have read and agree to the [CanvasGlobe Contributor License
+      Agreement](https://github.com/Shree-hari/canvas-globe/blob/main/CLA.md),
+      and I grant the rights stated there for this
+      contribution.
+- [ ] I identified all third-party material and its license in this pull
+      request, or this contribution contains no third-party material.

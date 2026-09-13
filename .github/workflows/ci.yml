@@ -11,6 +11,16 @@ permissions:
   contents: read
 
 jobs:
+  cla:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify recorded CLA acceptance
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          node -e 'const body = process.env.PR_BODY || ""; const accepted = /- \[[xX]\] I have read and agree to the \[CanvasGlobe Contributor License/.test(body); if (!accepted) { console.error("Check the CanvasGlobe CLA acceptance box in the pull request template."); process.exit(1); }'
+
   test:
     runs-on: ubuntu-latest
     strategy:

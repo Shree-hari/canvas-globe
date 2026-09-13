@@ -7,13 +7,18 @@ Thank you for helping improve CanvasGlobe.
 CanvasGlobe uses a dual-license model. The project must have permission to ship
 all accepted code under both GPLv3 and commercial licenses.
 
-The contributor agreement and acceptance process are pending legal approval.
-Until those are complete:
+The [CanvasGlobe Contributor License Agreement](CLA.md) grants the project the
+rights required for GPLv3 and commercial distribution. Before an external code
+contribution can be merged:
 
 - issues, bug reports, documentation corrections, and design discussion are
   welcome;
-- maintainers must not merge external code contributions; and
-- contributors should not send substantial code they cannot license.
+- the contributor must read the CLA and check the CLA acceptance statement in
+  the pull request template;
+- the pull request must pass the automated CLA-record check;
+- the maintainer must confirm the contribution's authorship and third-party
+  provenance; and
+- code must not be merged if the contributor cannot grant the CLA rights.
 
 This guardrail protects contributors, users, and commercial customers.
 
@@ -38,6 +43,8 @@ features dependency-free unless a change has been discussed first.
 - Run `npm run release:check` before requesting review.
 - Do not include generated credentials, customer data, or third-party code
   without compatible terms and provenance.
+- Keep the CLA acceptance statement checked. Removing it causes the CLA check
+  to fail and blocks an external contribution from being accepted.
 
 ## Reporting security issues
 
