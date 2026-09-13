@@ -1,5 +1,4 @@
 /** License-key configuration helpers. */
-export const OPEN_SOURCE_LICENSE_KEY = "GPL-3.0";
 export const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 
 /** Returns the configured license-key status. */
@@ -9,10 +8,7 @@ export function inspectLicenseKey(value) {
   if (key === DEFAULT_LICENSE_KEY) {
     return { valid: false, kind: "placeholder", key };
   }
-  if (key.trim().toUpperCase() === OPEN_SOURCE_LICENSE_KEY) {
-    return { valid: true, kind: "open-source", key: OPEN_SOURCE_LICENSE_KEY };
-  }
-  return { valid: true, kind: "commercial", key };
+  return { valid: true, kind: "provided", key };
 }
 
 /** Returns whether a configured license key is available. */
@@ -27,10 +23,13 @@ export function reportLicenseStatus(value) {
   // environments. Console messaging applies when it is used in a browser.
   if (typeof location === "undefined") return status;
   if (status.kind === "missing") {
-    console.error("canvas-globe: please provide a valid license key");
+    console.error(
+      "canvas-globe: please provide a valid license key. For help, email globe@swiftools.com",
+    );
   } else if (status.kind === "placeholder") {
     console.warn(
-      `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use`,
+      `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. ` +
+        "For help, email globe@swiftools.com",
     );
   }
   return status;

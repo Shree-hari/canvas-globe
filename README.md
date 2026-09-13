@@ -47,11 +47,11 @@ commercial activity; whether a particular distribution can comply is
 fact-specific. See [LICENSING.md](LICENSING.md) and the
 [commercial plans](https://canvasglobe.swiftools.com/pricing).
 
-Select the GPL path explicitly, or use the key supplied by the commerce
-platform with a commercial order:
+Pass the license key supplied with a commercial order. GPLv3-compatible
+projects can request a complimentary key through the licensing page:
 
 ```js
-createGlobe(canvas, { licenseKey: "GPL-3.0" });
+createGlobe(canvas, { licenseKey: "your_license_key" });
 ```
 
 The default `0000-0000-000-0000` value is for evaluation only and produces a
@@ -147,7 +147,7 @@ React is an optional peer dependency: only the `/react` entry point needs it.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `licenseKey` | `"0000-0000-000-0000"` | `"GPL-3.0"` for a GPL-compatible project, or the commercial key supplied with an order |
+| `licenseKey` | `"0000-0000-000-0000"` | The key supplied for a GPLv3-compatible project or with a commercial order |
 | `mode` | `"globe"` | `"globe"` (orthographic, spinnable) or `"map"` (flat) |
 | `projection` | `"equirectangular"` | Flat-map projection: also `"mercator"`, `"naturalEarth"` |
 | `preset` | Not set | Named bundle of theme + render style, applied under your options |
@@ -630,12 +630,16 @@ Regenerate the bundled data any time with `npm run data`.
 npm test        # node --test, no test framework to install
 npm run build   # dist/canvas-globe.umd.js, with a gzipped size budget
 npm run example # demo at http://localhost:8099
-npm run docs    # documentation site at http://localhost:3000
-npm run release:check # tests, types, builds, docs and packed-artifact validation
+npm run release:check # tests, types, build and packed-artifact validation
 ```
 
 The product website and documentation are maintained separately at
 [canvasglobe.swiftools.com](https://canvasglobe.swiftools.com/).
+
+## Support
+
+For installation help, licensing questions, commercial inquiries, or general
+support, email [globe@swiftools.com](mailto:globe@swiftools.com).
 
 ## Author
 

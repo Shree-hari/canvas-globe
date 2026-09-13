@@ -1309,7 +1309,6 @@ function drawFitted(ctx, media, box) {
 }
 
 /** License-key configuration helpers. */
-const OPEN_SOURCE_LICENSE_KEY = "GPL-3.0";
 const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 
 /** Returns the configured license-key status. */
@@ -1319,10 +1318,7 @@ function inspectLicenseKey(value) {
   if (key === DEFAULT_LICENSE_KEY) {
     return { valid: false, kind: "placeholder", key };
   }
-  if (key.trim().toUpperCase() === OPEN_SOURCE_LICENSE_KEY) {
-    return { valid: true, kind: "open-source", key: OPEN_SOURCE_LICENSE_KEY };
-  }
-  return { valid: true, kind: "commercial", key };
+  return { valid: true, kind: "provided", key };
 }
 
 /** Returns whether a configured license key is available. */
@@ -1337,10 +1333,13 @@ function reportLicenseStatus(value) {
   // environments. Console messaging applies when it is used in a browser.
   if (typeof location === "undefined") return status;
   if (status.kind === "missing") {
-    console.error("canvas-globe: please provide a valid license key");
+    console.error(
+      "canvas-globe: please provide a valid license key. For help, email globe@swiftools.com",
+    );
   } else if (status.kind === "placeholder") {
     console.warn(
-      `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use`,
+      `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. ` +
+        "For help, email globe@swiftools.com",
     );
   }
   return status;
@@ -4335,5 +4334,5 @@ function defineGeoGlobe(tag = "geo-globe") {
 defineGeoGlobe();
 
 const CanvasGlobe = GeoGlobe; const createCanvasGlobe = createGlobe;
-return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, OPEN_SOURCE_LICENSE_KEY, inspectLicenseKey, hasLicenseKey, default: createGlobe };
+return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, inspectLicenseKey, hasLicenseKey, default: createGlobe };
 });

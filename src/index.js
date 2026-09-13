@@ -14,6 +14,6 @@ export { locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, p
 export { recordCanvas, downloadBlob, canRecord, supportedRecordingType } from "./recorder.js";
 export { SphereTexture } from "./texture.js";
 export { Media, drawFitted } from "./media.js";
-export { DEFAULT_LICENSE_KEY, OPEN_SOURCE_LICENSE_KEY, inspectLicenseKey, hasLicenseKey } from "./license.js";
+export { DEFAULT_LICENSE_KEY, inspectLicenseKey, hasLicenseKey } from "./license.js";
 export { mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections } from "./geo.js";
 export { default } from "./geo-globe.js";

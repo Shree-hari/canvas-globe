@@ -56,7 +56,7 @@ try {
       "--input-type=module",
       "-e",
       "const m=await import('canvas-globe');" +
-        "if(typeof m.createGlobe!=='function'||m.CanvasGlobe!==m.GeoGlobe||m.createCanvasGlobe!==m.createGlobe||m.OPEN_SOURCE_LICENSE_KEY!=='GPL-3.0')process.exit(1);" +
+        "if(typeof m.createGlobe!=='function'||m.CanvasGlobe!==m.GeoGlobe||m.createCanvasGlobe!==m.createGlobe||m.DEFAULT_LICENSE_KEY!=='0000-0000-000-0000')process.exit(1);" +
         "const e=await import('canvas-globe/element');" +
         "if(typeof e.defineGeoGlobe!=='function')process.exit(1)",
     ],

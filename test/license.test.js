@@ -2,27 +2,25 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_LICENSE_KEY,
-  OPEN_SOURCE_LICENSE_KEY,
   inspectLicenseKey,
   hasLicenseKey,
 } from "../src/index.js";
 import { reportLicenseStatus } from "../src/license.js";
 
-test("recognizes the documented open-source key", () => {
-  assert.equal(OPEN_SOURCE_LICENSE_KEY, "GPL-3.0");
-  assert.deepEqual(inspectLicenseKey(" gpl-3.0 "), {
+test("recognizes an issued license key", () => {
+  assert.deepEqual(inspectLicenseKey("platform-issued-key"), {
     valid: true,
-    kind: "open-source",
-    key: "GPL-3.0",
+    kind: "provided",
+    key: "platform-issued-key",
   });
 });
 
-test("recognizes a configured commercial key", () => {
+test("accepts provider-specific license-key formats", () => {
   const providerKey = "lic_2pQ9Ab-cd_XY.7";
   const status = inspectLicenseKey(providerKey);
   assert.deepEqual(status, {
     valid: true,
-    kind: "commercial",
+    kind: "provided",
     key: providerKey,
   });
   assert.equal(hasLicenseKey("550e8400-e29b-41d4-a716-446655440000"), true);
@@ -63,7 +61,7 @@ test("reports missing and placeholder keys in the browser console", () => {
   console.error = (...args) => errors.push(args.join(" "));
 
   try {
-    assert.doesNotThrow(() => reportLicenseStatus("GPL-3.0"));
+    assert.doesNotThrow(() => reportLicenseStatus("gpl-project-issued-key"));
     assert.equal(warnings.length, 0);
     assert.equal(errors.length, 0);
 

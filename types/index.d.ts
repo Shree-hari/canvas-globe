@@ -382,9 +382,8 @@ export type TooltipKind = "marker" | "cluster" | "country";
 
 export interface GeoGlobeOptions {
   /**
-   * "GPL-3.0" for a GPL-compatible project, or the commercial key supplied
-   * with an order. Checked offline as a compliance reminder; never sent over
-   * the network and never used to disable features.
+   * License key supplied for a GPLv3-compatible project or with a commercial
+   * order. Never sent over the network and never used to disable features.
    */
   licenseKey?: string | null;
   /** "globe" (orthographic, spinnable) or "map" (flat). Default "globe". */
@@ -610,10 +609,9 @@ export { GeoGlobe as CanvasGlobe };
 /** Brand-aligned alias for `createGlobe`. */
 export { createGlobe as createCanvasGlobe };
 export declare const DEFAULT_LICENSE_KEY: "0000-0000-000-0000";
-export declare const OPEN_SOURCE_LICENSE_KEY: "GPL-3.0";
 export interface LicenseKeyStatus {
   valid: boolean;
-  kind: "missing" | "placeholder" | "open-source" | "commercial";
+  kind: "missing" | "placeholder" | "provided";
   key: string;
 }
 /** Returns the configured license-key status. */

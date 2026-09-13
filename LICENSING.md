@@ -52,15 +52,17 @@ agreement and checkout terms are approved.
 
 ## License keys
 
-An open-source project can identify its selected license with:
+Pass the license key supplied with a commercial order:
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "GPL-3.0",
+  licenseKey: "your_license_key",
 });
 ```
 
-A commercial customer supplies the key issued with their order.
+Projects using CanvasGlobe under GPLv3 can request a complimentary key through
+the licensing page. Eligibility depends on complying with GPLv3. The key is a
+compliance reminder and does not replace or modify the license terms.
 
 CanvasGlobe uses `0000-0000-000-0000` as its default evaluation placeholder.
 In a browser, a missing key logs an error and the placeholder logs a production
@@ -73,6 +75,6 @@ Bundled geographic data has its own provenance and license status. See
 
 ## Questions
 
-Use the commercial-contact route on the documentation website for purchasing
-and licensing questions. Do not include confidential information in a public
-GitHub issue.
+Email [globe@swiftools.com](mailto:globe@swiftools.com) for complimentary GPLv3
+keys, purchasing, licensing questions, and support. Do not include confidential
+information in a public GitHub issue.
