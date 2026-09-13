@@ -22,9 +22,6 @@ const requiredFiles = [
   "dist/canvas-globe.umd.js",
   "dist/package.json",
   "types/index.d.ts",
-  "website/static/llms.txt",
-  "website/static/llms-full.txt",
-  "website/static/robots.txt",
 ];
 
 assert(pkg.name === "canvas-globe", "unexpected package name");
@@ -35,7 +32,7 @@ assert(pkg.private !== true, "package is marked private");
 assert(pkg.publishConfig?.access === "public", "package must publish with public access");
 assert(pkg.sideEffects?.includes("./src/element.js"), "custom-element registration must be marked as a side effect");
 assert(pkg.repository?.url === "git+https://github.com/Shree-hari/canvas-globe.git", "repository URL is not canonical");
-assert(pkg.homepage === "https://shree-hari.github.io/canvas-globe/", "homepage URL is not canonical");
+assert(pkg.homepage === "https://canvasglobe.swiftools.com/", "homepage URL is not canonical");
 assert(pkg.bugs?.url === "https://github.com/Shree-hari/canvas-globe/issues", "bugs URL is not canonical");
 assert(pkg.keywords?.includes("javascript-globe"), "missing javascript-globe discovery keyword");
 assert(pkg.keywords?.includes("react-globe"), "missing react-globe discovery keyword");
@@ -68,34 +65,6 @@ if (existsSync(join(root, "codemeta.json"))) {
   const codemeta = JSON.parse(readFileSync(join(root, "codemeta.json"), "utf8"));
   assert(codemeta.identifier === pkg.name, "codemeta package identifier is stale");
   assert(codemeta.version === pkg.version, "codemeta version is stale");
-}
-
-if (existsSync(join(root, "website/static/llms.txt"))) {
-  const llms = readFileSync(join(root, "website/static/llms.txt"), "utf8");
-  assert(llms.startsWith("# CanvasGlobe"), "llms.txt has the wrong project identity");
-  assert(llms.includes("canvas-globe"), "llms.txt has a stale package identity");
-  assert(llms.includes("Author: Harsh Jhunjhunuwala"), "llms.txt has a stale author identity");
-}
-
-const docsBuild = join(root, "website", "build");
-if (existsSync(docsBuild)) {
-  for (const file of [
-    "llms.txt",
-    "llms-full.txt",
-    "robots.txt",
-    "sitemap.xml",
-    "javascript-interactive-globe/index.html",
-    "react-globe/index.html",
-    "compare/javascript-globe-libraries/index.html",
-  ]) {
-    assert(existsSync(join(docsBuild, file)), `built documentation is missing ${file}`);
-  }
-  const indexHtml = readFileSync(join(docsBuild, "index.html"), "utf8");
-  assert(indexHtml.includes('type=application/ld+json'), "built homepage is missing JSON-LD");
-  assert(indexHtml.includes('"@type":"SoftwareSourceCode"'), "built homepage has the wrong JSON-LD type");
-  assert(indexHtml.includes("rel=describedby"), "built homepage is missing llms.txt discovery link");
-  assert(indexHtml.includes("https://shree-hari.github.io/canvas-globe/"), "built homepage has a stale canonical URL");
-  assert(indexHtml.includes("canvas-globe"), "built homepage has a stale package identity");
 }
 
 const npm = process.platform === "win32" ? (process.env.ComSpec || "cmd.exe") : "npm";

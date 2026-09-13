@@ -7,8 +7,8 @@ Thank you for helping improve CanvasGlobe.
 CanvasGlobe uses a dual-license model. The project must have permission to ship
 all accepted code under both GPLv3 and commercial licenses.
 
-The contributor agreement in [CLA.md](CLA.md) is currently a draft pending
-legal approval and acceptance-system setup. Until those are complete:
+The contributor agreement and acceptance process are pending legal approval.
+Until those are complete:
 
 - issues, bug reports, documentation corrections, and design discussion are
   welcome;
@@ -24,7 +24,6 @@ npm install
 npm test
 npm run typecheck
 npm run build
-npm run docs:build
 ```
 
 Use Node.js 20 or newer when building the documentation site. Keep runtime

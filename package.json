@@ -6,7 +6,7 @@
   "author": {
     "name": "Harsh Jhunjhunuwala"
   },
-  "homepage": "https://shree-hari.github.io/canvas-globe/",
+  "homepage": "https://canvasglobe.swiftools.com/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Shree-hari/canvas-globe.git"
@@ -88,10 +88,7 @@
     "test": "node --test \"test/*.test.js\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "smoke:package": "node scripts/package-smoke.mjs",
-    "docs": "npm --prefix website run start",
-    "docs:build": "npm --prefix website run build",
-    "docs:serve": "npm --prefix website run serve",
-    "release:check": "npm run test && npm run typecheck && npm run build && npm run docs:build && node scripts/release-check.mjs && npm run smoke:package",
+    "release:check": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs && npm run smoke:package",
     "prepublishOnly": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs"
   },
   "peerDependencies": {

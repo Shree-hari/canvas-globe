@@ -1,4 +1,5 @@
 node_modules/
+website/
 example/preview-*.png
 *.log
 .DS_Store

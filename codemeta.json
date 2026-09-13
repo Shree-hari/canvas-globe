@@ -4,6 +4,7 @@
   "name": "CanvasGlobe",
   "identifier": "canvas-globe",
   "description": "Zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D, with no WebGL or API-key requirement.",
+  "url": "https://canvasglobe.swiftools.com/",
   "version": "0.1.0",
   "codeRepository": "https://github.com/Shree-hari/canvas-globe",
   "issueTracker": "https://github.com/Shree-hari/canvas-globe/issues",

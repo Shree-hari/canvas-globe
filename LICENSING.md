@@ -47,8 +47,8 @@ support after that period is an optional renewal. OEM and Enterprise terms may
 be annual or negotiated.
 
 These prices and descriptions are launch policy, not a substitute for the
-signed commercial agreement. Before accepting payment, complete the legal
-review items in [LAUNCH_PLAYBOOK.md](LAUNCH_PLAYBOOK.md).
+signed commercial agreement. Commercial sales must not begin until the final
+agreement and checkout terms are approved.
 
 ## License keys
 

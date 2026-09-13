@@ -33,7 +33,7 @@ great-circle arcs, choropleths, keyboard interaction, and image/video export,
 especially when WebGL or external map services are not acceptable. Use a 3D
 engine such as globe.gl or Cesium instead when you need terrain, perspective
 cameras, custom shaders, or thousands of independent 3D objects. See the
-[globe-library comparison](https://shree-hari.github.io/canvas-globe/compare/javascript-globe-libraries).
+[globe-library comparison](https://canvasglobe.swiftools.com/compare/javascript-globe-libraries).
 
 ## Licensing
 
@@ -45,7 +45,7 @@ CanvasGlobe is dual-licensed:
 The full package and feature set are the same on both paths. GPL permits
 commercial activity; whether a particular distribution can comply is
 fact-specific. See [LICENSING.md](LICENSING.md) and the
-[commercial plans](https://shree-hari.github.io/canvas-globe/pricing).
+[commercial plans](https://canvasglobe.swiftools.com/pricing).
 
 Select the GPL path explicitly, or use the key supplied by the commerce
 platform with a commercial order:
@@ -634,9 +634,8 @@ npm run docs    # documentation site at http://localhost:3000
 npm run release:check # tests, types, builds, docs and packed-artifact validation
 ```
 
-The documentation site lives in `website/` and is built with Docusaurus. It links the package with
-`file:..`, so every demo on it runs the live source rather than a published build. Install its
-dependencies separately with `npm --prefix website install`.
+The product website and documentation are maintained separately at
+[canvasglobe.swiftools.com](https://canvasglobe.swiftools.com/).
 
 ## Author
 
