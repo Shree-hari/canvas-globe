@@ -1,6 +1,6 @@
 ---
 title: Launch announcement video
-description: Your reel playing inside a country outline, exported as a clip — the "we are live in India" post, without a motion designer.
+description: Play a video inside a country outline and export the result as a clip.
 keywords:
   - product launch graphic
   - country announcement video
@@ -98,7 +98,7 @@ globe.exportImage({ preset: "square", transparent: true });
 await globe.record({ duration: 6000, filename: "launch.webm" }).promise;
 ```
 
-The clip is encoded in the tab by `MediaRecorder` — nothing uploads anywhere. Check
+The clip is encoded in the tab by `MediaRecorder`: nothing uploads anywhere. Check
 the exported `canRecord()` helper first, since Safari's support is narrower than Chrome's.
 
 ## Variations
@@ -113,7 +113,7 @@ globe.setCountryMedia("India", {
 });
 ```
 
-**Keep the neighbours.** Drop `isolate` and dim them instead — this reads better for "our market"
+**Keep the neighbours.** Drop `isolate` and dim them instead: this reads better for "our market"
 maps than a country floating in a void:
 
 ```js
@@ -141,7 +141,7 @@ globe.setCountryMedia("India", stream);
 
 ## Practical notes
 
-- Media is clipped to the **real boundary** — for India that is the full Survey of India outline,
+- Media is clipped to the **real boundary**: for India that is the full Survey of India outline,
   Andaman and Lakshadweep included.
 - Cross-origin video and images need permissive CORS headers, since frames are read via
   `drawImage`.

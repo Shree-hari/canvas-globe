@@ -37,9 +37,9 @@ globe.setMarkers(markers).fitToMarkers();
 
 For each row, in order:
 
-1. **Explicit coordinates** — a `lat`/`latitude`/`y` column plus `lon`/`lng`/`long`/`longitude`/`x`
-2. **A city name** — `city`, `place`, `town` or `location`
-3. **A country** — `country`, `iso`, `country_code` or `nation`
+1. **Explicit coordinates**: a `lat`/`latitude`/`y` column plus `lon`/`lng`/`long`/`longitude`/`x`
+2. **A city name**: `city`, `place`, `town` or `location`
+3. **A country**: `country`, `iso`, `country_code` or `nation`
 
 Anything that resolves to none of those is collected on `markers.skipped` so you can report it
 rather than silently dropping rows.
@@ -67,7 +67,7 @@ markers.skipped.length;  // show this in your UI
 
 ## City coverage
 
-City lookup uses the representative cities in the bundled time-zone table — roughly 300 major
+City lookup uses the representative cities in the bundled time-zone table: roughly 300 major
 cities, at no extra payload. For anything beyond that, supply your own:
 
 ```js
@@ -116,7 +116,7 @@ placeLocation("New York");   // time-zone city table only
 
 ## From your own API
 
-Nothing about the marker format is special — it is a plain object.
+Nothing about the marker format is special: it is a plain object.
 
 ```js
 const res = await fetch("/api/signups");

@@ -11,7 +11,7 @@ description: Common problems, and the reasoning behind some deliberate behaviour
 | --- | --- |
 | Canvas was `display: none` at construction | Construct when visible, or call `resize()` after showing it |
 | Canvas has no height | Give it an `aspect-ratio`; a flex child can collapse to zero |
-| The element is not a `<canvas>` | `createGlobe` throws a `TypeError` — check the selector |
+| The element is not a `<canvas>` | `createGlobe` throws a `TypeError`: check the selector |
 
 ## It looks blurry
 
@@ -34,7 +34,7 @@ Almost always the **coastline**, not the marker. Bundled geometry is Natural Ear
 to roughly 5 km, so a harbourside city can sit just off the drawn shore. The projection itself is
 exact to floating-point precision.
 
-Natural Earth 1:110m also **omits microstates** — Singapore, Malta, Monaco, Bahrain, Maldives,
+Natural Earth 1:110m also **omits microstates**: Singapore, Malta, Monaco, Bahrain, Maldives,
 Hong Kong, Andorra, Barbados and Mauritius are not in the dataset, so markers there land on water or
 a neighbour. Pass higher-detail GeoJSON via [`world`](/api/options#geometry) if that matters.
 
@@ -47,13 +47,13 @@ the drawn map:
 latRange: [90, -90];
 ```
 
-In globe mode, markers on the far side are hidden by design — `project()` returns `null` for them.
+In globe mode, markers on the far side are hidden by design: `project()` returns `null` for them.
 
 ## The viewer pin is nowhere near me
 
 Expected, and [documented at length](/guides/viewer-location#it-is-a-region-not-a-pinpoint). A time
 zone locates you to a **region**, not a street. India is a single time zone, so everyone in it
-resolves to the same anchor. That is why a dashed accuracy circle is drawn — it is telling the truth
+resolves to the same anchor. That is why a dashed accuracy circle is drawn: it is telling the truth
 about the uncertainty.
 
 Ask for GPS when you need real precision:
@@ -77,13 +77,13 @@ globe.clearFocus();
 
 ## Zoom is stuck at a strange maximum
 
-`focusOn` deliberately lifts `maxZoom` — framing India needs about 10.6× against a default of 8.
+`focusOn` deliberately lifts `maxZoom`: framing India needs about 10.6× against a default of 8.
 `clearFocus()` puts it back, and setting `maxZoom` yourself takes over permanently.
 
 ## A GIF is frozen on the first frame
 
 Browsers only animate images attached to the document. CanvasGlobe parks GIF elements off-screen
-automatically, so this normally works — but if you passed an `HTMLImageElement` **you** created and
+automatically, so this normally works. If you passed an `HTMLImageElement` **you** created and
 never added to the DOM, it will not animate. Pass the URL string instead and let the library manage
 it.
 
@@ -103,7 +103,7 @@ const arcs = useMemo(() => routes.map(toArc), [routes]);
 
 ## Recording does nothing
 
-Check support first — Safari's `MediaRecorder` coverage is narrower than Chrome's:
+Check support first: Safari's `MediaRecorder` coverage is narrower than Chrome's:
 
 ```js
 import { canRecord } from "canvas-globe";
@@ -112,7 +112,7 @@ if (!canRecord()) showFallback();
 
 ## exportImage returns null
 
-There is no `document` — you are in Node or a worker. Run it in a headless browser for build-time
+There is no `document`: you are in Node or a worker. Run it in a headless browser for build-time
 OG images. See [Exporting](/guides/exporting#server-side-rendering).
 
 ## Memory grows in a single-page app
@@ -125,13 +125,13 @@ this for you.
 
 ## SSR errors
 
-Importing is safe — nothing touches the DOM until you construct. If you see an error, something is
+Importing is safe: nothing touches the DOM until you construct. If you see an error, something is
 constructing during render. In Next.js App Router, add `"use client"` or load the component with
 `dynamic(..., { ssr: false })`.
 
 ## India's boundary
 
-India is drawn on the **Survey of India** boundary — Jammu and Kashmir, Ladakh and Aksai Chin
+India is drawn on the **Survey of India** boundary: Jammu and Kashmir, Ladakh and Aksai Chin
 included. That is not an option or an overlay; it is what the bundled geometry says, the same way
 the geometry says where France is.
 
@@ -142,7 +142,7 @@ is subtracted from the neighbouring countries so no two shapes claim the same gr
 one continuous boundary at every land style, theme and zoom level, with nothing overlapping and no
 special cases in the renderer.
 
-India behaves like any other country throughout — [choropleth](/guides/choropleth),
+India behaves like any other country throughout: [choropleth](/guides/choropleth),
 [country media](/guides/country-canvas), labels, `focusOn`, tooltips and hit testing. Key it as
 `IN`, `356` or `India`.
 
@@ -155,4 +155,4 @@ createGlobe(canvas, { world: myGeoJson });
 ## Still stuck?
 
 Open an issue with the option object you passed and what you expected. A reproduction on the
-[playground](/playground) is the fastest way to get it looked at.
+[playground](/playground) will help reproduce the problem.

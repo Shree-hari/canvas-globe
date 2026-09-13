@@ -1,4 +1,4 @@
-# CanvasGlobe Individual Contributor License Agreement — draft
+# CanvasGlobe Individual Contributor License Agreement: draft
 
 > **DRAFT FOR LEGAL REVIEW.** Do not accept external code under this document
 > until the project owner and counsel approve it and a reliable acceptance

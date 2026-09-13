@@ -37,7 +37,7 @@ setOptions(patch: Partial<GeoGlobeOptions>): this
 Patches any option at runtime. Cheaper than rebuilding the instance.
 
 Passing `preset` or `scene` expands it into every key it owns, exactly as `setPreset` and
-`setScene` do — keys you pass alongside it still win.
+`setScene` do: keys you pass alongside it still win.
 
 ```js
 globe.setOptions({ preset: "neon" });                       // same as setPreset("neon")
@@ -227,7 +227,7 @@ WebM from the canvas stream, encoded in the tab. Check the exported `canRecord()
 | `render()` | Draws one frame synchronously |
 | `invalidate()` | Marks the next frame dirty |
 | `resize()` | Usually automatic via `ResizeObserver` |
-| `destroy()` | Releases everything — always call it on unmount |
+| `destroy()` | Releases everything: always call it on unmount |
 
 ## Properties
 
@@ -247,5 +247,5 @@ WebM from the canvas stream, encoded in the tab. Check the exported `canRecord()
 ```js
 import { canRecord } from "canvas-globe";
 
-canRecord(); // boolean — MediaRecorder support
+canRecord(); // boolean: MediaRecorder support
 ```

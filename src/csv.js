@@ -2,7 +2,7 @@
  * Turns spreadsheet-shaped data into markers.
  *
  * Marketing data arrives as CSV, not GeoJSON, so this resolves rows by
- * lat/lon columns first, then a city name, then a country code or name — using
+ * lat/lon columns first, then a city name, then a country code or name: using
  * only geometry that already ships in the package.
  */
 import { world as bundledWorld } from "./data/world.js";

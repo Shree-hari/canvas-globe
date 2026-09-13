@@ -11,7 +11,7 @@ description: Install the CanvasGlobe JavaScript library from npm, or use the int
 npm install canvas-globe
 ```
 
-That is the whole dependency tree. The package has **no runtime dependencies** — country geometry,
+That is the whole dependency tree. The package has **no runtime dependencies**: country geometry,
 the India boundary and the time-zone table all ship inside it.
 
 ```js
@@ -47,7 +47,7 @@ Everything lands on a `CanvasGlobe` global. See [No build step](./no-build) for 
 | **UMD bundle, everything included** | **~120 KB** |
 
 Most of the weight is map data, not code. If you bundle with a tree-shaking bundler and never touch
-a feature, its code drops out — but the geometry stays, because that is what makes a globe a globe.
+a feature, its code drops out, but the geometry remains part of the globe renderer.
 
 :::tip Bringing your own geometry
 If you already have GeoJSON, pass it as [`world`](/api/options#geometry) and the bundled set is never
@@ -56,7 +56,7 @@ referenced. Bundlers that support `sideEffects: false` will drop it.
 
 ## Requirements
 
-Any browser with `<canvas>` and `ResizeObserver` — Chrome, Edge, Firefox and Safari 13.1+. No
+Any browser with `<canvas>` and `ResizeObserver`: Chrome, Edge, Firefox and Safari 13.1+. No
 polyfills.
 
 The modules are safe to import during server-side rendering; nothing touches the DOM until you

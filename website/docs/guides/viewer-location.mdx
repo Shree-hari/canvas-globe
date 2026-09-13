@@ -37,7 +37,7 @@ and it resolves instantly.
         say(
           found.source === "geolocation"
             ? `GPS → ${found.lat.toFixed(4)}, ${found.lon.toFixed(4)} · device reports ±${m >= 1000 ? `${Math.round(m / 1000)} km` : `${Math.round(m)} m`}`
-            : `Declined or unavailable — fell back to ${found.timeZone}`,
+            : `Declined or unavailable: fell back to ${found.timeZone}`,
         );
       },
     },
@@ -48,8 +48,8 @@ and it resolves instantly.
 ## How it works
 
 `Intl.DateTimeFormat().resolvedOptions().timeZone` is available in every modern browser, requires no
-permission, and costs nothing. The package ships the IANA time-zone table — 312 zones and 237
-aliases — and maps the reported zone to its published coordinate.
+permission, and costs nothing. The package ships the IANA time-zone table: 312 zones and 237
+aliases and maps the reported zone to its published coordinate.
 
 ```js
 const found = globe.locateViewer();
@@ -75,7 +75,7 @@ for someone in Ahmedabad, 1,600 km away.
 Two things prevent that:
 
 **Anchoring.** For countries wider than 8°, the pin uses the country centroid instead of the zone's
-city, which roughly halves the average error. Smaller countries keep their real city — London stays
+city, which roughly halves the average error. Smaller countries keep their real city: London stays
 London.
 
 **An uncertainty circle.** The pin is surrounded by a dashed circle sized to the actual radius, so
@@ -103,12 +103,12 @@ time-zone estimate and never rejects**.
 | --- | --- | --- | --- | --- |
 | Time zone *(default)* | No | No | **Yes** | Country-sized |
 | Locale fallback | No | No | Yes | Country-sized |
-| `precise`, GPS | Yes | No | Only if allowed | 5–50 m |
-| `precise`, Wi-Fi/IP | Yes | Yes (by the browser) | Only if allowed | 1–50 km |
+| `precise`, GPS | Yes | No | Only if allowed | 5-50 m |
+| `precise`, Wi-Fi/IP | Yes | Yes (by the browser) | Only if allowed | 1-50 km |
 
 :::caution On a desktop, "precise" often is not
 A laptop with no GPS falls back to network positioning, which frequently lands on your ISP's city.
-The reported `accuracyMeters` is the only way to tell — show it, or size a circle with it, rather
+The reported `accuracyMeters` is the only way to tell: show it, or size a circle with it, rather
 than implying a street address.
 :::
 
@@ -148,5 +148,4 @@ placeLocation("New York");
 ## Privacy
 
 Nothing leaves the device. The time zone is read from the local `Intl` API and matched against a
-bundled table. There is no request, no third party, and nothing to disclose in a cookie banner —
-though if you send the result to your own analytics, that is your call to document.
+bundled table. There is no request, no third party, and nothing to disclose in a cookie banner: though if you send the result to your own analytics, that is your call to document.

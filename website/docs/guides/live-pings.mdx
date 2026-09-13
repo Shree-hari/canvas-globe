@@ -9,7 +9,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 
 ## Pings
 
-A one-shot expanding ring with an optional label — the "someone in Berlin just signed up" moment,
+A one-shot expanding ring with an optional label: the "someone in Berlin just signed up" moment,
 with no backend.
 
 ```js
@@ -48,7 +48,7 @@ globe.ping({
 | Field | Default | Meaning |
 | --- | --- | --- |
 | `lat`, `lon` | required | Where |
-| `label`, `emoji` | — | Text shown in a pill above the point |
+| `label`, `emoji` | Not set | Text shown in a pill above the point |
 | `color` | theme `live` | |
 | `rings` | `3` | Expanding rings |
 | `radius` | `46` | Peak radius in px |
@@ -65,7 +65,7 @@ const feed = globe.pingFeed(events, { interval: 1800, loop: true });
 feed.stop();
 ```
 
-Wire it to whatever you already have — a websocket, a polling endpoint, or a canned list for a
+Wire it to whatever you already have: a websocket, a polling endpoint, or a canned list for a
 landing page. The library takes no position on where events come from.
 
 ```js
@@ -119,7 +119,7 @@ globe.story(document.querySelector("#section"), [
 globe.stopStory();
 ```
 
-The element should be tall — that is what gives the scroll something to travel through:
+The element should be tall: that is what gives the scroll something to travel through:
 
 ```css
 #section { height: 300vh; }
@@ -130,7 +130,8 @@ The element should be tall — that is what gives the scroll something to travel
 
 All of this respects `prefers-reduced-motion`. Pulses hold still, arcs stop travelling, `flyTo`
 jumps instead of easing, and ping bursts do not fire. Set
-[`respectReducedMotion: false`](/api/options#accessibility) to opt out — but consider not to.
+You can opt out with [`respectReducedMotion: false`](/api/options#accessibility), but use that
+setting only when motion is necessary.
 
 ## Cleaning up
 

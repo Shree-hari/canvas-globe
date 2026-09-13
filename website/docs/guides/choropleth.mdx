@@ -46,7 +46,7 @@ createGlobe(canvas, {
     },
     legend: { title: "Visits", scale: { domain: [0, 1000], range: ["#e0f2fe", "#0369a1"] } },
   }}
-  caption="Hover a country — it highlights, and the tooltip names it."
+  caption="Hover a country: it highlights, and the tooltip names it."
 />
 
 ## How keys are matched
@@ -54,15 +54,15 @@ createGlobe(canvas, {
 `countryColors` keys are matched **case-insensitively**, in this order:
 
 1. Your own [`countryKey`](/api/options#countries) function, if provided
-2. ISO alpha-2 code — `"IN"`, `"in"`
-3. Numeric id — `"356"`
-4. Country name — `"India"`, `"india"`
+2. ISO alpha-2 code: `"IN"`, `"in"`
+3. Numeric id: `"356"`
+4. Country name: `"India"`, `"india"`
 
 ```js
 countryColors: { IN: "#f00", Brazil: "#0f0", 250: "#00f" }
 ```
 
-If your data uses something else — an internal region id, say — map it yourself:
+If your data uses an internal region ID or another key, map it yourself:
 
 ```js
 countryKey: (shape) => myRegionIdFor(shape.iso),
@@ -94,7 +94,7 @@ const scale = colorScale([0, 500, 1000], ["#f7fbff", "#6baed6", "#08306b"]);
 scale(0);      // "rgb(247,251,255)"
 scale(250);    // interpolated
 scale(9999);   // clamped to the last stop
-scale("n/a");  // null — not a number
+scale("n/a");  // null: not a number
 ```
 
 ## A distinct colour per country
@@ -164,7 +164,7 @@ legend: {
 ## India
 
 India is drawn on the Survey of India boundary, as part of the bundled country geometry rather than
-as an overlay. It joins, colours, clicks and labels like every other country — key it as `IN`, `356`
+as an overlay. It joins, colours, clicks and labels like every other country: key it as `IN`, `356`
 or `India`, and `countryColors: "auto"` gives it a fill that does not clash with its neighbours.
 
 See [the note on India's boundary](/troubleshooting#indias-boundary) for where the geometry comes

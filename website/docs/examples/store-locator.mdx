@@ -1,6 +1,6 @@
 ---
 title: Store and office locator
-description: Send visitors to a physical place — a zoomable map that starts on their region, with clickable branches and no tile server.
+description: Build a zoomable locator with clickable branches and no tile server.
 keywords:
   - store locator map
   - find a location near me
@@ -30,13 +30,13 @@ what is, at country scale, seven dots and a list.
     labels: "markers",
     markerScale: 1.1,
     markers: [
-      { label: "Ahmedabad", lat: 23.03, lon: 72.58, hours: "9–7 Mon–Sat" },
-      { label: "Mumbai", lat: 19.08, lon: 72.88, hours: "10–8 daily" },
-      { label: "Delhi", lat: 28.61, lon: 77.21, hours: "9–7 Mon–Sat" },
-      { label: "Bengaluru", lat: 12.97, lon: 77.59, hours: "10–8 daily" },
-      { label: "Hyderabad", lat: 17.39, lon: 78.49, hours: "10–7 Mon–Sat" },
-      { label: "Kolkata", lat: 22.57, lon: 88.36, hours: "10–7 Mon–Sat" },
-      { label: "Chennai", lat: 13.08, lon: 80.27, hours: "9–8 daily" },
+      { label: "Ahmedabad", lat: 23.03, lon: 72.58, hours: "9-7 Mon-Sat" },
+      { label: "Mumbai", lat: 19.08, lon: 72.88, hours: "10-8 daily" },
+      { label: "Delhi", lat: 28.61, lon: 77.21, hours: "9-7 Mon-Sat" },
+      { label: "Bengaluru", lat: 12.97, lon: 77.59, hours: "10-8 daily" },
+      { label: "Hyderabad", lat: 17.39, lon: 78.49, hours: "10-7 Mon-Sat" },
+      { label: "Kolkata", lat: 22.57, lon: 88.36, hours: "10-7 Mon-Sat" },
+      { label: "Chennai", lat: 13.08, lon: 80.27, hours: "9-8 daily" },
     ],
     showViewer: { label: "You" },
   }}
@@ -56,7 +56,7 @@ what is, at country scale, seven dots and a list.
     { type: "range", label: "Zoom", option: "zoom", min: 1, max: 8, step: 0.2 },
     { type: "select", label: "Look", option: "preset", values: ["atlas", "mono", "political", "midnight"] },
   ]}
-  caption="Drag to pan, scroll to zoom. No tiles are fetched — the geometry is already in the bundle."
+  caption="Drag to pan, scroll to zoom. No tiles are fetched: the geometry is already in the bundle."
 />
 
 ## The code
@@ -65,8 +65,8 @@ what is, at country scale, seven dots and a list.
 import { createGlobe } from "canvas-globe";
 
 const branches = [
-  { label: "Ahmedabad", lat: 23.03, lon: 72.58, slug: "ahmedabad", hours: "9–7 Mon–Sat" },
-  { label: "Mumbai", lat: 19.08, lon: 72.88, slug: "mumbai", hours: "10–8 daily" },
+  { label: "Ahmedabad", lat: 23.03, lon: 72.58, slug: "ahmedabad", hours: "9-7 Mon-Sat" },
+  { label: "Mumbai", lat: 19.08, lon: 72.88, slug: "mumbai", hours: "10-8 daily" },
   // …
 ];
 
@@ -85,13 +85,12 @@ const globe = createGlobe(canvas, {
   markers: branches,
   labels: "markers",
 
-  tooltip: (m) => `${m.label} — ${m.hours}`,
+  tooltip: (m) => `${m.label}: ${m.hours}`,
   onClick: (m) => m && selectBranch(m.slug),
   onHover: (m) => (canvas.style.cursor = m ? "pointer" : "grab"),
 });
 
-// Start where the visitor is. `locateViewer` only resolves the place —
-// moving the camera is yours to decide.
+// Start where the visitor is. `locateViewer` only resolves the place: // moving the camera is yours to decide.
 const place = globe.locateViewer();
 if (place) globe.flyTo(place.lon, place.lat, { zoom: 4 });
 ```
@@ -99,16 +98,15 @@ if (place) globe.flyTo(place.lon, place.lat, { zoom: 4 });
 ## Mercator, for once
 
 Everywhere else in these docs Mercator gets a warning. Here it is the right answer: at city and
-regional zoom it preserves angles and shapes, and — more practically — it is what every other map on
-the internet looks like. A locator is a utility, not a statement; matching the visitor's expectation
-is worth more than area accuracy over a 500 km view.
+regional zoom it preserves local angles and matches the maps most visitors already use. For a
+locator, that familiarity is more useful than area accuracy over a 500 km view.
 
 Switch to `naturalEarth` if the locator spans continents.
 
 ## Starting where they are
 
 `locateViewer()` resolves the visitor's country and region from their **IANA time zone**. No
-permission prompt, no network request, no consent banner entry — and it always returns something,
+permission prompt, no network request, no consent banner entry, and it always returns something,
 which is more than the Geolocation API can promise.
 
 It is accurate to a country, not a street. That is exactly right for choosing an initial view and
@@ -128,7 +126,7 @@ If the visitor declines, the time-zone estimate is kept. Nothing breaks. See
 
 :::caution Never claim precision you do not have
 A time-zone estimate can be 1,000 km out. The library draws a dashed accuracy circle for exactly
-this reason — do not remove it and then label the pin "You are here".
+this reason: do not remove it and then label the pin "You are here".
 :::
 
 ## The list is the real interface
@@ -157,7 +155,7 @@ This gets you three things a canvas alone cannot: crawlable addresses, working b
 locator that still functions if the canvas never paints.
 
 Mark the list up with [`LocalBusiness` structured data](https://schema.org/LocalBusiness) while you
-are there — local SEO cares about the markup, not the map.
+are there: local SEO cares about the markup, not the map.
 
 ## Clusters when there are hundreds
 
@@ -192,6 +190,6 @@ that one branch. Use this for the overview, which is where 90% of the interactio
 
 ## Next
 
-- [Clustering](/guides/clustering) — screen-space grouping and drill-down
-- [Viewer location](/guides/viewer-location) — time zone, GPS and accuracy
-- [Projections](/guides/projections) — when Mercator is and is not the answer
+- [Clustering](/guides/clustering): screen-space grouping and drill-down
+- [Viewer location](/guides/viewer-location): time zone, GPS and accuracy
+- [Projections](/guides/projections): when Mercator is and is not the answer

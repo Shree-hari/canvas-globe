@@ -279,7 +279,7 @@ test("overlays survive an export", () => {
     counter: { value: 4200, label: "teams" },
   });
   g.render();
-  // No document under node, so the export is a no-op — but it must not throw
+  // No document exists under Node, so the export is a no-op but must not throw.
   // and must leave the live options untouched.
   assert.equal(g.exportImage({ preset: "og" }), null);
   assert.equal(g.o.title.text, "Where our customers are");

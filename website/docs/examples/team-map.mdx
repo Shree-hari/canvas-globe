@@ -1,6 +1,6 @@
 ---
 title: Remote team map
-description: Avatars or logos placed geographically, straight from a spreadsheet — for an About page, a Careers page or a customer wall.
+description: Place team avatars or company logos on a map from spreadsheet data.
 keywords:
   - remote team map
   - where our team works
@@ -38,7 +38,7 @@ build either way: image markers plus a CSV.
     globe.setMarkers(markers).fitToMarkers();
     say(`${markers.length} locations placed from CSV`);
   }}
-  caption="Placeholder avatars generated in the browser — swap for real image URLs."
+  caption="Placeholder avatars generated in the browser: swap for real image URLs."
 />
 
 ## The code
@@ -57,7 +57,7 @@ const markers = fromCSV(csv);
 const globe = createGlobe(canvas, {
   scene: "team",
   markers,
-  tooltip: (m) => `${m.label} — ${m.count} people`,
+  tooltip: (m) => `${m.label}: ${m.count} people`,
 });
 
 globe.fitToMarkers();
@@ -120,7 +120,7 @@ createGlobe(canvas, {
 
 ## Customer logos instead
 
-Same shape, different framing — `scene: "logos"` uses the neutral `mono` preset so brand colours are
+Same shape, different framing: `scene: "logos"` uses the neutral `mono` preset so brand colours are
 not fighting the map:
 
 ```js

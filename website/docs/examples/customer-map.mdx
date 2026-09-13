@@ -1,6 +1,6 @@
 ---
 title: Where our customers are
-description: A "used in 68 countries" map — choropleth plus city bubbles, with the headline painted into the canvas so it exports as a finished graphic.
+description: Show customer totals by country and city, then export the map with its headline.
 keywords:
   - map showing customers
   - customer locations map
@@ -18,7 +18,7 @@ data. They are not CanvasGlobe usage claims.
 :::
 
 The single most requested marketing map: **proof that people outside your own postcode pay you.**
-Two layers do the work — countries shaded by volume so the eye reads the spread instantly, and city
+Two layers do the work: countries shaded by volume so the eye reads the spread instantly, and city
 bubbles sized by count so the density is honest.
 
 <GlobeDemo
@@ -95,15 +95,15 @@ const globe = createGlobe(canvas, {
   legend: { title: "Customers", scale: { domain: [0, 420], range: ["#ede9fe", "#4c1d95"] } },
   title: { text: `Used by teams in ${Object.keys(byCountry).length} countries` },
 
-  tooltip: (m) => `${m.city} — ${m.count} customers`,
+  tooltip: (m) => `${m.city}: ${m.count} customers`,
   onCountryClick: (shape) => filterTable(shape.iso),
 });
 ```
 
 ## Why these choices
 
-**Map, not globe.** A globe hides half the world at any moment. For a *count* — "we are in 68
-countries" — hiding half of them undercuts the claim. Use the globe when the motion is the message;
+**Map, not globe.** A globe hides half the world at any moment. For a *count*: "we are in 68
+countries": hiding half of them undercuts the claim. Use the globe when the motion is the message;
 use the map when the coverage is.
 
 **`naturalEarth` over `mercator`.** Mercator inflates Europe and North America and shrinks
@@ -115,13 +115,13 @@ default. See [Projections](/guides/projections).
 a question open, and a viewer with an open question scrolls.
 
 **A `title` on the canvas, not in a `<h2>`.** It costs the same to draw and it means
-`exportImage()` gives you the finished asset for a deck, a tweet or an email — no design tool in the
+`exportImage()` gives you the finished asset for a deck, a tweet or an email: no design tool in the
 loop. See [Social share card generator](/examples/social-card).
 
 ## Joining data you already have
 
 Country codes rarely arrive in the shape you want. Keys are matched case-insensitively against ISO
-alpha-2, then the numeric id, then the country name — so most joins need no mapping at all:
+alpha-2, then the numeric id, then the country name: so most joins need no mapping at all:
 
 ```js
 countryColors: { in: "#4c1d95", "United States": "#5b21b6", 826: "#6d28d9" }
@@ -166,10 +166,10 @@ A map of customers is a claim, and claims get checked.
 | Pricing page | Colour by *plan availability* instead of volume |
 | Sales deck | `exportImage({ width: 2400, height: 1260 })` |
 | Investor update | Add [`playTimeline`](/guides/overlays) to animate the last four quarters |
-| Email | Export a PNG — no email client will run canvas |
+| Email | Export a PNG: no email client will run canvas |
 
 ## Next
 
-- [Choropleth](/guides/choropleth) — scales, legends and country click handling
-- [Live signup social proof](/examples/live-signups) — the same data, as events instead of totals
-- [Coverage dashboard](/examples/coverage-dashboard) — the in-product version of this map
+- [Choropleth](/guides/choropleth): scales, legends and country click handling
+- [Live signup social proof](/examples/live-signups): the same data, as events instead of totals
+- [Coverage dashboard](/examples/coverage-dashboard): the in-product version of this map

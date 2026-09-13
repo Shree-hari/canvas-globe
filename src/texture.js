@@ -2,7 +2,7 @@
  * Maps an equirectangular image onto the orthographic sphere, pixel by pixel.
  *
  * The per-pixel inverse projection is the whole cost, so it is rendered at a
- * reduced resolution and upscaled — roughly 2 ms for a 430 px globe, which
+ * reduced resolution and upscaled: roughly 2 ms for a 430 px globe, which
  * fits comfortably inside a 30 fps budget.
  */
 import { D2R, R2D, clamp } from "./geo.js";

@@ -46,7 +46,7 @@ not the right tool.
 
 Use the [playground](/playground), then test the largest realistic marker and
 arc set on your slowest supported device. Compare bundle cost, accessibility,
-SSR behavior, export needs, and maintenance—not only a hero screenshot.
+SSR behavior, export needs, and maintenance: not only a hero screenshot.
 
 Competitor capabilities change. Verify their current documentation before
 making a procurement decision.

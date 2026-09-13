@@ -29,11 +29,11 @@ const strip = (src, file) => {
     .replace(/^export \{[^}]*\};?\s*$/gm, "")
     .replace(/^export (const|function|class|async function) /gm, "$1 ");
   const leftover = out.match(/^\s*(import|export)\b.*$/m);
-  if (leftover) throw new Error(`${file}: unhandled module syntax — ${leftover[0].trim()}`);
+  if (leftover) throw new Error(`${file}: unhandled module syntax: ${leftover[0].trim()}`);
   return out;
 };
 
-// Data files are one huge line each — strip only the `export` keyword.
+// Data files are one huge line each. Strip only the `export` keyword.
 const stripData = (src) => src.replace(/^export default .*$/gm, "").replace(/^export const /gm, "const ");
 
 const parts = [
@@ -63,7 +63,7 @@ writeFileSync(join(root, "dist", "package.json"), `{ "type": "commonjs" }\n`);
 
 const raw = Buffer.byteLength(umd) / 1024;
 const gzip = gzipSync(umd).length / 1024;
-console.log(`dist/canvas-globe.umd.js — ${raw.toFixed(1)} KB raw · ${gzip.toFixed(1)} KB gzipped`);
+console.log(`dist/canvas-globe.umd.js: ${raw.toFixed(1)} KB raw · ${gzip.toFixed(1)} KB gzipped`);
 
 if (gzip > SIZE_BUDGET_KB) {
   console.error(`Bundle exceeds the ${SIZE_BUDGET_KB} KB gzipped budget.`);

@@ -1,6 +1,6 @@
 ---
 title: Shipping and delivery routes
-description: Freight lanes, delivery networks and fulfilment coverage drawn as animated great circles — the map that makes a supply chain feel like an asset.
+description: Display freight lanes, delivery networks, and fulfilment coverage as animated great-circle routes.
 keywords:
   - shipping route map
   - delivery network globe
@@ -14,7 +14,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 # Shipping and delivery routes
 
 Logistics companies sell reliability, and reliability is hard to photograph. A route map is the one
-visual that makes an abstract network feel like infrastructure — which is why every airline, freight
+visual that makes an abstract network feel like infrastructure. This is why airlines, freight
 forwarder and 3PL has one.
 
 <GlobeDemo
@@ -51,7 +51,7 @@ forwarder and 3PL has one.
     { type: "range", label: "Speed", option: "arcSpeed", min: 0.2, max: 2, step: 0.1 },
     { type: "select", label: "Mode", option: "mode", values: ["globe", "map"] },
   ]}
-  caption="Arcs are great circles — the route a ship or aircraft would actually take, not a straight line on a flat map."
+  caption="Arcs are great circles: the route a ship or aircraft would actually take, not a straight line on a flat map."
 />
 
 ## The code
@@ -84,7 +84,7 @@ const globe = createGlobe(canvas, {
   arcLift: 0.3,
   arcSpeed: 0.85,
 
-  tooltip: (m) => `${m.label} — ${m.count} lanes`,
+  tooltip: (m) => `${m.label}: ${m.count} lanes`,
 });
 ```
 
@@ -92,7 +92,7 @@ const globe = createGlobe(canvas, {
 
 An arc is drawn along the shortest path over the sphere, so Shanghai to Los Angeles bends north past
 the Aleutians the way a real sailing lets it. On a **map** the same arc is projected, which means it
-curves and — where it crosses the antimeridian — correctly splits at the seam rather than sweeping
+curves and, where it crosses the antimeridian, splits at the seam rather than sweeping
 back across the Pacific.
 
 This matters more than it sounds. Straight-line route maps are the single most common way logistics
@@ -106,7 +106,7 @@ Three variables are available before the map gets noisy. Use two:
 | --- | --- |
 | Arc `width` | Volume on the lane |
 | Arc `color` | Mode (sea, air, road) or status |
-| Arc `duration` | Transit time — slower arc, longer journey |
+| Arc `duration` | Transit time: slower arc, longer journey |
 | Marker `count` | Hub throughput, via bubble size |
 | `icon` | Mode, when you have three or fewer |
 
@@ -129,7 +129,7 @@ A real network has hundreds. All of them at once is a ball of wool.
 
 1. **Show the top N.** Twenty lanes reads as a network; two hundred reads as static.
 2. **Aggregate to hub pairs**, not shipment pairs. One arc per lane, weighted.
-3. **Let people filter.** Origin region, mode, service level — one `setArcs` call per change.
+3. **Let people filter.** Origin region, mode, service level: one `setArcs` call per change.
 
 ```js
 function show(mode) {
@@ -155,11 +155,11 @@ globe.fitToMarkers({ padding: 0.3 });
 ```
 
 `fitToMarkers` frames exactly the points you set, so a domestic delivery zooms in and an
-international one pulls out — no per-route configuration.
+international one pulls out: no per-route configuration.
 
 ## Coverage instead of routes
 
-If the claim is "we deliver to 190 countries", routes are the wrong picture — you would need 190
+If the claim is "we deliver to 190 countries", routes are the wrong picture: you would need 190
 arcs and it would say nothing. Shade the countries instead:
 
 ```js
@@ -175,19 +175,19 @@ trying to prove. See [Choropleth](/guides/choropleth).
 
 ## Performance
 
-Arcs are the most expensive layer in the library — each one is a resampled polyline with a moving
+Arcs are the most expensive layer in the library: each one is a resampled polyline with a moving
 head.
 
 - **Budget around 60 animated arcs** at 60 fps on a mid-range laptop. Beyond that, cap `fps` to 30.
 - **Static arcs are nearly free.** If the network does not need to animate, set `animate: false` on
   each arc and the whole thing renders once.
-- **Reuse arc objects** across `setArcs` calls where you can — resampled points are cached per
+- **Reuse arc objects** across `setArcs` calls where you can: resampled points are cached per
   object, so recreating identical arcs every frame throws that cache away.
 
 See [Performance](/guides/performance).
 
 ## Next
 
-- [Arcs](/guides/arcs) — lift, speed, icons and the antimeridian
-- [Coverage dashboard](/examples/coverage-dashboard) — the choropleth version
-- [Store and office locator](/examples/store-locator) — the last-mile end of the same story
+- [Arcs](/guides/arcs): lift, speed, icons and the antimeridian
+- [Coverage dashboard](/examples/coverage-dashboard): the choropleth version
+- [Store and office locator](/examples/store-locator): the last-mile end of the same story

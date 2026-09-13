@@ -1,6 +1,6 @@
 ---
 title: Event and webinar registrations
-description: A registration map that fills up as the countdown runs — for webinars, conferences, launch days and community meetups.
+description: Show event registrations by location with a countdown and timeline.
 keywords:
   - webinar registration map
   - event attendee map
@@ -14,7 +14,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 # Event and webinar registrations
 
 Registration pages have one job and a hard deadline. The thing that moves the number is not another
-bullet point about the agenda — it is evidence that other people are going. A map that visibly fills
+bullet point about the agenda: it is evidence that other people are going. A map that visibly fills
 up over the two weeks before the event does that better than a counter alone, because it also
 answers "will anyone be awake in my time zone".
 
@@ -81,7 +81,7 @@ export function RegistrationGlobe({ attendees, total }) {
       cluster
       counter={{ value: total, label: "registered" }}
       showViewer={{ label: "You", live: true }}
-      tooltip={(m) => `${m.city} — ${m.count} attending`}
+      tooltip={(m) => `${m.city}: ${m.count} attending`}
     />
   );
 }
@@ -100,7 +100,7 @@ question. Turn the terminator on and the map answers it without a table of conve
 ```
 
 Anyone in the shaded half is being asked to attend at night. If that is a large share of your
-registrations, run a second session — the map just made the business case for you.
+registrations, consider running a second session for those time zones.
 
 See [Overlays](/guides/overlays) for day/night shading.
 
@@ -135,12 +135,12 @@ socket.on("question", ({ name, city, lat, lon }) => {
 });
 ```
 
-On a shared screen between sessions this is genuinely good filler — it shows the room how far the
-audience reaches, and it costs nothing to run.
+On a shared screen between sessions, the map can show the geographic reach of
+the audience.
 
 ## After the event
 
-Do not throw it away. The map is now an asset for the *next* event:
+The same map can be reused for the next event:
 
 ```js
 globe.setOptions({
@@ -152,7 +152,7 @@ const png = globe.exportImage({ preset: "og" });
 ```
 
 That image goes on the recording page, in the follow-up email, and at the top of next quarter's
-registration page — where it is the social proof this whole page is about.
+registration page: where it is the social proof this whole page is about.
 
 ## Community meetups
 
@@ -167,11 +167,11 @@ visiting and let people click through:
 }
 ```
 
-`live: true` on the next stop makes it pulse — one pulsing dot on a still map is a very strong
+`live: true` on the next stop makes it pulse: one pulsing dot on a still map is a very strong
 "click here".
 
 ## Next
 
-- [Overlays](/guides/overlays) — timeline, counter, terminator
-- [Live signup social proof](/examples/live-signups) — the always-on version
-- [Social share card generator](/examples/social-card) — the wrap-up graphic
+- [Overlays](/guides/overlays): timeline, counter, terminator
+- [Live signup social proof](/examples/live-signups): the always-on version
+- [Social share card generator](/examples/social-card): the wrap-up graphic

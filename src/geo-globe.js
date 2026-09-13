@@ -1,5 +1,5 @@
 /**
- * canvas-globe — interactive globe & world map on a 2D canvas.
+ * canvas-globe: interactive globe & world map on a 2D canvas.
  * No dependencies, no WebGL, no network calls, no API keys.
  */
 import { world as bundledWorld } from "./data/world.js";
@@ -88,7 +88,7 @@ const defaultTooltip = (target, kind) => {
   if (kind === "country") return target.name || String(target.id ?? "");
   if (kind === "cluster") return `${target.count} in this area`;
   const name = target.city || target.name || target.label;
-  const count = target.count != null ? ` — ${target.count}` : "";
+  const count = target.count != null ? `: ${target.count}` : "";
   return name ? `${name}${count}` : `${target.lat.toFixed(2)}, ${target.lon.toFixed(2)}${count}`;
 };
 
@@ -191,7 +191,7 @@ export class GeoGlobe {
   }
 
   /**
-   * A bare `preset` or `scene` in a patch is meaningless on its own — it has to
+   * A bare `preset` or `scene` in a patch is meaningless on its own: it has to
    * expand into the keys it owns, or `setOptions({ preset })` would rename the
    * look without changing it. Explicit keys in the patch always win.
    */
@@ -250,7 +250,7 @@ export class GeoGlobe {
 
   /**
    * Frames a single country and, with `isolate`, drops the rest of the world
-   * away — the setup for a country-shaped hero graphic.
+   * away: the setup for a country-shaped hero graphic.
    */
   focusOn(country, opts = {}) {
     const spec = typeof country === "string" || !country ? { country } : country;
@@ -299,7 +299,7 @@ export class GeoGlobe {
   /* -------------------------------- export -------------------------------- */
 
   /**
-   * Renders one frame at an arbitrary size — social crops, OG images, print.
+   * Renders one frame at an arbitrary size: social crops, OG images, print.
    * The live canvas is untouched.
    */
   exportImage(opts = {}) {
@@ -350,7 +350,7 @@ export class GeoGlobe {
   }
 
   /**
-   * Animates the timeline across a date range — "our growth, 2020 to now".
+   * Animates the timeline across a date range: "our growth, 2020 to now".
    * Returns a handle with `stop()`.
    */
   playTimeline({ from, to, duration = 6000, loop = false, onTick } = {}) {
@@ -391,7 +391,7 @@ export class GeoGlobe {
   /* ------------------------------ live pings ------------------------------ */
 
   /**
-   * Fires a one-shot expanding ring — the "someone in Berlin just signed up"
+   * Fires a one-shot expanding ring: the "someone in Berlin just signed up"
    * moment. Returns `this`, so it chains.
    */
   ping(input, extra = {}) {
@@ -417,7 +417,7 @@ export class GeoGlobe {
   }
 
   /**
-   * Replays a list of pings on a timer — a live-activity feed without a server.
+   * Replays a list of pings on a timer: a live-activity feed without a server.
    * Returns a handle with `stop()`.
    */
   pingFeed(items, { interval = 2200, loop = true, flyTo = false, onPing } = {}) {
@@ -475,7 +475,7 @@ export class GeoGlobe {
 
   /**
    * Drives the view from an element's scroll progress. Each step needs an `at`
-   * (0–1); `center`, `zoom` and `mode` interpolate, everything else applies at
+   * (0-1); `center`, `zoom` and `mode` interpolate, everything else applies at
    * the step boundary.
    */
   story(element, steps, { onStep } = {}) {
@@ -551,7 +551,7 @@ export class GeoGlobe {
   /* -------------------------------- viewer -------------------------------- */
 
   /**
-   * Where the current viewer is, from their time zone — no permission prompt,
+   * Where the current viewer is, from their time zone: no permission prompt,
    * no network call. Pass `{ precise: true }` for a Promise that upgrades to
    * GPS if they allow it.
    */
@@ -710,7 +710,7 @@ export class GeoGlobe {
     return this;
   }
 
-  /** PNG data URL of the current frame — handy for share images. */
+  /** PNG data URL of the current frame: handy for share images. */
   snapshot(type = "image/png", quality) {
     return this.canvas.toDataURL(type, quality);
   }
@@ -927,7 +927,7 @@ export class GeoGlobe {
 
   /**
    * A time zone only narrows you to a region, and its published coordinate is
-   * one representative city — Asia/Kolkata for all of India. For countries
+   * one representative city: Asia/Kolkata for all of India. For countries
    * that wide, the country centroid is a much better guess, and either way the
    * radius reflects how much is actually unknown.
    */
@@ -1075,7 +1075,7 @@ export class GeoGlobe {
     const ox = w / 2 + panX - midX * s;
     const oy = h / 2 + panY - midY * s;
     // Longitudes are wrapped around the visible centre, so the seam always
-    // falls half a world away — off screen whenever the map is zoomed in.
+    // falls half a world away: off screen whenever the map is zoomed in.
     const lonC = maxX === 0 ? midX : this.lon;
     const wrap = (lon) => lonC + wrapLon(lon - lonC);
     return {
@@ -1368,7 +1368,7 @@ export class GeoGlobe {
         "max-width:240px;box-shadow:0 6px 20px rgba(0,0,0,.25);transform:translate(-50%,-140%)";
       document.body.appendChild(this._tip);
     }
-    // textContent, never innerHTML — formatter output is treated as plain text.
+    // textContent, never innerHTML: formatter output is treated as plain text.
     this._tip.textContent = String(text);
     this._tip.style.display = "block";
     this._tipVisible = true;
@@ -2176,7 +2176,7 @@ export class GeoGlobe {
 
   /* -------------------------------- layers -------------------------------- */
 
-  /** Additive blobs — density without a per-frame pixel pass. */
+  /** Additive blobs: density without a per-frame pixel pass. */
   _paintHeatmap(pts, t) {
     const o = this.o.heatmap === true ? {} : this.o.heatmap;
     const { ctx } = this;

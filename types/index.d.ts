@@ -15,7 +15,7 @@ export interface Marker {
   imageSize?: number;
   /** When this happened, for `timeline`. Anything `new Date()` accepts. */
   date?: string | number | Date;
-  /** Draws a pulsing ring — use for "active right now". */
+  /** Draws a pulsing ring: use for "active right now". */
   live?: boolean;
   /** Overrides the theme marker colour. */
   color?: string;
@@ -139,8 +139,8 @@ export interface ShowViewerOptions {
   maximumAge?: number;
   /**
    * Where to put the pin for a non-GPS fix. "auto" (default) uses the country
-   * centroid for countries wider than 8° — one time zone covers all of India,
-   * so its published city would be confidently wrong — and the time-zone city
+   * centroid for countries wider than 8°: one time zone covers all of India,
+   * so its published city would be confidently wrong, and the time-zone city
    * everywhere else.
    */
   anchor?: "auto" | "country" | "timezone";
@@ -167,7 +167,7 @@ export interface PingSpec {
   radius?: number;
   /** Lifetime in ms. Default 2600. */
   duration?: number;
-  /** Throw particles outward — `true` for 14, or a count. */
+  /** Throw particles outward: `true` for 14, or a count. */
   burst?: boolean | number;
   burstColor?: string;
   flyTo?: boolean;
@@ -179,7 +179,7 @@ export interface Handle {
 }
 
 export interface StoryStep extends Partial<GeoGlobeOptions> {
-  /** Scroll progress, 0–1. */
+  /** Scroll progress, 0-1. */
   at: number;
   center?: [lon: number, lat: number];
   zoom?: number;
@@ -188,7 +188,7 @@ export interface StoryStep extends Partial<GeoGlobeOptions> {
 export interface HeatmapOptions {
   /** Blob radius in px at full weight. Default 30. */
   radius?: number;
-  /** Peak opacity, 0–1. Default 0.5. */
+  /** Peak opacity, 0-1. Default 0.5. */
   intensity?: number;
   color?: string;
 }
@@ -321,7 +321,7 @@ export interface TimelineSpec {
 export type ExportPresetName =
   | "square" | "story" | "portrait" | "wide" | "linkedin" | "og" | "twitter" | "thumbnail";
 
-/** `{ "Ahmedabad": [lon, lat] }` — plug in your own places. */
+/** `{ "Ahmedabad": [lon, lat] }`: plug in your own places. */
 export type Gazetteer = Record<string, [number, number] | { lat: number; lon: number }>;
 
 export interface CsvOptions {
@@ -404,7 +404,7 @@ export interface GeoGlobeOptions {
   dotSpacing?: number;
   /** Dot radius in px when `landStyle` is "dots". Default 1.15. */
   dotSize?: number;
-  /** Decorative great-circle rings: a count (0–6) or explicit ring specs. */
+  /** Decorative great-circle rings: a count (0-6) or explicit ring specs. */
   orbits?: number | Orbit[];
   /** Fills used by `countryColors: "auto"`. */
   countryPalette?: string[] | null;
@@ -416,7 +416,7 @@ export interface GeoGlobeOptions {
   focus?: string | FocusSpec | null;
   /** Media painted inside each country's outline, keyed by ISO, id or name. */
   countryMedia?: Record<string, MediaSource | MediaSpec | CountryTextSpec> | null;
-  /** Whole composition — preset plus the layers a given job needs. */
+  /** Whole composition: preset plus the layers a given job needs. */
   scene?: SceneName;
   /** Leader-line callouts. */
   annotations?: Annotation[] | null;
@@ -438,7 +438,7 @@ export interface GeoGlobeOptions {
   labels?: boolean | "markers" | "countries" | "both";
   /** Draws a legend card in a corner. */
   legend?: LegendSpec | null;
-  /** Pin the current viewer using their time zone — no prompt, no network. */
+  /** Pin the current viewer using their time zone: no prompt, no network. */
   showViewer?: boolean | ShowViewerOptions;
   /** Coast after a drag instead of stopping dead. Default true. */
   momentum?: boolean;

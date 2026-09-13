@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>canvas-globe — demo</title>
+  <title>canvas-globe: demo</title>
   <style>
     :root { --panel: #151d2e; --line: rgba(255,255,255,.1); --muted: #8992a8; }
     * { box-sizing: border-box; }
@@ -205,7 +205,7 @@ Nairobi,2,</textarea>
       markers: cities,
       arcs,
       tooltip: (target, kind) => {
-        if (kind === "country") return traffic[target.iso] ? `${target.name} — ${traffic[target.iso]} visits` : target.name;
+        if (kind === "country") return traffic[target.iso] ? `${target.name}: ${traffic[target.iso]} visits` : target.name;
         if (kind === "cluster") return `${target.count} visitors nearby`;
         return `${target.name} · ${target.count} visitors${target.live ? " · live" : ""}`;
       },
@@ -338,7 +338,7 @@ Nairobi,2,</textarea>
 
     const where = document.getElementById("where");
 
-    // Stylised equirectangular texture built from the bundled geometry — proves
+    // Stylised equirectangular texture built from the bundled geometry: proves
     // the texture pipeline with no external asset and no CORS to worry about.
     let earthTexture = null;
     const buildTexture = () => {
@@ -403,7 +403,7 @@ Nairobi,2,</textarea>
 
     const km = (m) => (m >= 1000 ? `${Math.round(m / 1000)} km` : `${Math.round(m)} m`);
 
-    // "You are here" — time zone only, so it is instant and never prompts.
+    // "You are here": time zone only, so it is instant and never prompts.
     document.getElementById("viewer").addEventListener("click", (e) => {
       const on = !g.o.showViewer;
       press(e.currentTarget, on);
@@ -426,7 +426,7 @@ Nairobi,2,</textarea>
       g.ping({ lat: v.lat, lon: v.lon, label: "You are here" });
       where.textContent = found.source === "geolocation"
         ? `GPS → ${v.lat.toFixed(4)}, ${v.lon.toFixed(4)} · device reports ±${km(v.accuracyMeters)}.`
-        : `Permission denied or unavailable — fell back to ${v.timeZone} (±${km(v.accuracyMeters)}).`;
+        : `Permission denied or unavailable: fell back to ${v.timeZone} (±${km(v.accuracyMeters)}).`;
       press(e.currentTarget, false);
       press(document.getElementById("viewer"), true);
     });
@@ -488,7 +488,7 @@ Nairobi,2,</textarea>
       focusPick.appendChild(opt);
     }
 
-    // A procedurally animated canvas stands in for a video file — same
+    // A procedurally animated canvas stands in for a video file: same
     // drawImage path every frame, with no asset to ship.
     let reel = null;
     const buildReel = () => {
@@ -632,7 +632,7 @@ Nairobi,2,</textarea>
       g.setOptions({
         annotations: on
           ? [
-              { lat: 23.03, lon: 72.58, text: "HQ — Ahmedabad" },
+              { lat: 23.03, lon: 72.58, text: "HQ: Ahmedabad" },
               { lat: 51.5, lon: -0.12, text: "EU office", dx: -70, dy: -40 },
             ]
           : null,

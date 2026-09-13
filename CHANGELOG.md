@@ -24,10 +24,10 @@ All notable changes to this package are documented here. The format follows
 - **Toolkit for building on top.** `fromCSV()` / `fromRows()` turn spreadsheet data into markers,
   resolving lat/lon columns, ~300 bundled city names, or country codes and names, with a
   `gazetteer` escape hatch and a `skipped` report. `exportImage()` / `exportBlob()` render one frame
-  at any size off-screen — `square`, `story`, `linkedin`, `og` and friends — with
-  `transparent` for an alpha channel. `scenes` bundle a preset with the layers a job needs.
+  at any size off-screen using `square`, `story`, `linkedin`, `og`, or another preset. The
+  `transparent` option preserves an alpha channel. `scenes` bundle a preset with the layers a job needs.
 - **Overlays.** `counter` rolls a headline number, `title` paints a headline and subheadline onto
-  the canvas, `watermark` bakes a logo or wordmark into every frame — so `exportImage()` returns a
+  the canvas, and `watermark` bakes a logo or wordmark into every frame. `exportImage()` returns a
   finished, branded asset rather than raw art. `annotations` draw leader-line callouts,
   `timeline` reveals markers as their `date` arrives and `playTimeline()` animates the range.
   Markers accept `image` for logo and avatar crops, arcs accept `icon` for a travelling glyph,
@@ -36,7 +36,7 @@ All notable changes to this package are documented here. The format follows
   `countryMedia` paints an image, GIF, video, canvas or live `MediaStream` clipped to a country's
   outline. Added `focusOn()`, `clearFocus()`, `setCountryMedia()` and `countryAspect()`.
 - **Viewer location.** `showViewer` pins whoever is looking at the page, resolved from their IANA
-  time zone — no permission prompt, no network call, no API key, and it always resolves. Legacy zone
+  time zone: no permission prompt, no network call, no API key, and it always resolves. Legacy zone
   aliases are handled. `locateViewer({ precise: true })` offers a GPS upgrade and falls back to the
   estimate if declined. Exposed standalone as `locateViewer`, `locateViewerPrecise`,
   `timeZoneLocation` and `countryLocation`.
@@ -57,8 +57,8 @@ All notable changes to this package are documented here. The format follows
 - **Render styles and presets.** `landStyle` draws land as a solid fill, a halftone dot matrix,
   line-art outlines or a neon glow; `orbits` adds decorative great-circle rings that pass behind the
   globe correctly; `countryColors: "auto"` gives every country a distinct fill via greedy graph
-  colouring. Ten `presets` bundle a theme with a style — `hologram`, `neon`, `blueprint`, `aurora`,
-  `noir`, `political`, `constellation` and the original three — applied with `preset` or
+  colouring. Ten `presets` bundle a theme with a style: `hologram`, `neon`, `blueprint`, `aurora`,
+  `noir`, `political`, `constellation` and the original three: applied with `preset` or
   `setPreset()`. Six new themes ship alongside them.
 - **Zoom and pan.** Wheel, pinch and keyboard zoom in both modes, with map panning that keeps the
   point under the cursor fixed. New `zoom`, `minZoom`, `maxZoom`, `zoomable` options and
@@ -89,8 +89,8 @@ All notable changes to this package are documented here. The format follows
 
 - **India is part of the bundled country geometry rather than an overlay.** The Survey of India
   boundary is merged into `world.js` at data-generation time and subtracted from the neighbouring
-  countries, so India is an ordinary shape in `globe.world` and every layer — choropleth, labels,
-  media, hit testing, auto-colouring — treats it like any other country. Removes the `officialIndia`
+  countries, so India is an ordinary shape in `globe.world` and every layer: choropleth, labels,
+  media, hit testing, auto-colouring: treats it like any other country. Removes the `officialIndia`
   and `india` options, the `india` export, the `canvas-globe/data/india` subpath and the
   `official-india` attribute. Pass your own `world` GeoJSON for a different depiction.
 - The bundled data now carries ISO alpha-2 codes for 172 of 177 countries. The previous build
@@ -128,9 +128,9 @@ All notable changes to this package are documented here. The format follows
 - `locateViewerPrecise()` passed `enableHighAccuracy: false`, which asked the browser *not* to use
   GPS. It now requests the high-accuracy provider and reports the device's `accuracyMeters`.
 - The viewer pin claimed more precision than a time zone can give. Wide single-zone countries now
-  anchor on the country centroid rather than the zone's published city — for India that moves the
-  pin from Kolkata to central India — and a dashed uncertainty circle is drawn at the real radius.
-- The documented `india` option was ignored — the bundled geometry was always used.
+  anchor on the country centroid rather than the zone's published city: for India that moves the
+  pin from Kolkata to central India, and a dashed uncertainty circle is drawn at the real radius.
+- The documented `india` option was ignored: the bundled geometry was always used.
 - Map mode had no grab cursor and no way to pan.
 - Map mode could not be panned across the antimeridian; the view clamped at the edge of the world and
   a marker at 179°W projected a whole world away from one at 179°E. Longitudes are now wrapped around

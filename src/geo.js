@@ -1,5 +1,5 @@
 /**
- * Pure geometry, projection and colour helpers. No DOM, no canvas — everything
+ * Pure geometry, projection and colour helpers. No DOM, no canvas: everything
  * here is testable in isolation and safe to run in Node.
  */
 
@@ -141,7 +141,7 @@ export const greatCircle = (lon1, lat1, lon2, lat2, steps = 64) => {  const a = 
 /** Metres between two coordinates, on a spherical earth. */
 export const distanceMeters = (lon1, lat1, lon2, lat2) => angularDistance(lon1, lat1, lon2, lat2) * D2R * 6371008.8;
 
-/** Ring of points a fixed distance from a centre — a circle on the sphere. */
+/** Ring of points a fixed distance from a centre: a circle on the sphere. */
 export const circleAround = (lon, lat, meters, steps = 72) => {
   const theta = clamp(meters / 6371008.8, 0, Math.PI * 0.85);
   const f1 = lat * D2R, l1 = lon * D2R;

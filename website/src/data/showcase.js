@@ -1,7 +1,7 @@
 /**
  * Shared demo data for the Examples section.
  *
- * Everything here is invented but plausible — real coordinates, believable
+ * Everything here is invented but plausible: real coordinates, believable
  * numbers. Examples read better when the data does not look like `foo`/`bar`.
  */
 
@@ -26,7 +26,7 @@ export const CUSTOMERS = [
   { city: "Mexico City", lat: 19.43, lon: -99.13, count: 42 },
 ];
 
-/** A distributed team, one emoji each — no avatar hosting required. */
+/** A distributed team, one emoji each: no avatar hosting required. */
 export const TEAM = [
   { name: "Priya", role: "Design", city: "Ahmedabad", lat: 23.03, lon: 72.58, emoji: "🧑‍🎨" },
   { name: "Marcus", role: "Engineering", city: "London", lat: 51.5, lon: -0.12, emoji: "👩‍💻" },

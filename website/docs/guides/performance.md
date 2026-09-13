@@ -11,11 +11,11 @@ The single most important thing to know: **frames are skipped entirely when noth
 
 ```js
 globe.render();          // draws now
-globe._animating();      // internal — true while something needs to move
+globe._animating();      // internal: true while something needs to move
 ```
 
-A static chart — no auto-rotation, no live markers, no animated arcs, no orbits, no pings, no video
-media — costs nothing after the first paint. It is not burning a `requestAnimationFrame` loop
+A static chart: no auto-rotation, no live markers, no animated arcs, no orbits, no pings, no video
+media: costs nothing after the first paint. It is not burning a `requestAnimationFrame` loop
 redrawing an identical image.
 
 Anything that changes state marks the next frame dirty. If you mutate something the library cannot
@@ -42,7 +42,7 @@ The frame budget at the default 30 fps is 33 ms.
 
 **Geometry tracing dominates.** 177 countries with ~10,800 points is most of the per-frame work.
 Globe mode is cheaper than it looks because geometry behind the horizon is clipped rather than
-drawn — a typical frame skips 20–60% of the world.
+drawn: a typical frame skips 20-60% of the world.
 
 **Choropleth costs more than plain land.** A single fill for all countries becomes one path per
 country, because each needs its own colour. Only enable it when you are using it.
@@ -55,7 +55,7 @@ country, because each needs its own colour. Only enable it when you are using it
 | `cluster: true` | Turns thousands of markers into dozens of bubbles |
 | `graticule: false` | Removes ~30 sampled polylines |
 | `stars: false` | Removes 140 circles per frame |
-| `landStyle: "dots"` | Cheaper than `fill` once cached — a single batched fill |
+| `landStyle: "dots"` | Cheaper than `fill` once cached: a single batched fill |
 | `dotSpacing` up | Fewer dots, quadratically |
 | `textureQuality: 3` | Coarser texture pass, upscaled |
 | Simpler `world` GeoJSON | Fewer points to trace |
@@ -74,11 +74,11 @@ Several things are computed once and reused. Keeping references **stable** keeps
 | Projection bounds | projection + `latRange` | changing either |
 
 ```js
-// Good — the arc objects persist, so their sample points stay cached
+// Good: the arc objects persist, so their sample points stay cached
 const arcs = useMemo(() => routes.map(toArc), [routes]);
 globe.setArcs(arcs);
 
-// Bad — new objects every render, cache misses every time
+// Bad: new objects every render, cache misses every time
 globe.setArcs(routes.map(toArc));
 ```
 

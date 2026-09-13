@@ -46,7 +46,7 @@ function HeroGlobe() {
 
 const FEATURES = [
   ["🪶", "Zero dependencies", "No WebGL, no D3, no tiles, no API keys. Country geometry ships inside the package."],
-  ["🖱", "Properly interactive", "Drag with momentum, scroll to zoom, pinch, hover, click — and full keyboard control."],
+  ["🖱", "Interaction", "Drag with momentum, scroll to zoom, pinch, hover, click, and use keyboard controls."],
   ["🎨", "Ten presets", "Dot-matrix hologram, neon, blueprint HUD, printed atlas. Every piece composes."],
   ["🎬", "Country canvas", "Play an image, GIF or video inside a country's outline."],
   ["📍", "Knows the viewer", "Places them from their time zone. No permission prompt, no network call."],
@@ -56,8 +56,8 @@ const FEATURES = [
 export default function Home() {
   return (
     <Layout
-      title="JavaScript 3D globe and world map—no WebGL"
-      description="CanvasGlobe is a zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D—no WebGL, API key, or runtime network calls."
+      title="JavaScript 3D globe and world map: no WebGL"
+      description="CanvasGlobe is a zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D: no WebGL, API key, or runtime network calls."
     >
       <header className={styles.hero}>
         <div className={styles.heroInner}>
@@ -67,7 +67,7 @@ export default function Home() {
             </h1>
             <p className={styles.subtitle}>
               Interactive 3D globe and world map on a plain 2D canvas. Zero dependencies, zero network
-              calls, ~121&nbsp;KB gzipped — drop it in a <code>&lt;script&gt;</code> tag or import it
+              calls, ~121&nbsp;KB gzipped: drop it in a <code>&lt;script&gt;</code> tag or import it
               in React.
             </p>
             <div className={styles.actions}>

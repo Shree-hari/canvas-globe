@@ -82,7 +82,7 @@ await globe.toBlob();      // → Blob
 ## Recording a clip
 
 `record()` encodes WebM from the canvas stream using `MediaRecorder`. **The clip is produced
-entirely in the tab** — nothing is uploaded and no encoder dependency is involved.
+entirely in the tab**: nothing is uploaded and no encoder dependency is involved.
 
 ```js
 import { canRecord } from "canvas-globe";
@@ -98,10 +98,10 @@ if (canRecord()) {
 | `duration` | `6000` | Milliseconds. `0` records until you call `stop()` |
 | `fps` | `30` | Capture rate |
 | `bitrate` | `6e6` | Video bits per second |
-| `filename` | — | If set, downloads automatically |
+| `filename` | Not set | If set, downloads automatically |
 | `type` | auto | Container; falls back through VP9 → VP8 → WebM → MP4 |
 
-Check support first — Safari's coverage is narrower than Chrome's:
+Check support first: Safari's coverage is narrower than Chrome's:
 
 ```js
 import { canRecord, supportedRecordingType } from "canvas-globe";
@@ -133,7 +133,7 @@ await globe.record({ duration: 6000, filename: "growth.webm" }).promise;
 ## Server-side rendering
 
 `exportImage` needs a document, so it returns `null` in Node. For build-time OG images, run it in a
-headless browser — Playwright or Puppeteer — and read the data URL out of the page. A native Node
+headless browser such as Playwright or Puppeteer and read the data URL from the page. A native Node
 canvas backend is not currently supported.
 
 ## Colour and fidelity

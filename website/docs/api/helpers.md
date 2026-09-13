@@ -70,7 +70,7 @@ projections.mercator.inverse(x, y);              // → [lon, lat]
 projections.naturalEarth.forward(lon, lat);
 ```
 
-Raw projection maths. `y` points **south**. All three round-trip to floating-point precision — the
+Raw projection maths. `y` points **south**. All three round-trip to floating-point precision: the
 Natural Earth inverse uses Newton iteration.
 
 ## Colour

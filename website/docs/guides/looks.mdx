@@ -20,14 +20,14 @@ A **preset** bundles all three into a name. Your own options always win over it.
 
 ## The ten presets
 
-Click a tile — the preview above it switches to that preset.
+Click a tile: the preview above it switches to that preset.
 
 <PresetGallery preview />
 
 ```js
 createGlobe(canvas, { preset: "hologram" });
 globe.setPreset("neon");
-globe.setOptions({ preset: "neon" });   // identical — a bare preset expands
+globe.setOptions({ preset: "neon" });   // identical: a bare preset expands
 ```
 
 `setPreset()` returns every key the new preset does not set back to its default, so switching from
@@ -52,7 +52,7 @@ to `createGlobe()` does the same expansion, and any keys you pass alongside it s
 | `"dots"` | Halftone dot matrix |
 | `"outline"` | Line art, near-transparent fill |
 | `"glow"` | Neon stroke with a bloom |
-| `"none"` | No land at all — for texture or media backgrounds |
+| `"none"` | No land at all: for texture or media backgrounds |
 
 :::note How the dot matrix is built
 The land is rasterised **once** into an off-screen bitmap, then a grid is sampled against it. That
@@ -87,7 +87,7 @@ createGlobe(canvas, {
 Nine palettes ship: `atlas`, `midnight`, `mono`, `hologram`, `neon`, `blueprint`, `aurora`, `noir`
 and `political`.
 
-Override any subset by passing an object — missing keys fall back to `atlas`:
+Override any subset by passing an object: missing keys fall back to `atlas`:
 
 ```js
 createGlobe(canvas, {
@@ -132,7 +132,7 @@ See [the full theme key list](/api/themes-presets-scenes#theme-keys).
 
 ## Mixing freely
 
-Any theme composes with any style. This is `midnight` with a dot matrix and three rings — not a
+Any theme composes with any style. This is `midnight` with a dot matrix and three rings: not a
 preset, just three options:
 
 <GlobeDemo

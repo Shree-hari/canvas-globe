@@ -62,7 +62,7 @@ export const EXAMPLES = [
   {
     to: "/examples/social-card",
     title: "Social share card generator",
-    blurb: "Title, watermark and one call to exportImage — a finished OG image.",
+    blurb: "Title, watermark and one call to exportImage: a finished OG image.",
     tag: "Campaign",
     options: {
       ...thumb, preset: "aurora", center: { lon: 10, lat: 20 }, radiusRatio: 0.4,

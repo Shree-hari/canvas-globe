@@ -1,6 +1,6 @@
 ---
 title: Landing page hero globe
-description: The hero globe every SaaS site wants — slowly spinning, arcs radiating from your HQ, and a live feed of signups pinging in.
+description: Build a landing-page globe with routes and recent activity markers.
 keywords:
   - globe on landing page
   - hero section globe
@@ -50,7 +50,7 @@ The hero globe: slowly spinning, arcs radiating from your HQ, and a live feed of
       { interval: 2400 },
     );
   }}
-  caption="Your own position is pinned too — resolved from your time zone, with no prompt."
+  caption="Your own position is pinned too: resolved from your time zone, with no prompt."
 />
 
 ## The code
@@ -81,7 +81,7 @@ export function HeroGlobe({ cities, total, events }) {
       arcs={cities.map((c) => ({ from: HQ, to: c }))}
       counter={{ value: total, label: "customers worldwide" }}
       showViewer={{ label: "You", live: true }}
-      tooltip={(m) => `${m.city} — ${m.count} customers`}
+      tooltip={(m) => `${m.city}: ${m.count} customers`}
       style={{ maxWidth: 520 }}
     />
   );
@@ -93,7 +93,7 @@ export function HeroGlobe({ cities, total, events }) {
 **`scene: "signups"`** wires the hologram preset, clustering, tooltips and the viewer pin in one
 word. Override anything you disagree with.
 
-**`rotateSpeed: 0.04`** — slower than the default. A hero globe should feel calm, not frantic.
+**`rotateSpeed: 0.04`**: slower than the default. A hero globe should feel calm, not frantic.
 
 **`showViewer`** puts the visitor on your map. It is the cheapest personalisation available: no
 prompt, no request, no consent banner.
@@ -114,12 +114,12 @@ socket.onmessage = (e) => {
 };
 ```
 
-Polling works just as well, and for a marketing page a **canned list on a loop is honest enough** as
-long as the numbers themselves are real. Do not fabricate signups.
+Polling is also supported. Label canned activity as demonstration data and do
+not present it as live customer activity.
 
 ## Performance on a landing page
 
-Keep an eye on the frame budget — a hero globe shares the page with everything else.
+Keep an eye on the frame budget: a hero globe shares the page with everything else.
 
 ```jsx
 <Globe
@@ -135,5 +135,5 @@ globe with `autoRotate: false` costs nothing while the visitor reads your copy.
 
 ## Respecting reduced motion
 
-Nothing to do — auto-rotation, pulses, arc travel and ping bursts all stop automatically when the
+Nothing to do: auto-rotation, pulses, arc travel and ping bursts all stop automatically when the
 visitor asks for less motion. The globe stays, the motion goes.

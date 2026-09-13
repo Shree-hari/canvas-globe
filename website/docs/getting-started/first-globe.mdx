@@ -49,7 +49,7 @@ const globe = createGlobe(canvas, {
     { lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻", city: "London" },
     { lat: 40.71, lon: -74.01, count: 6, emoji: "🧑‍🚀", city: "New York" },
   ],
-  tooltip: (m) => `${m.city} — ${m.count} people`,
+  tooltip: (m) => `${m.city}: ${m.count} people`,
   onClick: (m) => globe.flyTo(m.lon, m.lat, { zoom: 2.5 }),
 });
 ```
@@ -69,7 +69,7 @@ const globe = createGlobe(canvas, {
 
 ## Switch to a flat map
 
-Same instance, same markers — one option.
+Same instance, same markers: one option.
 
 <GlobeDemo
   options={{
@@ -86,7 +86,7 @@ Same instance, same markers — one option.
     { type: "select", label: "Mode", option: "mode", values: ["map", "globe"] },
     { type: "select", label: "Projection", option: "projection", values: ["equirectangular", "mercator", "naturalEarth"] },
   ]}
-  caption="Map mode needs a wider canvas — see Sizing the canvas."
+  caption="Map mode needs a wider canvas: see Sizing the canvas."
 />
 
 ## Drive it afterwards
@@ -114,6 +114,6 @@ for you.
 
 ## Next
 
-- [Sizing the canvas](./sizing) — the one thing that trips people up
-- [Markers](/guides/markers) — weights, emoji, logos, avatars
-- [Looks and presets](/guides/looks) — make it match your brand
+- [Sizing the canvas](./sizing): required CSS sizing
+- [Markers](/guides/markers): weights, emoji, logos, avatars
+- [Looks and presets](/guides/looks): make it match your brand

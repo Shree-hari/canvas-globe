@@ -41,9 +41,9 @@ window. Ask the library:
 ```js
 import { mapAspect } from "canvas-globe";
 
-mapAspect();                            // 0.386 — equirectangular, default latRange
+mapAspect();                            // 0.386: equirectangular, default latRange
 mapAspect([83, -56], "mercator");       // 0.633
-mapAspect([90, -90]);                   // 0.5 — full-height equirectangular
+mapAspect([90, -90]);                   // 0.5: full-height equirectangular
 ```
 
 `mapAspect` returns **height ÷ width**, so CSS `aspect-ratio` wants its reciprocal:
@@ -67,7 +67,7 @@ canvas.style.aspectRatio = String(1 / mapAspect(latRange, projection));
 
 :::info Letterboxing, not stretching
 If the canvas ratio does not match the projection, CanvasGlobe fits the map uniformly and centres it.
-The map is never distorted — you just get empty space at the sides or top.
+The map is never distorted: you just get empty space at the sides or top.
 :::
 
 ## Framing a single country
@@ -102,14 +102,14 @@ globe.focusOn("India", { isolate: true });
 The backing store is `cssSize × min(2, devicePixelRatio)`. Capping at 2 keeps 3× phones from paying
 for nine times the pixels with no visible gain.
 
-You never deal with this directly — [`project()`](/api/methods#project) and
+You never deal with this directly: [`project()`](/api/methods#project) and
 [`unproject()`](/api/methods#unproject) both speak CSS pixels, as do the positions handed to
 `onHover` and `onClick`.
 
 ## Resizing
 
 `ResizeObserver` handles layout changes automatically. Call [`resize()`](/api/methods#lifecycle)
-manually only when you change the canvas size in a way the observer cannot see — for example right
+manually only when you change the canvas size in a way the observer cannot see: for example right
 after switching the CSS `aspect-ratio` in the same frame:
 
 ```js

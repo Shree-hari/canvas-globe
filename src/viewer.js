@@ -4,7 +4,7 @@
  *
  * The browser's IANA time zone is always available and maps to a published
  * coordinate, which puts the viewer within their time-zone region. That is
- * region-accurate, not street-accurate — call `locateViewerPrecise()` to offer
+ * region-accurate, not street-accurate: call `locateViewerPrecise()` to offer
  * a GPS upgrade behind the usual permission prompt.
  */
 import { zoneTable, zoneAliases } from "./data/timezones.js";
@@ -83,7 +83,7 @@ const localeCountry = () => {
  * environment exposes neither a time zone nor a locale region.
  *
  * `accuracyMeters` is null here because a time zone says nothing about where
- * inside it you are — the caller is expected to derive a radius from the
+ * inside it you are: the caller is expected to derive a radius from the
  * region itself.
  */
 export function locateViewer() {

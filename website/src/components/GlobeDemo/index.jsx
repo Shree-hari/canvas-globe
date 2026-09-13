@@ -93,7 +93,7 @@ function Mounted({ options, height, aspect, controls, code, caption, onReady }) 
       globe.setOptions({ [top]: next[top] });
       if (top === "preset" || top === "scene") {
         // A preset returns every key it owns to its default, which would drop
-        // whatever this demo is actually about — its colours, legend or title.
+        // whatever this demo is actually about: its colours, legend or title.
         const restore = {};
         for (const key of ownKeys.current) {
           if (key !== "preset" && key !== "scene") restore[key] = next[key];

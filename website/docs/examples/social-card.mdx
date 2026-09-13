@@ -1,6 +1,6 @@
 ---
 title: Social share card generator
-description: Generate OG images, LinkedIn cards and story graphics from real data — headline, logo and globe baked into one PNG by a single call to exportImage.
+description: Generate Open Graph images, LinkedIn cards, and story graphics from map data.
 keywords:
   - generate og image
   - social share card generator
@@ -17,7 +17,7 @@ logo bottom-right. This makes it **one function call**, driven by live data, at 
 platform wants.
 
 The two pieces that make it work are [`title`](/guides/overlays) and
-[`watermark`](/guides/overlays) — both are painted onto the canvas, so the exported PNG is finished
+[`watermark`](/guides/overlays): both are painted onto the canvas, so the exported PNG is finished
 art rather than something you still have to take into a design tool.
 
 <GlobeDemo
@@ -54,7 +54,7 @@ art rather than something you still have to take into a design tool.
         a.href = g.exportImage({ preset: "og" });
         a.download = "share-card.png";
         a.click();
-        say("Saved share-card.png — 1200 × 630, headline and watermark included.");
+        say("Saved share-card.png: 1200 × 630, headline and watermark included.");
       },
     },
     {
@@ -65,7 +65,7 @@ art rather than something you still have to take into a design tool.
         a.href = g.exportImage({ preset: "story" });
         a.download = "share-story.png";
         a.click();
-        say("Saved share-story.png — 1080 × 1920.");
+        say("Saved share-story.png: 1080 × 1920.");
       },
     },
   ]}
@@ -104,14 +104,14 @@ function shareCard({ countries, teams, markers }) {
 }
 ```
 
-`exportImage` renders **one frame off-screen** at the requested size — it does not touch the visible
+`exportImage` renders **one frame off-screen** at the requested size: it does not touch the visible
 canvas, so you can generate a 1200 × 630 card from a globe that is 320 px wide on screen.
 
 ## Sizes
 
 | Preset | Pixels | For |
 | --- | --- | --- |
-| `og` | 1200 × 630 | Open Graph — Facebook, Slack, LinkedIn unfurls |
+| `og` | 1200 × 630 | Open Graph: Facebook, Slack, LinkedIn unfurls |
 | `twitter` | 1600 × 900 | X / Twitter summary card |
 | `linkedin` | 1200 × 627 | LinkedIn posts |
 | `square` | 1080 × 1080 | Instagram feed |
@@ -132,7 +132,7 @@ single output.
 
 The point of generating these is that you can make thousands.
 
-**Per marketing page** — a different centre and headline for each geo landing page:
+**Per marketing page**: a different centre and headline for each geo landing page:
 
 ```js
 const card = shareCard({
@@ -142,7 +142,7 @@ const card = shareCard({
 });
 ```
 
-**Per customer, in-product** — the "your year with us" graphic people actually post:
+**Per customer, in-product**: the "your year with us" graphic people actually post:
 
 ```js
 globe.setOptions({
@@ -153,7 +153,7 @@ globe.setOptions({
 const blob = await globe.exportBlob({ preset: "square" });
 ```
 
-Then hand it straight to the share sheet — no upload round trip:
+Then hand it straight to the share sheet: no upload round trip:
 
 ```js
 const file = new File([blob], "2024.png", { type: "image/png" });
@@ -162,14 +162,14 @@ if (navigator.canShare?.({ files: [file] })) {
 }
 ```
 
-**Weekly, in CI** — regenerate the OG image from live numbers so the unfurl is never stale.
+**Weekly, in CI**: regenerate the OG image from live numbers so the unfurl is never stale.
 
 ## Build-time and server-side
 
 `exportImage` needs a `document`, so it returns `null` in plain Node. Two ways round it:
 
 ```js
-// 1. Headless browser at build time — the reliable option.
+// 1. Headless browser at build time: the reliable option.
 const png = await page.evaluate(() => window.globe.exportImage({ preset: "og" }));
 await fs.writeFile("static/og/index.png", Buffer.from(png.split(",")[1], "base64"));
 ```
@@ -196,7 +196,7 @@ Set `transparentBackground: true` on the live globe too if it sits on a coloured
 ## Why bake the text in?
 
 The obvious alternative is HTML text over the canvas, which is better for accessibility and
-selectable copy. Do that **on the page**. But an OG image is a single flat PNG — there is no HTML
+selectable copy. Do that **on the page**. But an OG image is a single flat PNG: there is no HTML
 layer at the other end. Anything not on the canvas is not in the card.
 
 So: HTML headline for the live page, `title` for the export. Setting both and hiding one is a
@@ -212,6 +212,6 @@ globe.setOptions({ title: null });
 
 ## Next
 
-- [Exporting](/guides/exporting) — every size, transparency and video recording
-- [Overlays](/guides/overlays) — the full `title` and `watermark` reference
-- [Year in review](/examples/year-in-review) — the animated version of the same idea
+- [Exporting](/guides/exporting): every size, transparency and video recording
+- [Overlays](/guides/overlays): the full `title` and `watermark` reference
+- [Year in review](/examples/year-in-review): the animated version of the same idea

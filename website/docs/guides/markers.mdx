@@ -14,7 +14,7 @@ your callbacks untouched.
 {
   lat: number;      // required, -90…90
   lon: number;      // required, -180…180
-  count?: number;   // relative weight — bigger count, bigger marker
+  count?: number;   // relative weight: bigger count, bigger marker
   emoji?: string;   // drawn inside a bubble
   image?: string;   // logo or avatar, cropped to a circle
   live?: boolean;   // pulsing ring
@@ -63,7 +63,7 @@ An `image` always wins, and clusters are always bubbles.
 
 ## Emoji
 
-The fastest way to make a map feel human.
+Emoji can distinguish marker categories without loading images.
 
 <GlobeDemo
   options={{
@@ -105,7 +105,7 @@ paths and data URLs always work.
 
 ## Live pulses
 
-`live: true` adds an expanding ring. Use it for "active right now", not for everything — a map where
+`live: true` adds an expanding ring. Use it for "active right now", not for everything: a map where
 every marker pulses reads as noise.
 
 Pulses stop automatically when the visitor prefers reduced motion.
@@ -133,7 +133,7 @@ Hit testing walks front-to-back, so overlapping markers resolve to the one on to
 tooltip: (target, kind) => {
   if (kind === "cluster") return `${target.count} people nearby`;
   if (kind === "country") return target.name;
-  return `${target.city} — ${target.count}`;
+  return `${target.city}: ${target.count}`;
 };
 ```
 
@@ -177,6 +177,6 @@ globe.setMarkers(next);   // replaces the whole set
 
 ## Next
 
-- [Clustering](./clustering) — for thousands of points
-- [Data in](./data) — load markers from a CSV
-- [Overlays](./overlays) — labels, counters and callouts
+- [Clustering](./clustering): for thousands of points
+- [Data in](./data): load markers from a CSV
+- [Overlays](./overlays): labels, counters and callouts

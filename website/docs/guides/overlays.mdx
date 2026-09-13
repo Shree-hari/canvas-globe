@@ -11,7 +11,7 @@ Layers that sit on top of the base map. All of them compose.
 
 ## Heatmap
 
-Additive density blobs instead of — or underneath — individual markers.
+Additive density blobs can replace individual markers or sit underneath them.
 
 ```js
 createGlobe(canvas, {
@@ -44,8 +44,8 @@ createGlobe(canvas, {
 
 | Field | Default |
 | --- | --- |
-| `radius` | `30` — blob radius in px at full weight |
-| `intensity` | `0.5` — peak opacity |
+| `radius` | `30`: blob radius in px at full weight |
+| `intensity` | `0.5`: peak opacity |
 | `color` | theme `marker` |
 
 ## Spikes
@@ -60,7 +60,7 @@ createGlobe(canvas, { spikes: { height: 0.28, width: 2.4 }, markers });
 
 ## Labels
 
-Text with collision avoidance — the highest-weight label wins and overlapping ones are dropped
+Text with collision avoidance: the highest-weight label wins and overlapping ones are dropped
 rather than allowed to pile up.
 
 ```js
@@ -126,9 +126,8 @@ createGlobe(canvas, {
 
 ## Title
 
-Headline text painted onto the canvas itself. It costs nothing in HTML, and — more usefully — it
-means `exportImage()` hands you a *finished* graphic rather than a globe you still have to drop
-into a design tool.
+Headline text is painted onto the canvas. `exportImage()` therefore returns a
+complete graphic without requiring a separate HTML overlay.
 
 ```js
 createGlobe(canvas, {
@@ -143,13 +142,13 @@ createGlobe(canvas, {
 | Field | Default |
 | --- | --- |
 | `text` | required |
-| `subtitle` | — |
+| `subtitle` | Not set |
 | `size` | 6.2% of the smaller canvas side |
 | `subtitleSize` | 42% of `size` |
 | `weight` | `800` |
 | `font` | `Inter,system-ui,sans-serif` |
 | `color` / `subtitleColor` | theme `label` |
-| `position` | `"top-left"` — also `top-center`, `top-right`, `bottom-*` |
+| `position` | `"top-left"`: also `top-center`, `top-right`, `bottom-*` |
 | `padding` | `22` |
 
 <GlobeDemo
@@ -164,7 +163,7 @@ createGlobe(canvas, {
 
 ## Watermark
 
-A logo, a wordmark, or both. Anything you can draw works as `image` — a URL, an `<img>`, a
+A logo, a wordmark, or both. Anything you can draw works as `image`: a URL, an `<img>`, a
 `<canvas>` or an `ImageBitmap`.
 
 ```js
@@ -192,11 +191,11 @@ asset that stays attributed wherever it gets reposted.
 
 ## Callouts
 
-Leader lines with a label — for explainer graphics where a tooltip will not do.
+Leader lines with a label: for explainer graphics where a tooltip will not do.
 
 ```js
 annotations: [
-  { lat: 23.03, lon: 72.58, text: "HQ — Ahmedabad" },
+  { lat: 23.03, lon: 72.58, text: "HQ: Ahmedabad" },
   { lat: 51.5, lon: -0.12, text: "EU office", dx: -70, dy: -40 },
 ];
 ```

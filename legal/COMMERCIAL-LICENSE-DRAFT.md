@@ -1,6 +1,6 @@
-# CanvasGlobe Commercial License Agreement — draft for counsel
+# CanvasGlobe Commercial License Agreement: draft for counsel
 
-> **DRAFT — NOT FOR SALE OR ACCEPTANCE.** This is product-team input for a
+> **DRAFT: NOT FOR SALE OR ACCEPTANCE.** This is product-team input for a
 > qualified lawyer. It is not an approved contract, must not be linked from a
 > checkout, and must not be represented as legal advice.
 

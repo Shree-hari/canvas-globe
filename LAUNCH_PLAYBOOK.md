@@ -46,7 +46,7 @@ For CanvasGlobe, the defensible version of this strategy is:
 - a Merchant of Record for checkout, tax, invoices, and fulfillment.
 
 Success will come from adoption and trust first. The first validation target is
-10 unrelated production adopters and 5 paid licenses—not an immediate attempt
+10 unrelated production adopters and 5 paid licenses: not an immediate attempt
 to reproduce a $350,000 outcome.
 
 ## 2. What lightGallery built
@@ -627,7 +627,7 @@ npm download counts are downloads, not unique people or production users.
 
 ### 9.3 Validation milestones
 
-**Milestone A — technical launch**
+**Milestone A: technical launch**
 
 - release gate green;
 - public repository and docs online;
@@ -635,14 +635,14 @@ npm download counts are downloads, not unique people or production users.
 - npm provenance configured; and
 - legal/checkout external gates approved.
 
-**Milestone B — demand**
+**Milestone B: demand**
 
 - 10 unrelated production implementations;
 - 5 paid licenses;
 - at least 3 distinct acquisition sources; and
 - direct interviews with paid and non-paying adopters.
 
-**Milestone C — repeatability**
+**Milestone C: repeatability**
 
 - measurable pricing-to-checkout conversion;
 - at least one plan produces repeated sales;
@@ -652,7 +652,7 @@ npm download counts are downloads, not unique people or production users.
 
 ## 10. Launch sequence
 
-### Phase 0 — ownership and legal gate
+### Phase 0: ownership and legal gate
 
 1. Confirm no employer, client, or previous collaborator owns any part of the
    code.
@@ -666,7 +666,7 @@ npm download counts are downloads, not unique people or production users.
 
 **Exit:** counsel approves the documents actually delivered to buyers.
 
-### Phase 1 — identity and public infrastructure
+### Phase 1: identity and public infrastructure
 
 1. Create or transfer the public repository to `swiftools/canvas-globe`.
 2. Update the local Git remote and protect `main`.
@@ -682,7 +682,7 @@ npm download counts are downloads, not unique people or production users.
 
 **Exit:** all package and website URLs resolve publicly.
 
-### Phase 2 — commerce
+### Phase 2: commerce
 
 1. Select a Merchant of Record.
 2. Create Solo, Team, and Business products; configure OEM/Enterprise as
@@ -697,7 +697,7 @@ npm download counts are downloads, not unique people or production users.
 **Exit:** a buyer receives the correct agreement, invoice, key, and support
 route without manual rescue.
 
-### Phase 3 — release candidate
+### Phase 3: release candidate
 
 1. Choose version `0.1.0` or `1.0.0`. Use `1.0.0` only if the API stability
    promise is intentional.
@@ -711,7 +711,7 @@ route without manual rescue.
 
 **Exit:** the exact artifact intended for npm is reproducible and reviewed.
 
-### Phase 4 — publish and announce
+### Phase 4: publish and announce
 
 1. Manually dispatch the release workflow for the reviewed version.
 2. Verify npm package metadata, provenance, files, types, imports, and CDN URL.
@@ -722,7 +722,7 @@ route without manual rescue.
    “we launched” message.
 7. Monitor install issues, checkout failures, and support closely for 72 hours.
 
-### Phase 5 — first 90 days
+### Phase 5: first 90 days
 
 - Interview every early paying customer who agrees.
 - Fix onboarding and documentation friction before adding broad features.

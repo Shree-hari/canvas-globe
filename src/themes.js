@@ -101,7 +101,7 @@ export const themes = {
     countryHover: "rgba(56,189,248,.22)",
     shade: false,
   },
-  /** Magenta continents with a cyan rim — the "cyber network" look. */
+  /** Magenta continents with a cyan rim: the "cyber network" look. */
   neon: {
     ocean: ["#180a2e", "#05010f"],
     land: "rgba(236,72,153,.16)",

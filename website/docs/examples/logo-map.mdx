@@ -1,6 +1,6 @@
 ---
 title: Trusted-by logo map
-description: Replace the grey logo strip with customer logos pinned where those customers actually are — geography turns a list of brands into a claim about reach.
+description: Place customer logos on a map to show the geographic reach of a customer base.
 keywords:
   - trusted by logos
   - customer logo wall
@@ -18,9 +18,8 @@ brands created for this demo. They are not CanvasGlobe customers or endorsements
 Replace them only with customer logos you have permission to publish.
 :::
 
-Every B2B site has the same row of six desaturated logos. It works — barely — and it says nothing
-except *these companies exist*. Put the same six logos **where those companies are** and the section
-suddenly makes a second claim for free: you sell across borders.
+Many B2B sites show a row of customer logos. Placing those logos on a map also
+shows the geographic reach of the customer base.
 
 <GlobeDemo
   options={{
@@ -67,7 +66,7 @@ const globe = createGlobe(canvas, {
   markers: customers,
   markerScale: 1.5,
   title: { text: "Trusted in 24 countries" },
-  tooltip: (m) => `${m.name} — ${m.city}`,
+  tooltip: (m) => `${m.name}: ${m.city}`,
   onClick: (m) => (window.location.href = `/customers/${m.slug}`),
 });
 ```
@@ -76,7 +75,7 @@ const globe = createGlobe(canvas, {
 
 Markers crop `image` to a circle, which is unforgiving of wordmarks. What works:
 
-- **Square source, 64–128 px.** Anything larger is wasted; the marker is rarely over 40 px on screen.
+- **Square source, 64-128 px.** Anything larger is wasted; the marker is rarely over 40 px on screen.
 - **A mark, not a wordmark.** "Northwind Trading Co." reduced to a 32 px circle is a grey smudge.
   Use the icon half of the logo and put the full name in the tooltip.
 - **A filled background.** Transparent PNGs of dark logos vanish on a dark preset. Bake the brand
@@ -98,7 +97,7 @@ This one matters more than the styling.
 
 - Logo use is usually covered by a **mutual marketing clause** in the contract. Check before you
   publish, not after their legal team emails you.
-- If you only have verbal approval, **ask for it in writing** — one line in an email is enough.
+- If you only have verbal approval, **ask for it in writing**: one line in an email is enough.
 - Some customers will allow the logo but not the location. Honour that: drop them to a country
   centroid, or leave them out.
 
@@ -122,7 +121,7 @@ const markers = [
 
 ## Making it clickable
 
-A logo map is a navigation surface, not just decoration. Every logo should go somewhere — a case
+A logo map is a navigation surface, not just decoration. Every logo should go somewhere: a case
 study, ideally.
 
 ```js
@@ -134,7 +133,7 @@ onHover: (m) => (canvas.style.cursor = m ? "pointer" : "grab"),
 ```
 
 Because the whole thing is one canvas, those links are invisible to crawlers. Keep a plain list in
-the DOM as well — visually hidden if you must — so the case studies stay linked:
+the DOM as well, visually hidden if necessary, so the case studies stay linked:
 
 ```html
 <ul class="sr-only">
@@ -163,6 +162,6 @@ globe.setOptions({ watermark: { image: "/logo.svg", text: "acme.com" } });
 
 ## Next
 
-- [Markers](/guides/markers) — image crops, labels, clustering
-- [Where our customers are](/examples/customer-map) — the volume version of the same section
-- [Social share card generator](/examples/social-card) — turning this into an OG image
+- [Markers](/guides/markers): image crops, labels, clustering
+- [Where our customers are](/examples/customer-map): the volume version of the same section
+- [Social share card generator](/examples/social-card): turning this into an OG image

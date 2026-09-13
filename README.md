@@ -5,24 +5,26 @@
 vanilla JavaScript, React, or a Web Component and requires no WebGL, map API
 key, tile service, or runtime network request.
 
-- 🪶 **Zero dependencies** — no WebGL, no D3, no map tiles, no API keys
-- 🔌 **Zero network calls** — country geometry ships inside the package
-- 🖱 **Interactive** — drag to spin, scroll to zoom, pinch, hover and click
-- 🎯 **Marker-first** — sized by weight, emoji avatars, live pulse rings, clustering
-- ✈️ **Great-circle arcs** — animated flight lines that ride over the horizon
-- 🎨 **Choropleth** — colour countries by ISO code, id or name- 📄 **Takes a spreadsheet** — `fromCSV()` resolves cities and countries with no geocoding API
-- 🖼 **Export presets** — square, story, LinkedIn, OG, plus transparent PNG
-- 🎬 **Country canvas** — play an image, GIF or video *inside* a country's outline
-- 📍 **Knows where the viewer is** — from their time zone, with no permission prompt
-- 🔔 **Live pings** — "someone in Berlin just signed up", with no backend
-- ⏺ **Records itself** — export a WebM clip straight from the canvas- � **Ten presets** — dot-matrix hologram, neon, blueprint HUD, printed atlas, and more
-- �🌗 **Day/night terminator** — the real solar position, at any point in time
-- 🗺 **Four projections** — orthographic globe plus equirectangular, Mercator and Natural Earth
-- ♿️ **Accessible** — keyboard controls, live region, `prefers-reduced-motion`
-- ⚛️ **Bindings included** — vanilla, `<geo-globe>` custom element, and React
-- 🇮🇳 **Correct India boundary** — Survey of India depiction, built into the geometry
+- **Zero dependencies:** no WebGL, D3, map tiles, or API keys
+- **Zero network calls:** country geometry ships inside the package
+- **Interactive:** drag, zoom, pinch, hover, and click
+- **Marker support:** weighted markers, avatars, pulse rings, and clustering
+- **Great-circle arcs:** animated routes clipped at the horizon
+- **Choropleths:** colour countries by ISO code, numeric ID, or name
+- **CSV input:** resolve cities and countries without a geocoding API
+- **Image export:** square, story, LinkedIn, Open Graph, and transparent PNG presets
+- **Country media:** clip images, GIFs, or video to a country's outline
+- **Viewer location:** estimate a region from the browser time zone without a permission prompt
+- **Live pings:** display recent activity without requiring a CanvasGlobe backend
+- **Recording:** export a WebM clip in the browser
+- **Presets:** ten included visual styles
+- **Day and night:** calculate the solar terminator for a given time
+- **Four projections:** orthographic, equirectangular, Mercator, and Natural Earth
+- **Accessibility:** keyboard controls, a live region, and reduced-motion support
+- **Bindings:** vanilla JavaScript, a custom element, and React
+- **India boundary:** bundled geometry follows the Survey of India depiction
 
-Perfect for "where our users are" dashboards, launch pages, status boards and share graphics.
+Common uses include audience dashboards, launch pages, status boards, and share graphics.
 
 ## When to choose CanvasGlobe
 
@@ -41,7 +43,7 @@ CanvasGlobe is dual-licensed:
 - a **paid commercial license** for proprietary products.
 
 The full package and feature set are the same on both paths. License keys are
-offline receipts/compliance reminders—there is no licensing telemetry or
+offline receipts/compliance reminders: there is no licensing telemetry or
 feature lock. GPL permits commercial activity; whether a particular
 distribution can comply is fact-specific. See [LICENSING.md](LICENSING.md) and
 the [commercial plans](https://swiftools.github.io/canvas-globe/pricing).
@@ -88,12 +90,12 @@ const globe = createGlobe(document.querySelector("#globe"), {
     { lat: 51.5, lon: -0.12, count: 8, emoji: "👩‍💻", city: "London" },
   ],
   theme: "atlas",
-  tooltip: (m) => `${m.city} — ${m.count} visitors`,
+  tooltip: (m) => `${m.city}: ${m.count} visitors`,
   onClick: (marker) => globe.flyTo(marker.lon, marker.lat, { zoom: 2.5 }),
 });
 ```
 
-The canvas is sized from CSS — give it a width and an aspect ratio:
+The canvas is sized from CSS: give it a width and an aspect ratio:
 
 ```css
 #globe { width: 100%; aspect-ratio: 1; }          /* globe mode  */
@@ -143,7 +145,7 @@ export function Visitors({ markers }) {
 }
 ```
 
-React is an optional peer dependency — only the `/react` entry point needs it.
+React is an optional peer dependency: only the `/react` entry point needs it.
 
 ## Options
 
@@ -152,30 +154,30 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `licenseKey` | `"0000-0000-000-0000"` | `"GPL-3.0"` for a GPL-compatible project, or the commercial key supplied with an order |
 | `mode` | `"globe"` | `"globe"` (orthographic, spinnable) or `"map"` (flat) |
 | `projection` | `"equirectangular"` | Flat-map projection: also `"mercator"`, `"naturalEarth"` |
-| `preset` | — | Named bundle of theme + render style, applied under your options |
+| `preset` | Not set | Named bundle of theme + render style, applied under your options |
 | `theme` | `"atlas"` | Theme name or a partial theme object |
 | `landStyle` | `"fill"` | `"fill"` \| `"dots"` \| `"outline"` \| `"glow"` |
 | `dotSpacing` | `2` | Dot grid spacing in degrees |
 | `dotSize` | `1.15` | Dot radius in px |
-| `orbits` | `0` | Decorative rings: a count (0–6) or explicit specs |
-| `texture` | — | Equirectangular image painted onto the sphere |
+| `orbits` | `0` | Decorative rings: a count (0-6) or explicit specs |
+| `texture` | Not set | Equirectangular image painted onto the sphere |
 | `textureQuality` | `"auto"` | Pixel step for the texture pass; higher is faster |
-| `focus` | — | Frame one country: `"IN"` or `{ country, isolate, dim, outlineWidth }` |
-| `countryMedia` | — | Media clipped to each country, keyed by ISO, id or name |
-| `scene` | — | Whole composition — preset plus the layers a job needs |
-| `counter` | — | `{ value, label, format, position }` rolling headline number |
-| `title` | — | `{ text, subtitle, position }` headline painted onto the canvas |
-| `watermark` | — | `{ image, text, position, opacity }` logo baked into every export |
-| `annotations` | — | `[{ lat, lon, text, dx, dy }]` leader-line callouts |
-| `timeline` | — | `{ at }` — hides markers whose `date` has not arrived |
+| `focus` | Not set | Frame one country: `"IN"` or `{ country, isolate, dim, outlineWidth }` |
+| `countryMedia` | Not set | Media clipped to each country, keyed by ISO, id or name |
+| `scene` | Not set | Whole composition: preset plus the layers a job needs |
+| `counter` | Not set | `{ value, label, format, position }` rolling headline number |
+| `title` | Not set | `{ text, subtitle, position }` headline painted onto the canvas |
+| `watermark` | Not set | `{ image, text, position, opacity }` logo baked into every export |
+| `annotations` | Not set | `[{ lat, lon, text, dx, dy }]` leader-line callouts |
+| `timeline` | Not set | `{ at }`: hides markers whose `date` has not arrived |
 | `transparentBackground` | `false` | Skip the ocean fill so exports keep an alpha channel |
-| `heatmap` | `false` | Additive density blobs — `{ radius, intensity, color }` |
-| `spikes` | `false` | Bars off the surface, sized by `count` — `{ height, width }` |
+| `heatmap` | `false` | Additive density blobs: `{ radius, intensity, color }` |
+| `spikes` | `false` | Bars off the surface, sized by `count`: `{ height, width }` |
 | `labels` | `false` | `"markers"` \| `"countries"` \| `"both"`, with collision avoidance |
-| `legend` | — | `{ title, items }` or `{ title, scale, position }` |
+| `legend` | Not set | `{ title, items }` or `{ title, scale, position }` |
 | `showViewer` | `false` | Pin the current viewer from their time zone |
 | `momentum` | `true` | Coast after a drag instead of stopping dead |
-| `countryPalette` | — | Fills used by `countryColors: "auto"` |
+| `countryPalette` | Not set | Fills used by `countryColors: "auto"` |
 | `markers` | `[]` | See [Markers](#markers) |
 | `arcs` | `[]` | See [Arcs](#arcs) |
 | `center` | `{ lon: 10, lat: 20 }` | Initial view centre |
@@ -192,12 +194,12 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `time` | `null` | Clock for the terminator; `null` tracks now |
 | `markerStyle` | `"auto"` | `"auto"` \| `"bubble"` \| `"dot"` |
 | `markerScale` | `1` | Scales every marker |
-| `renderMarker` | — | `(ctx, marker, info) => radius` — draw markers yourself |
+| `renderMarker` | Not set | `(ctx, marker, info) => radius`: draw markers yourself |
 | `cluster` | `false` | Merge nearby markers into count bubbles |
 | `clusterRadius` | `42` | Cluster grid size in px |
-| `countryColors` | — | `{ IN: "#f00" }` keyed by ISO code, id or name, or `"auto"` |
-| `countryColor` | — | `(shape) => color` — wins over `countryColors` |
-| `countryKey` | — | `(shape) => key` used against `countryColors` |
+| `countryColors` | Not set | `{ IN: "#f00" }` keyed by ISO code, id or name, or `"auto"` |
+| `countryColor` | Not set | `(shape) => color`: wins over `countryColors` |
+| `countryKey` | Not set | `(shape) => key` used against `countryColors` |
 | `arcLift` | `0.28` | Default arc height, as a fraction of the radius |
 | `arcSpeed` | `1` | Multiplies every arc's travel speed |
 | `radiusRatio` | `0.4` | Globe radius vs the smaller canvas side |
@@ -207,11 +209,11 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 | `tooltip` | `false` | `true`, or `(target, kind) => string` |
 | `respectReducedMotion` | `true` | Honour `prefers-reduced-motion` |
 | `ariaLabel` | `"Interactive world map"` | Accessible name for the canvas |
-| `onHover` | — | `(marker \| null, { x, y } \| null) => void` |
-| `onClick` | — | `(marker, { x, y }) => void` |
-| `onCountryHover` | — | `(country \| null, { x, y } \| null) => void` |
-| `onCountryClick` | — | `(country, { x, y }) => void` |
-| `onRender` | — | Called after every frame |
+| `onHover` | Not set | `(marker \| null, { x, y } \| null) => void` |
+| `onClick` | Not set | `(marker, { x, y }) => void` |
+| `onCountryHover` | Not set | `(country \| null, { x, y } \| null) => void` |
+| `onCountryClick` | Not set | `(country, { x, y }) => void` |
+| `onRender` | Not set | Called after every frame |
 
 ## Markers
 
@@ -219,7 +221,7 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 {
   lat: number;      // required
   lon: number;      // required
-  count?: number;   // relative weight — bigger count, bigger marker
+  count?: number;   // relative weight: bigger count, bigger marker
   emoji?: string;   // drawn inside a bubble marker
   live?: boolean;   // pulsing ring
   color?: string;   // overrides the theme colour
@@ -234,14 +236,13 @@ re-balances automatically as you zoom.
 
 ### How accurate is marker placement?
 
-The projection maths is exact — a marker's pixel position matches the closed-form projection to
+The projection maths is exact: a marker's pixel position matches the closed-form projection to
 floating-point precision, and the bubble is centred on the coordinate. Two things are worth knowing:
 
 - **The coastlines are approximate, not the markers.** The bundled geometry is Natural Earth 1:110m,
   decimated to a ~0.14° tolerance and rounded to two decimals, so the drawn shoreline can sit a few
   kilometres from the real one. A coastal marker may look slightly offshore even though it is exactly
-  where you put it. Natural Earth 1:110m also omits microstates such as Singapore, Malta and Monaco —
-  a marker there lands on open water or a neighbour. Pass higher-detail GeoJSON via `world` if that
+  where you put it. Natural Earth 1:110m also omits microstates such as Singapore, Malta and Monaco: a marker there lands on open water or a neighbour. Pass higher-detail GeoJSON via `world` if that
   matters.
 - **`latRange` defaults to `[83, -56]`,** which trims the polar caps. Markers south of −56° or north
   of 83° project outside the drawn map. Use `latRange: [90, -90]` for a full-height map.
@@ -330,7 +331,7 @@ Helpers are exported too: `mapAspect`, `colorScale`, `greatCircle`, `angularDist
 
 ## Accessibility
 
-The canvas gets `role="img"`, an `aria-label`, and — when `keyboard` is on — a tab stop plus a
+The canvas gets `role="img"`, an `aria-label`, and, when `keyboard` is on, a tab stop plus a
 polite live region that announces the view as it changes.
 
 | Key | Action |
@@ -346,7 +347,7 @@ pulse rings and arc animations hold still. Set `respectReducedMotion: false` to 
 
 ## Data in, assets out
 
-Marketing data arrives as a spreadsheet, so `fromCSV` resolves rows itself — explicit `lat`/`lon`
+Marketing data arrives as a spreadsheet, so `fromCSV` resolves rows itself: explicit `lat`/`lon`
 columns first, then a city name, then a country code or name:
 
 ```js
@@ -361,7 +362,7 @@ globe.setMarkers(markers).fitToMarkers();
 ```
 
 City lookup covers roughly 300 major cities that already ship with the package. Pass
-`{ gazetteer: { Ahmedabad: [72.58, 23.03] } }` for anything else — no geocoding service, no key.
+`{ gazetteer: { Ahmedabad: [72.58, 23.03] } }` for anything else: no geocoding service, no key.
 
 Render at whatever size the destination wants, without touching the live canvas:
 
@@ -402,7 +403,7 @@ createGlobe(canvas, {
   counter: { value: 21947, label: "customers worldwide" },   // rolls when it changes
   title: { text: "Trusted in 68 countries", subtitle: "Join 21,947 teams" },
   watermark: { image: "/logo.svg", text: "acme.com" },       // baked into every export
-  annotations: [{ lat: 23.03, lon: 72.58, text: "HQ — Ahmedabad" }],
+  annotations: [{ lat: 23.03, lon: 72.58, text: "HQ: Ahmedabad" }],
   timeline: { at: "2024-06-01" },                            // hides later markers
 });
 
@@ -415,7 +416,7 @@ glyph. Country media accepts `{ text }` to cut type out of a country's outline.
 
 ## Country canvas
 
-Frame one country and paint media inside its outline — a still, an animated GIF, a video, another
+Frame one country and paint media inside its outline: a still, an animated GIF, a video, another
 canvas, or a live `MediaStream`:
 
 ```js
@@ -433,7 +434,7 @@ createGlobe(canvas, {
 });
 ```
 
-The media is clipped to the real outline — for India that means the full Survey of India boundary,
+The media is clipped to the real outline: for India that means the full Survey of India boundary,
 islands included. Sources resolve automatically: `.mp4`/`.webm` become looping muted video, `.gif`
 keeps animating, and anything `drawImage` accepts can be passed directly. `fit` mirrors CSS
 `object-fit`, and `opacity`, `blend`, `scale` and `offset` are available per country.
@@ -454,7 +455,7 @@ Without `isolate`, neighbours stay visible at `dim` opacity, which reads well fo
 createGlobe(canvas, { showViewer: true });
 ```
 
-That pins the person looking at the page — **no permission prompt, no network call, no API key,
+That pins the person looking at the page: **no permission prompt, no network call, no API key,
 instantly**. It reads `Intl.DateTimeFormat().resolvedOptions().timeZone`, which every browser
 exposes, and maps it to the coordinate the IANA database publishes for that zone. Legacy aliases
 resolve too (Chrome often reports `Asia/Calcutta`, not `Asia/Kolkata`).
@@ -465,7 +466,7 @@ const found = globe.locateViewer();
 //   source: "timezone", accuracy: "region", accuracyMeters: 2242000 }
 ```
 
-**It shows a region, not a pinpoint — and it draws that honestly.** A time zone only narrows you to
+**It shows a region, not a pinpoint, and represents that uncertainty.** A time zone only narrows you to
 its area, and the tz database publishes one representative city per zone. `Asia/Kolkata` covers all
 of India, so a naive pin would sit confidently on Kolkata even for someone in Ahmedabad, 1,600 km
 away. Two things prevent that:
@@ -482,27 +483,27 @@ When you need a real position, ask for one:
 ```js
 const found = await globe.locateViewer({ precise: true });
 globe.setViewerLocation(found);
-// source: "geolocation", accuracyMeters: 24  — and the circle shrinks to match
+// source: "geolocation", accuracyMeters: 24; the circle shrinks to match
 ```
 
 That requests the high-accuracy provider and reports the device's own `accuracyMeters`, so you can
 tell a 20 m GPS fix from a 40 km Wi-Fi one. On a desktop with no GPS the browser falls back to
-network positioning, which often lands on your ISP's city — the radius will say so. If the viewer
+network positioning, which often lands on your ISP's city: the radius will say so. If the viewer
 declines, it resolves to the time-zone estimate and never rejects.
 
 | | Prompt | Network | Always works | Typical radius |
 | --- | --- | --- | --- | --- |
 | Time zone (default) | No | No | Yes | Country-sized |
 | Locale fallback | No | No | Yes | Country-sized |
-| `precise: true`, GPS | Yes | No | Only if allowed | 5–50 m |
-| `precise: true`, Wi-Fi/IP | Yes | Yes (by the browser) | Only if allowed | 1–50 km |
+| `precise: true`, GPS | Yes | No | Only if allowed | 5-50 m |
+| `precise: true`, Wi-Fi/IP | Yes | Yes (by the browser) | Only if allowed | 1-50 km |
 
 Options: `showViewer: { emoji, label, color, live, anchor, accuracyCircle, accuracyColor, flyTo,
 ping, precise, onLocate }`. The pin lives outside `markers`, so `setMarkers()` never wipes it.
 
 ## Live pings
 
-A one-shot expanding ring — the social-proof moment, with no backend:
+A one-shot expanding ring: the social-proof moment, with no backend:
 
 ```js
 globe.ping({ lat: 52.52, lon: 13.4, emoji: "✨", label: "Someone in Berlin just signed up" });
@@ -524,7 +525,7 @@ globe.story(section, [                            // scroll-linked rotation
 await globe.record({ duration: 6000, filename: "globe.webm" }).promise;
 ```
 
-`record()` uses `MediaRecorder` on the canvas stream — the clip is encoded in the tab and never
+`record()` uses `MediaRecorder` on the canvas stream: the clip is encoded in the tab and never
 leaves the device. Check the exported `canRecord()` helper first.
 
 ## Looks
@@ -540,7 +541,7 @@ globe.setPreset("neon");
 | `atlas` | Bright cartographic globe (the default) |
 | `midnight` | Dark space theme |
 | `mono` | Neutral greyscale |
-| `political` | Printed atlas — a distinct colour per country |
+| `political` | Printed atlas: a distinct colour per country |
 | `hologram` | Cyan dot-matrix earth on deep navy |
 | `neon` | Glowing magenta continents with a cyan rim |
 | `blueprint` | Technical line art with orbit rings |
@@ -554,7 +555,7 @@ The pieces compose independently, so any theme mixes with any style:
 | --- | --- |
 | `landStyle` | `"fill"` · `"dots"` (halftone) · `"outline"` (line art) · `"glow"` (neon) · `"none"` |
 | `dotSpacing` / `dotSize` | Grid spacing in degrees and dot radius in px |
-| `orbits` | A count (0–6), or `{ inclination, phase, radius, speed, color, width }` rings |
+| `orbits` | A count (0-6), or `{ inclination, phase, radius, speed, color, width }` rings |
 | `countryColors: "auto"` | A distinct fill per country; `countryPalette` supplies your own |
 
 ```js
@@ -595,19 +596,19 @@ createGlobe(canvas, { world });
 
 ## Performance
 
-Rendering is capped at 30 fps, and frames are skipped entirely when nothing is moving — a static
+Rendering is capped at 30 fps, and frames are skipped entirely when nothing is moving: a static
 chart costs nothing after the first paint. Geometry behind the horizon is clipped away rather than
-drawn, so a typical globe frame skips 20–60% of the world. On a laptop a 560 px canvas costs roughly
+drawn, so a typical globe frame skips 20-60% of the world. On a laptop a 560 px canvas costs roughly
 4 ms per frame, or 25 ms with 5,000 clustered markers.
 
 ## India's boundary
 
-India is drawn on the **Survey of India** boundary — Jammu and Kashmir, Ladakh and Aksai Chin
+India is drawn on the **Survey of India** boundary: Jammu and Kashmir, Ladakh and Aksai Chin
 included. There is no option for it and no overlay: it is what the bundled geometry says, the same
 way the geometry says where France is.
 
 Most world datasets, Natural Earth included, ship de-facto administrative lines instead. Rather than
-patch that at render time, the sources are reconciled when the data is generated — India carries
+patch that at render time, the sources are reconciled when the data is generated: India carries
 Datameet's CC-0 `india-composite` outline, and that area is subtracted from its neighbours so no two
 countries claim the same ground. One continuous boundary at every land style, nothing overlapping,
 no special cases in the renderer.
@@ -617,10 +618,10 @@ hit testing. Pass your own `world` GeoJSON if you need a different depiction.
 
 ## Data & licences
 
-- Country geometry — [Natural Earth](https://www.naturalearthdata.com/) 1:110m via `world-atlas`, **public domain**
-- ISO codes — [natural-earth-vector](https://github.com/nvkelso/natural-earth-vector), **public domain**
-- India boundary — [Datameet `india-composite`](https://github.com/datameet/maps), **CC-0**
-- This package — **GPL-3.0-only or a commercial license**
+- Country geometry: [Natural Earth](https://www.naturalearthdata.com/) 1:110m via `world-atlas`, **public domain**
+- ISO codes: [natural-earth-vector](https://github.com/nvkelso/natural-earth-vector), **public domain**
+- India boundary: [Datameet `india-composite`](https://github.com/datameet/maps), **CC-0**
+- This package: **GPL-3.0-only or a commercial license**
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for source links and
 provenance.
@@ -647,5 +648,5 @@ Harsh
 
 ## Browser support
 
-Any browser with `<canvas>` and `ResizeObserver` — Chrome, Edge, Firefox, Safari 13.1+. No polyfills
+Any browser with `<canvas>` and `ResizeObserver`: Chrome, Edge, Firefox, Safari 13.1+. No polyfills
 required. The modules load safely during SSR; nothing touches the DOM until you construct an instance.

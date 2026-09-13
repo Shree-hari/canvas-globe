@@ -34,7 +34,7 @@ const softwareSchema = {
 const config = {
   title: "CanvasGlobe",
   titleDelimiter: "·",
-  tagline: "Interactive 3D globes and world maps—Canvas 2D, zero dependencies, no WebGL.",
+  tagline: "Interactive 3D globes and world maps: Canvas 2D, zero dependencies, no WebGL.",
   favicon: "img/favicon.svg",
 
   url: "https://swiftools.github.io",
@@ -77,7 +77,7 @@ const config = {
   plugins: [
     // The package is linked with `file:..`, so webpack must not resolve the
     // symlink out of node_modules or it falls outside the loader's include.
-    // That also makes the bundler treat it as an unchanging dependency — see
+    // That also makes the bundler treat it as an unchanging dependency: see
     // scripts/drop-stale-cache.mjs for why the cache is cleared each run.
     function keepSymlinks() {
       return {

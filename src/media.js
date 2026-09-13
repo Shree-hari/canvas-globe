@@ -1,5 +1,5 @@
 /**
- * Media sources that can be painted inside a country's outline — a still, an
+ * Media sources that can be painted inside a country's outline: a still, an
  * animated GIF, a video, another canvas, or a live MediaStream.
  *
  * Everything is drawn with `drawImage`, so the only real work is keeping a

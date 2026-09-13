@@ -1,6 +1,6 @@
 ---
 title: Live signup social proof
-description: A globe that rings out every time someone signs up — the "37 people joined this week" widget, but geographic and impossible to fake convincingly.
+description: Show recent signups by location with pulse markers and a running count.
 keywords:
   - live signups map
   - social proof widget
@@ -53,7 +53,7 @@ disappearing.
       { interval: 2200 },
     );
   }}
-  caption="Your own location is pinned too — resolved from your time zone, with no permission prompt."
+  caption="Your own location is pinned too: resolved from your time zone, with no permission prompt."
 />
 
 ## The code
@@ -116,7 +116,7 @@ while still feeling alive:
 globe.ping({ lat, lon, label: "Priya just signed up in Ahmedabad", burst: 18 });
 ```
 
-`burst` adds a particle spray — save it for genuinely notable events, not every trial start.
+`burst` adds a particle spray: save it for genuinely notable events, not every trial start.
 
 ## When you have no live feed
 
@@ -133,7 +133,7 @@ feed.stop();
 
 The honest version of this widget is *"recent signups, on a loop"*. The dishonest version is a
 random name generator, and it is dishonest whether or not anyone catches it. If your last real
-signup was in March, this is not the pattern for you — use
+signup was in March, this is not the pattern for you: use
 [Where our customers are](/examples/customer-map) instead.
 
 ## Privacy
@@ -158,11 +158,11 @@ if (place) globe.ping({ ...place, label: `Someone in ${event.country} just signe
 
 Too fast reads as noise, too slow reads as broken. Rules of thumb:
 
-- **One ping every 2–3 seconds** is the sweet spot for a hero. Below ~1.5 s it stops registering as
+- **One ping every 2-3 seconds** is the sweet spot for a hero. Below ~1.5 s it stops registering as
   individual events.
 - If your real rate is higher, **sample it**. Nobody needs to see all 40 signups a minute.
 - If it is lower, **do not pad it**. Show a counter instead, and let `pingFeed` idle.
-- Pause when the tab is hidden — the library already stops rendering, but stop your feed too so it
+- Pause when the tab is hidden: the library already stops rendering, but stop your feed too so it
   does not queue up a burst on return.
 
 ```js
@@ -191,6 +191,6 @@ notice a 30-second lag on a vanity metric.
 
 ## Next
 
-- [Live pings](/guides/live-pings) — the full `ping` and `pingFeed` API
-- [Landing page hero globe](/examples/saas-landing) — this, plus arcs and a scene
-- [Waitlist milestone](/examples/waitlist-milestone) — what to do when the number lands
+- [Live pings](/guides/live-pings): the full `ping` and `pingFeed` API
+- [Landing page hero globe](/examples/saas-landing): this, plus arcs and a scene
+- [Waitlist milestone](/examples/waitlist-milestone): what to do when the number lands

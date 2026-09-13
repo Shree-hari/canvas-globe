@@ -1,6 +1,6 @@
 ---
 title: Web component
-description: The <geo-globe> custom element — works in any framework, or none.
+description: Use the <geo-globe> custom element with any framework or plain HTML.
 ---
 
 # Web component
@@ -55,8 +55,8 @@ Booleans are true when present, unless set to `"false"` or `"0"`.
 
 ## Properties
 
-Anything that cannot travel through an attribute — functions, images, media — goes through
-properties:
+Pass functions, images, and media through properties because attributes cannot
+carry them:
 
 ```js
 const el = document.querySelector("geo-globe");
@@ -83,7 +83,7 @@ el.globe.exportImage({ preset: "og" });
 
 | Event | `detail` |
 | --- | --- |
-| `geo-hover` | `{ marker, pos }` — `marker` is null on leave |
+| `geo-hover` | `{ marker, pos }`: `marker` is null on leave |
 | `geo-click` | `{ marker, pos }` |
 | `geo-country-hover` | `{ country, pos }` |
 | `geo-country-click` | `{ country, pos }` |

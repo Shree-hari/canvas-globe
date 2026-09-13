@@ -26,7 +26,7 @@ createGlobe(canvas, {
 ```
 
 Positions are in CSS pixels relative to the canvas, and are the **marker's** centre rather than the
-pointer's — so a card anchored to them stays put while the pointer wobbles.
+pointer's, so a card anchored to them stays put while the pointer wobbles.
 
 ## onClick
 
@@ -52,7 +52,7 @@ onCountryHover(country: CountryShape | null, position: { x, y } | null): void
 ```
 
 Adding this **enables country hit testing and the hover highlight**. Without it, no country testing
-happens at all — that is deliberate, since it costs a point-in-polygon pass.
+happens at all. This is deliberate because it costs a point-in-polygon pass.
 
 ```js
 onCountryHover: (shape) => setHighlighted(shape?.iso ?? null),
@@ -91,8 +91,7 @@ onRender(instance: GeoGlobe): void
 ```
 
 Runs after every painted frame. Because the loop
-[idles when nothing moves](/guides/performance#the-loop-idles), this is not a steady 30 Hz tick —
-it fires only when something was actually drawn.
+[idles when nothing moves](/guides/performance#the-loop-idles), this is not a steady 30 Hz tick: it fires only when something was actually drawn.
 
 Use it to draw your own overlay on top, or to sync external UI to the view:
 
@@ -110,7 +109,7 @@ createGlobe(canvas, {
 
 :::caution Keep it cheap
 `onRender` is on the frame path. Do not allocate, query layout, or touch the DOM in ways that force
-a reflow — that is the fastest way to turn a smooth globe into a stuttering one.
+a reflow, which can make the globe stutter.
 :::
 
 ## tooltip as a callback
@@ -123,7 +122,7 @@ tooltip(target: Marker | ClusterMarker | CountryShape, kind: "marker" | "cluster
 tooltip: (target, kind) => {
   if (kind === "country") return target.name;
   if (kind === "cluster") return `${target.count} people nearby`;
-  return `${target.city} — ${target.count}`;
+  return `${target.city}: ${target.count}`;
 };
 ```
 

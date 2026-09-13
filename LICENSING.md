@@ -3,9 +3,9 @@
 CanvasGlobe is available under a dual-license model. You choose one of these
 licenses:
 
-1. **GNU GPL v3, version 3 only (`GPL-3.0-only`)** — no license fee. This
+1. **GNU GPL v3, version 3 only (`GPL-3.0-only`)**: no license fee. This
    option is intended for projects that can comply with the GPL's terms.
-2. **CanvasGlobe Commercial License** — paid permission for proprietary use
+2. **CanvasGlobe Commercial License**: paid permission for proprietary use
    under the terms shown on the applicable order form and commercial license
    agreement.
 

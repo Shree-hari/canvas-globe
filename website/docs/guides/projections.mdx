@@ -31,7 +31,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 | `mercator` | Familiar web-map look. Preserves angles, exaggerates polar area badly |
 | `naturalEarth` | A compromise projection. Rounded, pleasant, good for print-style graphics |
 
-Each canvas ratio suits one projection — see [Sizing the canvas](/getting-started/sizing).
+Each canvas ratio suits one projection: see [Sizing the canvas](/getting-started/sizing).
 
 ## Latitude window
 
@@ -64,7 +64,7 @@ globe.fitToMarkers();
 | `maxZoom` | `8` | Upper bound |
 | `zoomable` | `true` | Wheel and pinch |
 
-Wheel zoom in map mode is **anchored to the pointer** — the coordinate under the cursor stays put.
+Wheel zoom in map mode is **anchored to the pointer**: the coordinate under the cursor stays put.
 On the globe, zoom is about the centre, because rotation already does the panning.
 
 <GlobeDemo
@@ -75,7 +75,7 @@ On the globe, zoom is about the centre, because rotation already does the pannin
     { type: "action", label: "Cross the dateline", action: (g) => g.setZoom(4).flyTo(179, -17) },
     { type: "action", label: "Reset", action: (g) => g.setZoom(1).flyTo(10, 20) },
   ]}
-  caption="Scroll to zoom — the point under the cursor stays fixed."
+  caption="Scroll to zoom: the point under the cursor stays fixed."
 />
 
 ## Crossing the antimeridian
@@ -84,7 +84,7 @@ Once the world is wider than the viewport, horizontal panning is unbounded and t
 at 178°E and Samoa at 172°W render side by side, as they should.
 
 Internally, longitudes are wrapped around the **visible centre**, which puts the seam half a world
-away — off screen whenever you are zoomed in. At zoom 1 the seam sits at ±180°, the natural map edge.
+away: off screen whenever you are zoomed in. At zoom 1 the seam sits at ±180°, the natural map edge.
 
 `fitToMarkers()` understands this too: it picks the shortest longitude arc covering your points, so
 a set straddling the dateline frames tightly instead of zooming out to the whole world.
@@ -107,7 +107,7 @@ globe.unproject(x, y);      // → [lon, lat] or null if the pointer missed
 globe.getCenter();          // → { lon, lat }
 ```
 
-Both speak CSS pixels. `project` is exact to floating point — the pixel position matches the
+Both speak CSS pixels. `project` is exact to floating point: the pixel position matches the
 closed-form projection, so a marker sits precisely where you put it.
 
 :::info The coastline is the approximation, not your marker

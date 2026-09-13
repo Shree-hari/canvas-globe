@@ -1,6 +1,6 @@
 ---
 title: Waitlist milestone
-description: Celebrate hitting a number — a rolling counter, a confetti burst on the map and a shareable graphic, all from the same globe.
+description: Combine a milestone counter, map animation, and exportable graphic.
 keywords:
   - waitlist counter
   - milestone celebration animation
@@ -12,9 +12,8 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 
 # Waitlist milestone
 
-"**We just crossed 10,000.**" It is the easiest post a startup ever writes and usually the worst
-looking one — a screenshot of a dashboard, or nothing at all. This turns the number into an event
-with a place attached, which is the difference between a stat and a story.
+A milestone graphic can combine a count with the geographic distribution of
+the people represented by it.
 
 <GlobeDemo
   options={{
@@ -51,7 +50,7 @@ with a place attached, which is the difference between a stat and a story.
     },
     { type: "select", label: "Look", option: "preset", values: ["neon", "aurora", "hologram", "midnight"] },
   ]}
-  caption="The counter eases between values rather than snapping — that easing is most of the effect."
+  caption="The counter eases between values rather than snapping: that easing is most of the effect."
 />
 
 ## The code
@@ -89,7 +88,7 @@ second. A number that rolls reads as *live*; a number that snaps reads as a page
 this for free by calling `setOptions` with a new value rather than re-creating the globe.
 
 **The burst is a ping, not a marker.** `burst: 26` throws particles out of the point and fades. It
-is loud on purpose and it should be rare — once per milestone, not once per signup. See
+is loud on purpose and it should be rare: once per milestone, not once per signup. See
 [Live pings](/guides/live-pings).
 
 **`flyTo` moves the camera.** The globe rotates so the celebrated point is facing the viewer. Use it
@@ -132,7 +131,7 @@ globe.setOptions({
 const png = globe.exportImage({ preset: "og" });
 ```
 
-For a moving version, record the celebration itself — the counter rolling and the burst firing is a
+For a moving version, record the celebration itself: the counter rolling and the burst firing is a
 far better six seconds than a static card:
 
 ```js
@@ -150,7 +149,7 @@ Not every round number deserves a globe. The ones that land:
 | Milestone | Why it works |
 | --- | --- |
 | First customer on a new continent | Genuinely new information |
-| Nth country | Reach, not size — small numbers still impress |
+| Nth country | Reach, not size: small numbers still impress |
 | A round user number | Only if the number is actually large for your category |
 | Anniversary | Pair it with growth over the year via [`playTimeline`](/guides/overlays) |
 | Funding | The map answers "what will you do with it" better than the amount does |
@@ -161,8 +160,8 @@ metric because it happens to be round. Pick the milestone before you hit it.
 ## Accessibility
 
 A burst of particles and a rolling number are exactly what `prefers-reduced-motion` exists for. The
-library already honours it — rotation stops, transitions become instant — but announce the number
-in text too, because a canvas counter is invisible to a screen reader:
+library already honours it by stopping rotation and making transitions instant.
+Announce the number in text too because a canvas counter is invisible to a screen reader:
 
 ```html
 <p class="sr-only" aria-live="polite">10,000 people on the waitlist</p>
@@ -170,6 +169,6 @@ in text too, because a canvas counter is invisible to a screen reader:
 
 ## Next
 
-- [Live pings](/guides/live-pings) — bursts, feeds and camera moves
-- [Overlays](/guides/overlays) — the `counter`, `title` and `watermark` reference
-- [Social share card generator](/examples/social-card) — turning the moment into an image
+- [Live pings](/guides/live-pings): bursts, feeds and camera moves
+- [Overlays](/guides/overlays): the `counter`, `title` and `watermark` reference
+- [Social share card generator](/examples/social-card): turning the moment into an image

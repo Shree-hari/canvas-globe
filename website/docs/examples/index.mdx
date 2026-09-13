@@ -1,6 +1,6 @@
 ---
 title: Examples
-description: Fourteen real marketing and product use cases for a globe — landing page heroes, customer maps, logo walls, status boards and share cards — each with a live demo and the code behind it.
+description: Fourteen marketing and product use cases for a globe, each with a live demo and source code.
 keywords:
   - globe on landing page
   - customer map
@@ -19,8 +19,8 @@ examples are fictional unless a page explicitly cites a real source. They
 demonstrate product patterns, not CanvasGlobe customer proof.
 :::
 
-Every example below is a **real job someone is trying to do** — put a globe in a hero, prove that
-customers exist, show where the team is, generate a share card — not a feature demo dressed up as
+Every example below is a **real job someone is trying to do**: put a globe in a hero, prove that
+customers exist, show where the team is, generate a share card: not a feature demo dressed up as
 one. Each page has a live globe you can poke at, the complete code, and a short note on *why* the
 choices were made, because a map that looks impressive and communicates nothing is a waste of a
 fold.
@@ -46,22 +46,20 @@ fold.
 | Fill an event or webinar | [Event registrations](/examples/event-map) |
 | Wrap up a year of numbers | [Year in review](/examples/year-in-review) |
 
-## The rules these follow
+## Selection criteria
 
-**A globe must earn its pixels.** If the same message survives as a sentence, use the sentence. The
-globe is worth it when *spread* is the point — many places, far apart, at once.
+Use a globe when geographic distribution is part of the message. Use text when
+the same information is clearer as a sentence.
 
-**Real numbers only.** Every one of these can be driven from a live source. Inventing signups to
-make a map look busy is the fastest way to lose the trust the map was supposed to build.
+Use real data. Do not invent signups or activity to make a map look busy.
 
-**It has to work on a phone.** Half your traffic will see this at 380 px wide with one thumb. Every
-example here degrades to something legible, and most of them are readable with motion switched off
-— the library honours `prefers-reduced-motion` by default.
+Test the map at mobile widths and with motion disabled. CanvasGlobe honours
+`prefers-reduced-motion` by default.
 
-**Nothing leaves the browser.** No tiles, no API keys, no request per pageview, no third-party
-script in your consent banner. That is not a marketing claim, it is why the bundle is 120 KB.
+CanvasGlobe does not request tiles or require API keys. Its geographic data is
+included in the package.
 
 ## Building your own
 
-Start from the [Playground](/playground) — configure a globe visually, then copy the generated
+Start from the [Playground](/playground): configure a globe visually, then copy the generated
 options into your app. Or read [Options](/api/options) for the whole surface in one table.

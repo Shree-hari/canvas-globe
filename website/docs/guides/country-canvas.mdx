@@ -8,7 +8,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 # Country canvas
 
 Frame one country and paint media **inside its outline**. A still, an animated GIF, a video, another
-canvas, or a live camera stream — clipped to the real boundary.
+canvas, or a live camera stream: clipped to the real boundary.
 
 ```js
 globe.focusOn("India", { isolate: true });
@@ -53,7 +53,7 @@ globe.setCountryMedia("India", "/launch-reel.mp4");
     { type: "action", label: "Show neighbours", action: (g) => g.focusOn("India", { isolate: false, dim: 0.18, outlineWidth: 2 }) },
     { type: "action", label: "Zoom out", action: (g) => g.clearFocus().setZoom(1).flyTo(80, 20) },
   ]}
-  caption="A live animated canvas, clipped to the full Survey of India boundary — islands included."
+  caption="A live animated canvas, clipped to the full Survey of India boundary: islands included."
 />
 
 ## Focusing a country
@@ -74,7 +74,7 @@ createGlobe(canvas, {
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `country` | — | ISO code, numeric id or name |
+| `country` | Not set | ISO code, numeric id or name |
 | `isolate` | `false` | Drop every other country entirely |
 | `dim` | `0.16` | Opacity of the others when not isolating. `1` leaves them alone |
 | `outlineWidth` | `1.6` | Stroke on the focused country |
@@ -104,16 +104,16 @@ createGlobe(canvas, {
 });
 ```
 
-Keys match the same way [choropleth keys](/guides/choropleth#how-keys-are-matched) do — ISO, numeric
+Keys match the same way [choropleth keys](/guides/choropleth#how-keys-are-matched) do: ISO, numeric
 id or name.
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `src` | — | URL, image, video, canvas, `ImageBitmap` or `MediaStream` |
+| `src` | Not set | URL, image, video, canvas, `ImageBitmap` or `MediaStream` |
 | `fit` | `"cover"` | Mirrors CSS `object-fit`: `cover`, `contain`, `fill` |
 | `type` | auto | Force `"image"` or `"video"` when the URL has no useful extension |
 | `opacity` | `1` | |
-| `blend` | — | Any canvas composite operation, e.g. `"screen"` |
+| `blend` | Not set | Any canvas composite operation, e.g. `"screen"` |
 | `scale` | `1` | Extra zoom on top of the fit |
 | `offset` | `[0, 0]` | Pixel nudge |
 

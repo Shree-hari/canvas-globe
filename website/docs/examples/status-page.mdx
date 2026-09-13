@@ -1,6 +1,6 @@
 ---
 title: Status page by region
-description: Regional health at a glance — green, amber and red pins with live latency, on a status page or an internal ops dashboard.
+description: Display regional service status and latency on a public or internal dashboard.
 keywords:
   - status page map
   - regional uptime map
@@ -89,7 +89,7 @@ const globe = createGlobe(canvas, {
     ],
   },
   showViewer: { label: "You" },
-  tooltip: (m) => (m.latency ? `${m.label} — ${m.latency} ms` : `${m.label} — no response`),
+  tooltip: (m) => (m.latency ? `${m.label}: ${m.latency} ms` : `${m.label}: no response`),
   onClick: (m) => m && scrollToIncident(m.label),
 });
 
@@ -103,11 +103,11 @@ setInterval(async () => {
 ## Why only the broken ones pulse
 
 `live: true` gives a marker a slow pulse. The instinct is to put it on everything, because it looks
-alive. Do not — if all nine pulse, none of them stand out, and you have built a decoration instead
+alive. Do not: if all nine pulse, none of them stand out, and you have built a decoration instead
 of a signal.
 
-The rule for any status visualisation: **healthy is boring**. Green, still, small. Everything you
-have — motion, saturation, size — is spent on the thing that is wrong.
+Keep healthy markers green, still, and small. Reserve motion, saturation, and
+size for the region that needs attention.
 
 ## Colour is not enough
 
@@ -121,9 +121,9 @@ encodes state *only* in hue fails exactly the people who most need it to work.
 
 ```html
 <ul class="regions">
-  <li><span data-status="ok">Operational</span> eu-west — 18 ms</li>
-  <li><span data-status="degraded">Degraded</span> eu-central — 187 ms</li>
-  <li><span data-status="down">Outage</span> sa-east — no response</li>
+  <li><span data-status="ok">Operational</span> eu-west: 18 ms</li>
+  <li><span data-status="degraded">Degraded</span> eu-central: 187 ms</li>
+  <li><span data-status="down">Outage</span> sa-east: no response</li>
 </ul>
 ```
 
@@ -155,7 +155,7 @@ from. If you know it, say so:
 globe.setViewerLocation({ lat: 51.47, lon: -0.45, label: "You are served from eu-west" });
 ```
 
-If you do not, `showViewer` falls back to the visitor's time zone — no permission prompt, no
+If you do not, `showViewer` falls back to the visitor's time zone: no permission prompt, no
 request, and accurate enough to be useful at this zoom. See
 [Viewer location](/guides/viewer-location).
 
@@ -179,6 +179,6 @@ indefinitely.
 
 ## Next
 
-- [Markers](/guides/markers) — colours, pulses, labels and hit testing
-- [Coverage dashboard](/examples/coverage-dashboard) — the country-level sibling of this map
-- [Viewer location](/guides/viewer-location) — pinning the visitor without a prompt
+- [Markers](/guides/markers): colours, pulses, labels and hit testing
+- [Coverage dashboard](/examples/coverage-dashboard): the country-level sibling of this map
+- [Viewer location](/guides/viewer-location): pinning the visitor without a prompt

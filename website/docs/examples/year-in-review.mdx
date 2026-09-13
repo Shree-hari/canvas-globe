@@ -1,6 +1,6 @@
 ---
 title: Year in review
-description: A scroll-linked story that walks through a year of numbers, one beat at a time — the Spotify Wrapped structure, applied to a business.
+description: Build a scroll-linked sequence that presents geographic data over time.
 keywords:
   - year in review animation
   - scrollytelling map
@@ -45,10 +45,10 @@ a page the reader controls.
       label: "Play the story",
       action: (g, say) => {
         const beats = [
-          { center: [72.58, 23.03], zoom: 2.4, counter: { value: 214, label: "started here" }, say: "January — one office, 214 customers." },
-          { center: [20, 35], zoom: 1.4, counter: { value: 1180, label: "across Europe" }, say: "April — Europe opened up." },
-          { center: [-60, 20], zoom: 1.3, counter: { value: 2640, label: "in the Americas" }, say: "August — the Americas." },
-          { center: [100, 10], zoom: 1, counter: { value: 4218, label: "customers worldwide" }, say: "December — 68 countries." },
+          { center: [72.58, 23.03], zoom: 2.4, counter: { value: 214, label: "started here" }, say: "January: one office, 214 customers." },
+          { center: [20, 35], zoom: 1.4, counter: { value: 1180, label: "across Europe" }, say: "April: Europe opened up." },
+          { center: [-60, 20], zoom: 1.3, counter: { value: 2640, label: "in the Americas" }, say: "August: the Americas." },
+          { center: [100, 10], zoom: 1, counter: { value: 4218, label: "customers worldwide" }, say: "December: 68 countries." },
         ];
         let i = 0;
         const step = () => {
@@ -127,10 +127,10 @@ export function YearInReview() {
       <div style={{ position: "sticky", top: 0, height: "100vh" }}>
         <canvas ref={canvas} style={{ width: "100%", height: "100%" }} />
       </div>
-      <Beat>January — one office, 214 customers.</Beat>
-      <Beat>April — Europe opened up.</Beat>
-      <Beat>August — the Americas.</Beat>
-      <Beat>December — 68 countries.</Beat>
+      <Beat>January: one office, 214 customers.</Beat>
+      <Beat>April: Europe opened up.</Beat>
+      <Beat>August: the Americas.</Beat>
+      <Beat>December: 68 countries.</Beat>
     </section>
   );
 }
@@ -138,10 +138,10 @@ export function YearInReview() {
 
 ## How `story` works
 
-Each step needs an `at` between 0 and 1 — its position in the container's scroll progress.
+Each step needs an `at` between 0 and 1: its position in the container's scroll progress.
 
 - `center` and `zoom` **interpolate** between steps, so the camera glides rather than jumps.
-- Everything else — `markers`, `counter`, `preset`, `title` — applies at the **step boundary**, via
+- `markers`, `counter`, `preset`, `title`, and other options apply at the **step boundary** through
   `setOptions`.
 - The container must be tall enough to scroll through. `400vh` for four beats is a sane start.
 - The canvas is `position: sticky` inside it, so it stays put while the text scrolls past.
@@ -151,14 +151,14 @@ globe.story(element, steps, { onStep: (step, i) => highlight(i) });
 globe.stopStory();
 ```
 
-`onStep` is where you sync anything outside the canvas — highlighting the active paragraph, updating
+`onStep` is where you sync anything outside the canvas: highlighting the active paragraph, updating
 a progress dot, firing an analytics event per beat.
 
 ## Writing the beats
 
 The structure that works, in four to six beats:
 
-1. **Where you started.** One point, zoomed in. Small numbers are fine here — they are the setup.
+1. **Where you started.** One point, zoomed in. Small numbers are fine here: they are the setup.
 2. **The first expansion.** Pull out one level. Something changed.
 3. **The hard part.** A quarter that did not go to plan, and what you did. Skipping this is why most
    recaps read like adverts.
@@ -189,7 +189,7 @@ if (calm) {
 
 ## The version without scroll
 
-Not every recap wants a long page. `tour()` flies between points on a timer — better for a modal, an
+Not every recap wants a long page. `tour()` flies between points on a timer: better for a modal, an
 email-linked share page, or a screen in an office:
 
 ```js
@@ -204,7 +204,7 @@ globe.tour(
 );
 ```
 
-`zoom` is set once for the whole tour rather than per point — a recap that zooms in and out on every
+`zoom` is set once for the whole tour rather than per point: a recap that zooms in and out on every
 beat is nauseating anyway.
 
 Record it and the recap becomes a video you can post:
@@ -231,11 +231,11 @@ const blob = await globe.exportBlob({ preset: "story" });
 ```
 
 Generate it on the client, hand it to `navigator.share`, and you never store a personal graphic on
-your servers — which is both cheaper and a much easier privacy review. See
+your servers, which reduces hosting work and simplifies privacy review. See
 [Social share card generator](/examples/social-card).
 
 ## Next
 
-- [Motion](/guides/motion) — `flyTo`, `tour`, `story` and momentum
-- [Launch announcement](/examples/launch-video) — a single beat, made cinematic
-- [Waitlist milestone](/examples/waitlist-milestone) — one number, celebrated
+- [Motion](/guides/motion): `flyTo`, `tour`, `story` and momentum
+- [Launch announcement](/examples/launch-video): a single beat, made cinematic
+- [Waitlist milestone](/examples/waitlist-milestone): one number, celebrated

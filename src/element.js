@@ -1,6 +1,6 @@
 /**
  * `<geo-globe>` custom element. Wraps GeoGlobe so it can be dropped into any
- * framework — or plain HTML — without touching the imperative API.
+ * framework or plain HTML without requiring the imperative API.
  */
 import { GeoGlobe } from "./geo-globe.js";
 
@@ -91,7 +91,7 @@ const createElementClass = () => class GeoGlobeElement extends HTMLElement {
     return out;
   }
 
-  /** Live marker array — assigning re-renders immediately. */
+  /** Live marker array: assigning re-renders immediately. */
   get markers() {
     return this.globe ? this.globe.markers : this._props.markers || [];
   }

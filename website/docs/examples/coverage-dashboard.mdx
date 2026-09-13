@@ -1,6 +1,6 @@
 ---
 title: Coverage dashboard
-description: Revenue, usage or campaign reach by country — a choropleth with a legend, drill-down and a growth animation, for in-product dashboards.
+description: Display revenue, usage, or campaign reach by country with a choropleth and legend.
 keywords:
   - choropleth dashboard
   - revenue by country map
@@ -12,7 +12,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 
 # Coverage dashboard
 
-Revenue, campaign spend or account coverage by country — with a legend, hover, click-to-drill and an
+Revenue, campaign spend or account coverage by country: with a legend, hover, click-to-drill and an
 animated timeline.
 
 <GlobeDemo
@@ -79,7 +79,7 @@ countryColor: (shape) => {
 },
 ```
 
-Say so in the legend too — an unlabelled grey is easy to misread as zero.
+Say so in the legend too: an unlabelled grey is easy to misread as zero.
 
 ## Drill-down
 
@@ -92,7 +92,7 @@ onCountryClick: (shape) => {
 },
 ```
 
-Call `clearFocus()` to zoom back out. Sub-national geometry is not bundled — pass your own via
+Call `clearFocus()` to zoom back out. Sub-national geometry is not bundled: pass your own via
 [`world`](/api/options#geometry) if you need state-level detail.
 
 ## Adding volume on top
@@ -152,7 +152,7 @@ await globe.exportBlob({ preset: "og" });   // for an email or a link preview
 
 ## Keeping keys straight
 
-`countryColors` matches ISO alpha-2, then numeric id, then name — case-insensitively. If your
+`countryColors` matches ISO alpha-2, then numeric id, then name: case-insensitively. If your
 warehouse uses alpha-3 or an internal id, map it once:
 
 ```js

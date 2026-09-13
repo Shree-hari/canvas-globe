@@ -18,7 +18,7 @@ maps without Three.js, WebGL, map tiles, or an API key.
 npm install canvas-globe react
 ```
 
-React is an **optional peer dependency** — only the `/react` entry point needs it.
+React is an **optional peer dependency**: only the `/react` entry point needs it.
 
 ## The component
 
@@ -87,7 +87,7 @@ const arcs = useMemo(() => routes.map(toArc), [routes]);
 <Globe markers={markers} arcs={arcs} />;
 ```
 
-This matters most for `arcs`, whose great-circle points are cached per object — see
+This matters most for `arcs`, whose great-circle points are cached per object: see
 [Performance](/guides/performance#caches-worth-knowing-about).
 
 ## Cleanup
@@ -96,8 +96,8 @@ The component destroys its instance on unmount. Nothing to do.
 
 ## Next.js and SSR
 
-The modules are safe to import on the server — nothing touches the DOM until construction — but the
-canvas obviously needs a browser. In the App Router, mark the file:
+The modules are safe to import on the server because they do not touch the DOM
+until construction. The canvas still needs a browser. In the App Router, mark the file:
 
 ```jsx
 "use client";
@@ -150,7 +150,7 @@ export function SignupMap({ csv }) {
         scene="signups"
         markers={markers}
         counter={{ value: markers.length, label: "customers" }}
-        tooltip={(m) => `${m.label} — ${m.count}`}
+        tooltip={(m) => `${m.label}: ${m.count}`}
         onClick={(m) => {
           setSelected(m);
           globe.current.flyTo(m.lon, m.lat, { zoom: 3 });

@@ -13,7 +13,7 @@ CanvasGlobe is offered under a dual-license model:
    products, and redistribution rights on the order.
 
 The code and capabilities are the same. You are purchasing different legal
-permission, update access, and support—not unlocking hidden rendering features.
+permission, update access, and support: not unlocking hidden rendering features.
 
 ## Open-source use
 
