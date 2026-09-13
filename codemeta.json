@@ -1,0 +1,29 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "CanvasGlobe",
+  "identifier": "canvas-globe",
+  "description": "Zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D, with no WebGL or API-key requirement.",
+  "version": "0.1.0",
+  "codeRepository": "https://github.com/swiftools/canvas-globe",
+  "issueTracker": "https://github.com/swiftools/canvas-globe/issues",
+  "downloadUrl": "https://www.npmjs.com/package/canvas-globe",
+  "applicationCategory": "DeveloperApplication",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser with Canvas 2D",
+  "license": "https://spdx.org/licenses/GPL-3.0-only.html",
+  "author": {
+    "@type": "Person",
+    "name": "Harsh"
+  },
+  "keywords": [
+    "JavaScript globe",
+    "interactive globe",
+    "Canvas globe",
+    "React globe",
+    "world map",
+    "Canvas 2D",
+    "no WebGL",
+    "choropleth map"
+  ]
+}

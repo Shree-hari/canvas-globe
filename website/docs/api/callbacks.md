@@ -151,5 +151,5 @@ The [`<geo-globe>` element](/integrations/web-component) forwards all of these a
 
 ## React
 
-In the [React component](/integrations/react), callbacks are read through a ref, so they are always
+In the [React component](/react-globe), callbacks are read through a ref, so they are always
 fresh and never need memoising.

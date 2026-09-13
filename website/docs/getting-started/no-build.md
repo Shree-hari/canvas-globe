@@ -1,11 +1,11 @@
 ---
 title: No build step
-description: Use geo-globe from a CDN with a plain script tag.
+description: Use CanvasGlobe from a CDN with a plain script tag.
 ---
 
 # No build step
 
-Drop the UMD bundle on a page and everything lands on a `GeoGlobe` global. No bundler, no
+Drop the UMD bundle on a page and everything lands on a `CanvasGlobe` global. No bundler, no
 transpiler, no module loader.
 
 ```html
@@ -14,9 +14,9 @@ transpiler, no module loader.
 
 <canvas id="globe" style="width: 520px; aspect-ratio: 1"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
 <script>
-  const globe = GeoGlobe.createGlobe(document.getElementById("globe"), {
+  const globe = CanvasGlobe.createGlobe(document.getElementById("globe"), {
     preset: "hologram",
     markers: [{ lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true }],
     tooltip: true,
@@ -29,25 +29,25 @@ transpiler, no module loader.
 The UMD bundle exposes the same surface as the ESM entry point:
 
 ```js
-GeoGlobe.createGlobe(canvas, options);
-new GeoGlobe.GeoGlobe(canvas, options);
+CanvasGlobe.createGlobe(canvas, options);
+new CanvasGlobe.CanvasGlobe(canvas, options);
 
-GeoGlobe.themes;
-GeoGlobe.presets;
-GeoGlobe.scenes;
-GeoGlobe.exportPresets;
+CanvasGlobe.themes;
+CanvasGlobe.presets;
+CanvasGlobe.scenes;
+CanvasGlobe.exportPresets;
 
-GeoGlobe.fromCSV(text);
-GeoGlobe.locateViewer();
-GeoGlobe.colorScale([0, 100], ["#eee", "#00f"]);
-GeoGlobe.mapAspect();
+CanvasGlobe.fromCSV(text);
+CanvasGlobe.locateViewer();
+CanvasGlobe.colorScale([0, 100], ["#eee", "#00f"]);
+CanvasGlobe.mapAspect();
 ```
 
 It also registers the [`<geo-globe>` custom element](/integrations/web-component) automatically, so
 this works with no JavaScript at all beyond the tag:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
 
 <geo-globe preset="neon" tooltip style="display:block;width:100%;max-width:520px"></geo-globe>
 ```
@@ -57,7 +57,7 @@ this works with no JavaScript at all beyond the tag:
 `@latest` is convenient and unstable. For anything real, pin:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe@0.1.0/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.0/dist/canvas-globe.umd.js"></script>
 ```
 
 ## ES modules from a CDN
@@ -68,7 +68,7 @@ If you would rather use modules without a bundler, import the ESM entry directly
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 
 <script type="module">
-  import { createGlobe } from "https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/+esm";
+  import { createGlobe } from "https://cdn.jsdelivr.net/npm/canvas-globe/+esm";
 
   createGlobe(document.getElementById("globe"), { preset: "midnight" });
 </script>
@@ -76,7 +76,7 @@ If you would rather use modules without a bundler, import the ESM entry directly
 
 ## Content Security Policy
 
-geo-globe makes no network requests and evaluates no code, so it needs nothing unusual. If you use
+CanvasGlobe makes no network requests and evaluates no code, so it needs nothing unusual. If you use
 a strict CSP, the only thing to know is that features you opt into may need directives of their own:
 
 | Feature | Needs |

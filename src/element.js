@@ -6,7 +6,7 @@ import { GeoGlobe } from "./geo-globe.js";
 
 const BOOLS = ["auto-rotate", "interactive", "keyboard", "graticule", "stars", "shade", "terminator", "cluster", "tooltip", "zoomable"];
 const NUMBERS = ["zoom", "min-zoom", "max-zoom", "rotate-speed", "marker-scale", "radius-ratio", "fps", "cluster-radius", "arc-lift", "arc-speed", "lat", "lon", "orbits", "dot-spacing", "dot-size"];
-const STRINGS = ["mode", "projection", "theme", "preset", "land-style", "marker-style", "aria-label"];
+const STRINGS = ["mode", "projection", "theme", "preset", "land-style", "marker-style", "aria-label", "license-key"];
 const JSONS = ["markers", "arcs", "country-colors", "lat-range"];
 
 const camel = (s) => s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());

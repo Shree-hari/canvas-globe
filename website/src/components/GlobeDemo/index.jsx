@@ -8,7 +8,7 @@ function toSource(options) {
   const body = JSON.stringify(options, (key, value) => (typeof value === "function" ? undefined : value), 2)
     .replace(/"([A-Za-z_$][\w$]*)":/g, "$1:")
     .replace(/"/g, '"');
-  return `import { createGlobe } from "@swiftools/geo-globe";\n\ncreateGlobe(canvas, ${body});`;
+  return `import { createGlobe } from "canvas-globe";\n\ncreateGlobe(canvas, ${body});`;
 }
 
 /** Reads a dotted option path, so controls can target `title.position`. */
@@ -51,7 +51,7 @@ function Mounted({ options, height, aspect, controls, code, caption, onReady }) 
     let globe;
     let cancelled = false;
     (async () => {
-      const { createGlobe } = await import("@swiftools/geo-globe");
+      const { createGlobe } = await import("canvas-globe");
       if (cancelled || !canvasRef.current) return;
       globe = createGlobe(canvasRef.current, state);
       globeRef.current = globe;
@@ -71,7 +71,7 @@ function Mounted({ options, height, aspect, controls, code, caption, onReady }) 
     if (aspect) return undefined;
     let cancelled = false;
     (async () => {
-      const { mapAspect } = await import("@swiftools/geo-globe");
+      const { mapAspect } = await import("canvas-globe");
       if (cancelled || !canvasRef.current) return;
       canvasRef.current.style.aspectRatio =
         state.mode === "map" ? String(1 / mapAspect(state.latRange, state.projection)) : "1";

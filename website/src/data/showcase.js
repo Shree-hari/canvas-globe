@@ -40,12 +40,12 @@ export const TEAM = [
 
 /** Fake customer brands, shipped as local SVGs so the demo works offline. */
 export const LOGOS = [
-  { name: "Northwind", lat: 51.5, lon: -0.12, image: "/geo-globe/img/logos/northwind.svg" },
-  { name: "Cobalt", lat: 40.71, lon: -74.01, image: "/geo-globe/img/logos/cobalt.svg" },
-  { name: "Meridian", lat: 37.77, lon: -122.42, image: "/geo-globe/img/logos/meridian.svg" },
-  { name: "Solstice", lat: 1.35, lon: 103.82, image: "/geo-globe/img/logos/solstice.svg" },
-  { name: "Verdant", lat: -33.87, lon: 151.21, image: "/geo-globe/img/logos/verdant.svg" },
-  { name: "Kestrel", lat: 12.97, lon: 77.59, image: "/geo-globe/img/logos/kestrel.svg" },
+  { name: "Northwind", lat: 51.5, lon: -0.12, image: "/canvas-globe/img/logos/northwind.svg" },
+  { name: "Cobalt", lat: 40.71, lon: -74.01, image: "/canvas-globe/img/logos/cobalt.svg" },
+  { name: "Meridian", lat: 37.77, lon: -122.42, image: "/canvas-globe/img/logos/meridian.svg" },
+  { name: "Solstice", lat: 1.35, lon: 103.82, image: "/canvas-globe/img/logos/solstice.svg" },
+  { name: "Verdant", lat: -33.87, lon: 151.21, image: "/canvas-globe/img/logos/verdant.svg" },
+  { name: "Kestrel", lat: 12.97, lon: 77.59, image: "/canvas-globe/img/logos/kestrel.svg" },
 ];
 
 /** Edge regions for a status or latency board. */

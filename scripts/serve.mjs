@@ -30,4 +30,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end("not found");
   }
-}).listen(port, () => console.log(`geo-globe demo → http://localhost:${port}/`));
+}).listen(port, () => console.log(`CanvasGlobe demo → http://localhost:${port}/`));

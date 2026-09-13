@@ -1,6 +1,6 @@
 ---
-title: Installation
-description: Install geo-globe with npm, or drop it on a page with no build step.
+title: Install CanvasGlobe from npm
+description: Install the CanvasGlobe JavaScript library from npm, or use the interactive globe and world map from a CDN with no build step.
 ---
 
 # Installation
@@ -8,34 +8,34 @@ description: Install geo-globe with npm, or drop it on a page with no build step
 ## npm
 
 ```bash
-npm install @swiftools/geo-globe
+npm install canvas-globe
 ```
 
 That is the whole dependency tree. The package has **no runtime dependencies** — country geometry,
 the India boundary and the time-zone table all ship inside it.
 
 ```js
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 ```
 
 ## Entry points
 
 | Import | What you get |
 | --- | --- |
-| `@swiftools/geo-globe` | Everything: `createGlobe`, `GeoGlobe`, helpers, themes, presets, scenes |
-| `@swiftools/geo-globe/react` | The `<Globe>` React component |
-| `@swiftools/geo-globe/element` | Registers the `<geo-globe>` custom element |
-| `@swiftools/geo-globe/data/world` | Just the country geometry |
+| `canvas-globe` | Everything: `createGlobe`, `CanvasGlobe` / `GeoGlobe`, helpers, themes, presets, scenes |
+| `canvas-globe/react` | The `<Globe>` React component |
+| `canvas-globe/element` | Registers the `<geo-globe>` custom element |
+| `canvas-globe/data/world` | Just the country geometry |
 
 React is an **optional** peer dependency. You only need it if you import `/react`.
 
 ## Without a build step
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
 ```
 
-Everything lands on a `GeoGlobe` global. See [No build step](./no-build) for the full walkthrough.
+Everything lands on a `CanvasGlobe` global. See [No build step](./no-build) for the full walkthrough.
 
 ## What it weighs
 
@@ -67,7 +67,7 @@ actually construct an instance.
 Types ship with the package. There is nothing to install.
 
 ```ts
-import { createGlobe, type Marker, type GeoGlobeOptions } from "@swiftools/geo-globe";
+import { createGlobe, type Marker, type GeoGlobeOptions } from "canvas-globe";
 
 const markers: Marker[] = [{ lat: 23.03, lon: 72.58, count: 12 }];
 ```

@@ -106,7 +106,7 @@ tooltip and live-region nodes, the reduced-motion listener, any video or GIF ele
 timers from tours, stories, timelines and ping feeds.
 
 Failing to call it in a single-page app leaks a `requestAnimationFrame` loop per mount. The
-[React component](/integrations/react) and [custom element](/integrations/web-component) handle it.
+[React component](/react-globe) and [custom element](/integrations/web-component) handle it.
 
 ## Bundle size
 

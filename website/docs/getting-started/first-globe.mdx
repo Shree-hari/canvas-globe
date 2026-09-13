@@ -16,7 +16,7 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 ```
 
 ```js
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 
 const globe = createGlobe(document.querySelector("#globe"), {
   markers: [{ lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true }],
@@ -32,7 +32,7 @@ const globe = createGlobe(document.querySelector("#globe"), {
 />
 
 :::warning Size the canvas with CSS, not attributes
-Give the element a width and an `aspect-ratio` in CSS. geo-globe reads the rendered size, sets the
+Give the element a width and an `aspect-ratio` in CSS. CanvasGlobe reads the rendered size, sets the
 backing store for the device pixel ratio, and re-reads it whenever the element resizes. Setting
 `width="480"` as an HTML attribute will look blurry on retina screens.
 :::
@@ -109,7 +109,7 @@ listeners, and releases the tooltip, live region and any media.
 globe.destroy();
 ```
 
-The [React component](/integrations/react) and [custom element](/integrations/web-component) do this
+The [React component](/react-globe) and [custom element](/integrations/web-component) do this
 for you.
 
 ## Next

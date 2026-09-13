@@ -25,9 +25,9 @@ export const canRecord = () => supportedRecordingType() !== null;
  */
 export function recordCanvas(canvas, { duration = 6000, fps = 30, bitrate = 6e6, type } = {}) {
   const mimeType = type || supportedRecordingType();
-  if (!mimeType) return { promise: Promise.reject(new Error("geo-globe: MediaRecorder is unavailable")), stop() {} };
+  if (!mimeType) return { promise: Promise.reject(new Error("canvas-globe: MediaRecorder is unavailable")), stop() {} };
   if (!canvas.captureStream) {
-    return { promise: Promise.reject(new Error("geo-globe: canvas.captureStream is unavailable")), stop() {} };
+    return { promise: Promise.reject(new Error("canvas-globe: canvas.captureStream is unavailable")), stop() {} };
   }
 
   const stream = canvas.captureStream(fps);
@@ -39,7 +39,7 @@ export function recordCanvas(canvas, { duration = 6000, fps = 30, bitrate = 6e6,
     recorder.ondataavailable = (e) => {
       if (e.data && e.data.size) chunks.push(e.data);
     };
-    recorder.onerror = (e) => reject(e.error || new Error("geo-globe: recording failed"));
+    recorder.onerror = (e) => reject(e.error || new Error("canvas-globe: recording failed"));
     recorder.onstop = () => {
       clearTimeout(timer);
       for (const track of stream.getTracks()) track.stop();

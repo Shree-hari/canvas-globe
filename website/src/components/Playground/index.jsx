@@ -36,7 +36,7 @@ function serialise(options, markers) {
   if (!shown.orbits) delete shown.orbits;
   if (shown.markerScale === 1) delete shown.markerScale;
   const body = JSON.stringify({ ...shown, markers }, null, 2).replace(/"([A-Za-z_$][\w$]*)":/g, "$1:");
-  return `import { createGlobe } from "@swiftools/geo-globe";\n\ncreateGlobe(document.querySelector("#globe"), ${body});`;
+  return `import { createGlobe } from "canvas-globe";\n\ncreateGlobe(document.querySelector("#globe"), ${body});`;
 }
 
 function Editor() {
@@ -51,7 +51,7 @@ function Editor() {
     let globe;
     let cancelled = false;
     (async () => {
-      const { createGlobe, fromCSV } = await import("@swiftools/geo-globe");
+      const { createGlobe, fromCSV } = await import("canvas-globe");
       if (cancelled || !canvasRef.current) return;
       const parsed = fromCSV(DEFAULT_CSV);
       globe = createGlobe(canvasRef.current, { ...INITIAL, markers: parsed });
@@ -84,7 +84,7 @@ function Editor() {
   };
 
   const loadCsv = async () => {
-    const { fromCSV } = await import("@swiftools/geo-globe");
+    const { fromCSV } = await import("canvas-globe");
     const parsed = fromCSV(csv);
     globeRef.current?.setMarkers(parsed);
     globeRef.current?.fitToMarkers();

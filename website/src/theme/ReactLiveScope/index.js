@@ -1,6 +1,6 @@
 import React from "react";
-import { Globe } from "@swiftools/geo-globe/react";
-import * as geo from "@swiftools/geo-globe";
+import { Globe } from "canvas-globe/react";
+import * as geo from "canvas-globe";
 
 /**
  * Everything available inside ```jsx live code blocks. Readers can edit any

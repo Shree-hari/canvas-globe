@@ -1,11 +1,25 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { installGlobals, makeCanvas } from "./helpers.js";
-import { GeoGlobe, createGlobe, themes, presets, world, pointInGeometry } from "../src/index.js";
+import {
+  GeoGlobe,
+  CanvasGlobe,
+  createGlobe,
+  createCanvasGlobe,
+  themes,
+  presets,
+  world,
+  pointInGeometry,
+} from "../src/index.js";
 
 installGlobals();
 
 const globe = (options = {}) => createGlobe(makeCanvas(), { autoRotate: false, ...options });
+
+test("brand-aligned API aliases preserve the canonical implementation", () => {
+  assert.equal(CanvasGlobe, GeoGlobe);
+  assert.equal(createCanvasGlobe, createGlobe);
+});
 
 test("rejects anything that is not a canvas", () => {
   assert.throws(() => new GeoGlobe(null), TypeError);

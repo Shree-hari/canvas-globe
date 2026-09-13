@@ -8,6 +8,12 @@ description: Every option, with defaults.
 Everything `createGlobe(canvas, options)` accepts. All options can also be patched at runtime with
 [`setOptions`](./methods#setoptions).
 
+## Licensing
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `licenseKey` | `string \| null` | `"0000-0000-000-0000"` | Use `"GPL-3.0"` for a GPL-compatible project or the exact key supplied with a commercial order. The default logs a production warning. There is no required prefix, network validation, or feature lock. |
+
 ## Projection and view
 
 | Option | Type | Default | Description |

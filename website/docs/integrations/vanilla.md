@@ -8,7 +8,7 @@ description: Plain JS, Vue, Svelte, Angular and jQuery-era pages.
 The core API is imperative and framework-agnostic. Construct, drive, destroy.
 
 ```js
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 
 const globe = createGlobe(canvas, options);
 globe.setMarkers(next);
@@ -24,7 +24,7 @@ of these.
 ```vue
 <script setup>
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 
 const props = defineProps({ markers: Array, preset: String });
 const canvas = ref(null);
@@ -54,7 +54,7 @@ onUnmounted(() => globe?.destroy());
 ```svelte
 <script>
   import { onMount } from "svelte";
-  import { createGlobe } from "@swiftools/geo-globe";
+  import { createGlobe } from "canvas-globe";
 
   export let markers = [];
   export let preset = "atlas";
@@ -78,7 +78,7 @@ onUnmounted(() => globe?.destroy());
 
 ```ts
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { createGlobe, type GeoGlobe } from "@swiftools/geo-globe";
+import { createGlobe, type GeoGlobe } from "canvas-globe";
 
 @Component({
   selector: "app-globe",
@@ -115,9 +115,9 @@ No build tooling at all:
 ```html
 <canvas id="globe" style="width:100%;max-width:520px;aspect-ratio:1"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
 <script>
-  var globe = GeoGlobe.createGlobe(document.getElementById("globe"), {
+  var globe = CanvasGlobe.createGlobe(document.getElementById("globe"), {
     preset: "midnight",
     markers: [{ lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true }],
     tooltip: true,
@@ -136,7 +136,7 @@ See [No build step](/getting-started/no-build) for the full global surface.
 <canvas id="globe" style="width:100%;aspect-ratio:1"></canvas>
 
 <script>
-  import { createGlobe } from "@swiftools/geo-globe";
+  import { createGlobe } from "canvas-globe";
   createGlobe(document.getElementById("globe"), { preset: "hologram" });
 </script>
 ```

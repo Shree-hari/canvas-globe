@@ -1,5 +1,5 @@
 {
-  "name": "geo-globe-website",
+  "name": "canvas-globe-website",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -17,7 +17,7 @@
     "@docusaurus/preset-classic": "3.10.2",
     "@docusaurus/theme-live-codeblock": "3.10.2",
     "@mdx-js/react": "^3.0.0",
-    "@swiftools/geo-globe": "file:..",
+    "canvas-globe": "file:..",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",

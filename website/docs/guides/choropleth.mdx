@@ -11,7 +11,7 @@ Colour countries by value. The bundled geometry carries an ISO alpha-2 code, a n
 for each country, so most data joins without any mapping work.
 
 ```js
-import { createGlobe, colorScale } from "@swiftools/geo-globe";
+import { createGlobe, colorScale } from "canvas-globe";
 
 const visits = { IN: 940, US: 720, GB: 480, JP: 300, BR: 260 };
 const scale = colorScale([0, 1000], ["#e0f2fe", "#0369a1"]);

@@ -8,7 +8,7 @@ description: Standalone exports for geometry, colour, data and location.
 Every helper is importable on its own and works without a globe instance.
 
 ```js
-import { colorScale, mapAspect, greatCircle, subsolarPoint } from "@swiftools/geo-globe";
+import { colorScale, mapAspect, greatCircle, subsolarPoint } from "canvas-globe";
 ```
 
 ## Geometry

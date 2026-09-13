@@ -1,5 +1,5 @@
 /**
- * React binding. `import { Globe } from "@swiftools/geo-globe/react"`.
+ * React binding. `import { Globe } from "canvas-globe/react"`.
  * React is a peer dependency and is only required by this entry point.
  */
 import { createElement, forwardRef, useEffect, useImperativeHandle, useRef } from "react";

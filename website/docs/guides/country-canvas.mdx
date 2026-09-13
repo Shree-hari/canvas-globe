@@ -121,7 +121,7 @@ Source type is inferred from the extension: `.mp4`, `.webm`, `.ogv`, `.mov` beco
 video; `.gif` keeps animating; everything else loads as an image.
 
 :::note Why GIFs need a DOM node
-Browsers only advance an animated GIF that is attached to the document. geo-globe parks the `<img>`
+Browsers only advance an animated GIF that is attached to the document. CanvasGlobe parks the `<img>`
 off-screen at 1×1 with near-zero opacity so `drawImage` sees live frames. Nothing is visible.
 :::
 

@@ -142,7 +142,7 @@ function Gallery({ filter }) {
     let globes = [];
     let cancelled = false;
     (async () => {
-      const { createGlobe } = await import("@swiftools/geo-globe");
+      const { createGlobe } = await import("canvas-globe");
       if (cancelled || !hostRef.current) return;
       globes = [...hostRef.current.querySelectorAll("canvas")].map((canvas) => {
         const example = items[Number(canvas.dataset.index)];

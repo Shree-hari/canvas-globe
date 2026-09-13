@@ -1,6 +1,9 @@
-# @swiftools/geo-globe
+# CanvasGlobe
 
-Interactive **globe** and **world map** on a plain 2D canvas.
+`canvas-globe` is a zero-dependency JavaScript library for an interactive
+**3D globe** and **flat world map** on Canvas 2D. It works with
+vanilla JavaScript, React, or a Web Component and requires no WebGL, map API
+key, tile service, or runtime network request.
 
 - 🪶 **Zero dependencies** — no WebGL, no D3, no map tiles, no API keys
 - 🔌 **Zero network calls** — country geometry ships inside the package
@@ -21,19 +24,54 @@ Interactive **globe** and **world map** on a plain 2D canvas.
 
 Perfect for "where our users are" dashboards, launch pages, status boards and share graphics.
 
+## When to choose CanvasGlobe
+
+Choose CanvasGlobe when you need a JavaScript or React globe with markers,
+great-circle arcs, choropleths, keyboard interaction, and image/video export,
+especially when WebGL or external map services are not acceptable. Use a 3D
+engine such as globe.gl or Cesium instead when you need terrain, perspective
+cameras, custom shaders, or thousands of independent 3D objects. See the
+[globe-library comparison](https://swiftools.github.io/canvas-globe/compare/javascript-globe-libraries).
+
+## Licensing
+
+CanvasGlobe is dual-licensed:
+
+- **GPL-3.0-only** for projects that can comply with GNU GPLv3; or
+- a **paid commercial license** for proprietary products.
+
+The full package and feature set are the same on both paths. License keys are
+offline receipts/compliance reminders—there is no licensing telemetry or
+feature lock. GPL permits commercial activity; whether a particular
+distribution can comply is fact-specific. See [LICENSING.md](LICENSING.md) and
+the [commercial plans](https://swiftools.github.io/canvas-globe/pricing).
+
+Select the GPL path explicitly, or use the key supplied by the commerce
+platform with a commercial order:
+
+```js
+createGlobe(canvas, { licenseKey: "GPL-3.0" });
+```
+
+The check is local and non-authoritative: it only checks whether a value is
+present. CanvasGlobe imposes no prefix or format and preserves commercial keys
+exactly as supplied. A key does not replace the applicable licence or prove
+purchase. The default `0000-0000-000-0000` value is for evaluation only and
+produces a console warning in browser builds, matching lightGallery's behavior.
+
 ## Install
 
 ```bash
-npm install @swiftools/geo-globe
+npm install canvas-globe
 ```
 
 Or drop it on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
-  GeoGlobe.createGlobe(document.getElementById("globe"), {
+  CanvasGlobe.createGlobe(document.getElementById("globe"), {
     markers: [{ lat: 23.03, lon: 72.58, count: 12, emoji: "🧑‍🎨", live: true }],
   });
 </script>
@@ -42,7 +80,7 @@ Or drop it on a page with no build step at all:
 ## Usage
 
 ```js
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 
 const globe = createGlobe(document.querySelector("#globe"), {
   markers: [
@@ -68,7 +106,7 @@ The canvas is sized from CSS — give it a width and an aspect ratio:
 
 ```html
 <script type="module">
-  import "@swiftools/geo-globe/element";
+  import "canvas-globe/element";
 </script>
 
 <geo-globe mode="map" theme="midnight" tooltip cluster style="display:block;width:100%"></geo-globe>
@@ -89,7 +127,7 @@ callbacks go through the `markers`, `arcs` and `options` properties. Events: `ge
 
 ```jsx
 import { useRef } from "react";
-import { Globe } from "@swiftools/geo-globe/react";
+import { Globe } from "canvas-globe/react";
 
 export function Visitors({ markers }) {
   const globe = useRef(null);
@@ -111,6 +149,7 @@ React is an optional peer dependency — only the `/react` entry point needs it.
 
 | Option | Default | Description |
 | --- | --- | --- |
+| `licenseKey` | `"0000-0000-000-0000"` | `"GPL-3.0"` for a GPL-compatible project, or the commercial key supplied with an order |
 | `mode` | `"globe"` | `"globe"` (orthographic, spinnable) or `"map"` (flat) |
 | `projection` | `"equirectangular"` | Flat-map projection: also `"mercator"`, `"naturalEarth"` |
 | `preset` | — | Named bundle of theme + render style, applied under your options |
@@ -225,7 +264,7 @@ clipped at the horizon as the globe turns. Set `animate: false` for a static lin
 ## Choropleth
 
 ```js
-import { createGlobe, colorScale } from "@swiftools/geo-globe";
+import { createGlobe, colorScale } from "canvas-globe";
 
 const visits = { IN: 940, US: 720, GB: 480, JP: 300 };
 const scale = colorScale([0, 1000], ["#e0f2fe", "#0369a1"]);
@@ -311,7 +350,7 @@ Marketing data arrives as a spreadsheet, so `fromCSV` resolves rows itself — e
 columns first, then a city name, then a country code or name:
 
 ```js
-import { fromCSV } from "@swiftools/geo-globe";
+import { fromCSV } from "canvas-globe";
 
 const markers = fromCSV(`city,count,image
 London,8,/logos/acme.png
@@ -486,7 +525,7 @@ await globe.record({ duration: 6000, filename: "globe.webm" }).promise;
 ```
 
 `record()` uses `MediaRecorder` on the canvas stream — the clip is encoded in the tab and never
-leaves the device. Check `GeoGlobe.canRecord` first.
+leaves the device. Check the exported `canRecord()` helper first.
 
 ## Looks
 A **preset** bundles a theme with a render style. Your own options always win over it.
@@ -581,7 +620,10 @@ hit testing. Pass your own `world` GeoJSON if you need a different depiction.
 - Country geometry — [Natural Earth](https://www.naturalearthdata.com/) 1:110m via `world-atlas`, **public domain**
 - ISO codes — [natural-earth-vector](https://github.com/nvkelso/natural-earth-vector), **public domain**
 - India boundary — [Datameet `india-composite`](https://github.com/datameet/maps), **CC-0**
-- This package — **MIT**
+- This package — **GPL-3.0-only or a commercial license**
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for source links and
+provenance.
 
 Regenerate the bundled data any time with `npm run data`.
 
@@ -589,14 +631,19 @@ Regenerate the bundled data any time with `npm run data`.
 
 ```bash
 npm test        # node --test, no test framework to install
-npm run build   # dist/geo-globe.umd.js, with a gzipped size budget
+npm run build   # dist/canvas-globe.umd.js, with a gzipped size budget
 npm run example # demo at http://localhost:8099
 npm run docs    # documentation site at http://localhost:3000
+npm run release:check # tests, types, builds, docs and packed-artifact validation
 ```
 
 The documentation site lives in `website/` and is built with Docusaurus. It links the package with
 `file:..`, so every demo on it runs the live source rather than a published build. Install its
 dependencies separately with `npm --prefix website install`.
+
+## Author
+
+Harsh
 
 ## Browser support
 

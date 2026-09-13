@@ -58,7 +58,7 @@ as nine coloured dots in the right places.
 ## The code
 
 ```js
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 
 const COLOR = { ok: "#22c55e", degraded: "#f59e0b", down: "#ef4444" };
 
@@ -135,7 +135,7 @@ If you are showing performance rather than uptime, drive the colour continuously
 carry a scale:
 
 ```js
-import { colorScale } from "@swiftools/geo-globe";
+import { colorScale } from "canvas-globe";
 
 const latencyColor = colorScale([20, 250], ["#22c55e", "#ef4444"]);
 

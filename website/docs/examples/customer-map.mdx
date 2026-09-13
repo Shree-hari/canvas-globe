@@ -12,6 +12,11 @@ import GlobeDemo from "@site/src/components/GlobeDemo";
 
 # Where our customers are
 
+:::note Example data
+All customer counts and locations on this page are fictional demonstration
+data. They are not CanvasGlobe usage claims.
+:::
+
 The single most requested marketing map: **proof that people outside your own postcode pay you.**
 Two layers do the work — countries shaded by volume so the eye reads the spread instantly, and city
 bubbles sized by count so the density is honest.
@@ -62,7 +67,7 @@ bubbles sized by count so the density is honest.
 ## The code
 
 ```jsx
-import { createGlobe, colorScale } from "@swiftools/geo-globe";
+import { createGlobe, colorScale } from "canvas-globe";
 
 // Whatever your analytics already returns.
 const byCountry = { IN: 412, US: 388, GB: 214, DE: 168, CA: 96, BR: 84 /* … */ };
@@ -134,7 +139,7 @@ around 300 bundled cities plus every country, and hands back a `skipped` list so
 what did not match:
 
 ```js
-import { fromCSV } from "@swiftools/geo-globe";
+import { fromCSV } from "canvas-globe";
 
 const markers = fromCSV(csvText);          // reads city / country / count columns
 if (markers.skipped.length) console.warn("Unresolved rows:", markers.skipped);

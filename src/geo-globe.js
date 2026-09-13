@@ -1,5 +1,5 @@
 /**
- * @swiftools/geo-globe — interactive globe & world map on a 2D canvas.
+ * canvas-globe — interactive globe & world map on a 2D canvas.
  * No dependencies, no WebGL, no network calls, no API keys.
  */
 import { world as bundledWorld } from "./data/world.js";
@@ -11,9 +11,11 @@ import { SphereTexture } from "./texture.js";
 import { Media, drawFitted } from "./media.js";
 import { scenes, sceneKeys } from "./scenes.js";
 import { exportSize } from "./export.js";
+import { DEFAULT_LICENSE_KEY, reportLicenseStatus } from "./license.js";
 import { D2R, R2D, TAU, clamp, wrapLon, resolveProjection, projectionBounds, ortho, orthoInverse, greatCircle, circleAround, distanceMeters, subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha } from "./geo.js";
 
 const DEFAULTS = {
+  licenseKey: DEFAULT_LICENSE_KEY,
   mode: "globe",
   projection: "equirectangular",
   theme: "atlas",
@@ -92,7 +94,7 @@ const defaultTooltip = (target, kind) => {
 
 export class GeoGlobe {
   constructor(canvas, options = {}) {
-    if (!canvas || !canvas.getContext) throw new TypeError("geo-globe: first argument must be a <canvas> element");
+    if (!canvas || !canvas.getContext) throw new TypeError("canvas-globe: first argument must be a <canvas> element");
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     // Scene first, then its preset, then anything the caller passed.
@@ -100,6 +102,7 @@ export class GeoGlobe {
     const presetName = options.preset || scene?.preset;
     this.o = { ...DEFAULTS, ...(presets[presetName] || null), ...scene, ...options };
     this.o.center = { ...DEFAULTS.center, ...(options.center || {}) };
+    reportLicenseStatus(this.o.licenseKey);
 
     this.lon = this.o.center.lon;
     this.lat = this.o.center.lat;
@@ -163,6 +166,7 @@ export class GeoGlobe {
   setOptions(patch = {}) {
     patch = this._expandLooks(patch);
     Object.assign(this.o, patch);
+    if ("licenseKey" in patch) reportLicenseStatus(patch.licenseKey);
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
     if ("zoom" in patch) this._zoom = clamp(patch.zoom, this.o.minZoom, this.o.maxZoom);

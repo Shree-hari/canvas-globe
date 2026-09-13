@@ -6,6 +6,19 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Renamed the public product and package to CanvasGlobe / `canvas-globe`,
+  with matching repository, documentation, CDN, UMD, structured-data, and
+  social-preview identities. Added `CanvasGlobe` and `createCanvasGlobe` aliases.
+- Added high-intent JavaScript, React, and competitor-comparison pages,
+  SoftwareSourceCode JSON-LD, CodeMeta, crawler directives, and spec-shaped
+  `llms.txt` / `llms-full.txt` indexes.
+- Prepared dual GPLv3/commercial licensing, including offline license-key
+  classification, pricing/licensing documentation, legal-review drafts, and
+  third-party notices.
+- Added Vue, Svelte, Angular, Astro, and dedicated Next.js integration guides.
+- Added release-candidate validation, npm provenance workflow, commercial
+  funnel pages, robots metadata, and an LLM-oriented documentation index.
+
 ### Added
 
 - **Toolkit for building on top.** `fromCSV()` / `fromRows()` turn spreadsheet data into markers,
@@ -65,8 +78,8 @@ All notable changes to this package are documented here. The format follows
   (arrows, `+`/`-`, `0`, `PageUp`/`PageDown`, `Enter`) and `prefers-reduced-motion` support via
   `respectReducedMotion`.
 - **Built-in tooltip.** `tooltip: true` or a formatter; output is always rendered as text.
-- **Framework bindings.** `@swiftools/geo-globe/element` registers a `<geo-globe>` custom element;
-  `@swiftools/geo-globe/react` exports a `<Globe>` component with React as an optional peer.
+- **Framework bindings.** `canvas-globe/element` registers a `<geo-globe>` custom element;
+  `canvas-globe/react` exports a `<Globe>` component with React as an optional peer.
 - **Custom marker rendering** via `renderMarker`, and `unproject()`, `invalidate()`, `toBlob()`,
   `setTime()`, `setProjection()`.
 - Test suite (`node --test`, no framework to install), a CI workflow, `tsconfig.json` for
@@ -78,7 +91,7 @@ All notable changes to this package are documented here. The format follows
   boundary is merged into `world.js` at data-generation time and subtracted from the neighbouring
   countries, so India is an ordinary shape in `globe.world` and every layer — choropleth, labels,
   media, hit testing, auto-colouring — treats it like any other country. Removes the `officialIndia`
-  and `india` options, the `india` export, the `@swiftools/geo-globe/data/india` subpath and the
+  and `india` options, the `india` export, the `canvas-globe/data/india` subpath and the
   `official-india` attribute. Pass your own `world` GeoJSON for a different depiction.
 - The bundled data now carries ISO alpha-2 codes for 172 of 177 countries. The previous build
   shipped none, so `countryColors` keyed by ISO silently fell through to name matching.

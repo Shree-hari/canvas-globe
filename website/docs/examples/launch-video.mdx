@@ -55,7 +55,7 @@ the country.
 ## The code
 
 ```js
-import { createGlobe } from "@swiftools/geo-globe";
+import { createGlobe } from "canvas-globe";
 
 const canvas = document.querySelector("#launch");
 
@@ -99,7 +99,7 @@ await globe.record({ duration: 6000, filename: "launch.webm" }).promise;
 ```
 
 The clip is encoded in the tab by `MediaRecorder` — nothing uploads anywhere. Check
-`GeoGlobe.canRecord` first, since Safari's support is narrower than Chrome's.
+the exported `canRecord()` helper first, since Safari's support is narrower than Chrome's.
 
 ## Variations
 

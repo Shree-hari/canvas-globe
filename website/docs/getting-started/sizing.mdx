@@ -14,7 +14,7 @@ minute to get right and then never bothers you again.
 
 **Size the canvas in CSS. Never set the `width`/`height` attributes yourself.**
 
-geo-globe reads `clientWidth`/`clientHeight`, multiplies by the device pixel ratio (capped at 2),
+CanvasGlobe reads `clientWidth`/`clientHeight`, multiplies by the device pixel ratio (capped at 2),
 and sets the backing store to match. A `ResizeObserver` repeats that whenever the element changes
 size.
 
@@ -39,7 +39,7 @@ A flat map is not square, and the right ratio depends on both the projection and
 window. Ask the library:
 
 ```js
-import { mapAspect } from "@swiftools/geo-globe";
+import { mapAspect } from "canvas-globe";
 
 mapAspect();                            // 0.386 — equirectangular, default latRange
 mapAspect([83, -56], "mercator");       // 0.633
@@ -66,7 +66,7 @@ canvas.style.aspectRatio = String(1 / mapAspect(latRange, projection));
 />
 
 :::info Letterboxing, not stretching
-If the canvas ratio does not match the projection, geo-globe fits the map uniformly and centres it.
+If the canvas ratio does not match the projection, CanvasGlobe fits the map uniformly and centres it.
 The map is never distorted — you just get empty space at the sides or top.
 :::
 

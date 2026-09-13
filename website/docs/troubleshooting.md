@@ -15,7 +15,7 @@ description: Common problems, and the reasoning behind some deliberate behaviour
 
 ## It looks blurry
 
-You set `width`/`height` as HTML attributes. Size it in **CSS only** and let geo-globe manage the
+You set `width`/`height` as HTML attributes. Size it in **CSS only** and let CanvasGlobe manage the
 backing store for the device pixel ratio. See [Sizing the canvas](/getting-started/sizing).
 
 ## The map looks squashed
@@ -26,7 +26,7 @@ The canvas aspect ratio does not match the projection. Use `mapAspect()`:
 canvas.style.aspectRatio = String(1 / mapAspect(latRange, projection));
 ```
 
-geo-globe letterboxes rather than stretching, so a mismatch shows as empty space, never distortion.
+CanvasGlobe letterboxes rather than stretching, so a mismatch shows as empty space, never distortion.
 
 ## A marker is in the sea
 
@@ -82,7 +82,7 @@ globe.clearFocus();
 
 ## A GIF is frozen on the first frame
 
-Browsers only animate images attached to the document. geo-globe parks GIF elements off-screen
+Browsers only animate images attached to the document. CanvasGlobe parks GIF elements off-screen
 automatically, so this normally works — but if you passed an `HTMLImageElement` **you** created and
 never added to the DOM, it will not animate. Pass the URL string instead and let the library manage
 it.
@@ -106,7 +106,7 @@ const arcs = useMemo(() => routes.map(toArc), [routes]);
 Check support first — Safari's `MediaRecorder` coverage is narrower than Chrome's:
 
 ```js
-import { canRecord } from "@swiftools/geo-globe";
+import { canRecord } from "canvas-globe";
 if (!canRecord()) showFallback();
 ```
 
@@ -120,7 +120,7 @@ OG images. See [Exporting](/guides/exporting#server-side-rendering).
 You are not calling `destroy()`. Each un-destroyed instance keeps a `requestAnimationFrame` loop,
 listeners, a `ResizeObserver` and any media alive.
 
-The [React component](/integrations/react) and [custom element](/integrations/web-component) handle
+The [React component](/react-globe) and [custom element](/integrations/web-component) handle
 this for you.
 
 ## SSR errors

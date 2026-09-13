@@ -1,31 +1,49 @@
 {
-  "name": "@swiftools/geo-globe",
+  "name": "canvas-globe",
   "version": "0.1.0",
-  "description": "Zero-dependency interactive globe and world map on a 2D canvas. Drag to spin, animated markers, avatars, themes — no WebGL, no API keys, no network calls.",
-  "license": "MIT",
+  "description": "Zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D. No WebGL or API key.",
+  "license": "GPL-3.0-only",
+  "author": {
+    "name": "Harsh"
+  },
+  "homepage": "https://swiftools.github.io/canvas-globe/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swiftools/canvas-globe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/swiftools/canvas-globe/issues"
+  },
   "keywords": [
+    "javascript-globe",
+    "interactive-globe",
+    "canvas-globe",
     "globe",
-    "world-map",
     "canvas",
-    "visualization",
-    "geo",
-    "analytics",
-    "markers",
-    "orthographic",
     "interactive",
-    "no-dependencies",
-    "choropleth",
-    "great-circle",
-    "arcs",
+    "map",
+    "world-map",
+    "react-globe",
     "react",
-    "web-component"
+    "globe-visualization",
+    "data-visualization",
+    "canvas-2d",
+    "no-webgl",
+    "zero-dependency",
+    "choropleth-map",
+    "orthographic-projection",
+    "geospatial",
+    "markers",
+    "great-circle-arcs",
+    "web-component",
+    "vanilla-javascript"
   ],
   "type": "module",
   "main": "./src/index.js",
   "module": "./src/index.js",
   "types": "./types/index.d.ts",
-  "unpkg": "./dist/geo-globe.umd.js",
-  "jsdelivr": "./dist/geo-globe.umd.js",
+  "unpkg": "./dist/canvas-globe.umd.js",
+  "jsdelivr": "./dist/canvas-globe.umd.js",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
@@ -51,9 +69,14 @@
     "types",
     "README.md",
     "CHANGELOG.md",
-    "LICENSE"
+    "LICENSE",
+    "LICENSING.md",
+    "THIRD_PARTY_NOTICES.md",
+    "codemeta.json"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/element.js"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -63,10 +86,12 @@
     "example": "node scripts/serve.mjs",
     "test": "node --test \"test/*.test.js\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "smoke:package": "node scripts/package-smoke.mjs",
     "docs": "npm --prefix website run start",
     "docs:build": "npm --prefix website run build",
     "docs:serve": "npm --prefix website run serve",
-    "prepublishOnly": "npm run test && npm run build"
+    "release:check": "npm run test && npm run typecheck && npm run build && npm run docs:build && node scripts/release-check.mjs && npm run smoke:package",
+    "prepublishOnly": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs"
   },
   "peerDependencies": {
     "react": ">=17"

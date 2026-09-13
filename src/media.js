@@ -54,7 +54,7 @@ export class Media {
       return;
     }
     if (typeof src !== "string") {
-      this.error = new Error("geo-globe: unsupported media source");
+      this.error = new Error("canvas-globe: unsupported media source");
       return;
     }
     if (config.type === "video" || (config.type !== "image" && VIDEO_RE.test(src))) {
@@ -71,7 +71,7 @@ export class Media {
       this._onReady?.(this);
     };
     img.onerror = () => {
-      this.error = new Error(`geo-globe: could not load "${src}"`);
+      this.error = new Error(`canvas-globe: could not load "${src}"`);
       this._onReady?.(this);
     };
     img.src = src;
@@ -83,7 +83,7 @@ export class Media {
 
   _video(config) {
     if (typeof document === "undefined") {
-      this.error = new Error("geo-globe: video media needs a DOM");
+      this.error = new Error("canvas-globe: video media needs a DOM");
       return null;
     }
     const el = document.createElement("video");
@@ -97,7 +97,7 @@ export class Media {
       this._onReady?.(this);
     };
     el.onerror = () => {
-      this.error = new Error("geo-globe: video could not be played");
+      this.error = new Error("canvas-globe: video could not be played");
       this._onReady?.(this);
     };
     this._owned = true;

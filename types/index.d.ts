@@ -381,6 +381,12 @@ export interface RenderMarkerContext {
 export type TooltipKind = "marker" | "cluster" | "country";
 
 export interface GeoGlobeOptions {
+  /**
+   * "GPL-3.0" for a GPL-compatible project, or the commercial key supplied
+   * with an order. Checked offline as a compliance reminder; never sent over
+   * the network and never used to disable features.
+   */
+  licenseKey?: string | null;
   /** "globe" (orthographic, spinnable) or "map" (flat). Default "globe". */
   mode?: "globe" | "map";
   /** Flat-map projection. Default "equirectangular". */
@@ -599,6 +605,24 @@ export declare class GeoGlobe {
 }
 
 export declare function createGlobe(canvas: HTMLCanvasElement, options?: GeoGlobeOptions): GeoGlobe;
+/** Brand-aligned alias for `GeoGlobe`. */
+export { GeoGlobe as CanvasGlobe };
+/** Brand-aligned alias for `createGlobe`. */
+export { createGlobe as createCanvasGlobe };
+export declare const DEFAULT_LICENSE_KEY: "0000-0000-000-0000";
+export declare const OPEN_SOURCE_LICENSE_KEY: "GPL-3.0";
+export interface LicenseKeyStatus {
+  valid: boolean;
+  kind: "missing" | "placeholder" | "open-source" | "commercial";
+  key: string;
+}
+/**
+ * Classifies a key locally without parsing provider-specific commercial keys.
+ * This is not authentication or proof of legal entitlement.
+ */
+export declare function inspectLicenseKey(value: unknown): LicenseKeyStatus;
+/** Returns whether a non-placeholder GPL or externally issued key was supplied. */
+export declare function hasLicenseKey(value: unknown): boolean;
 export declare const themes: Record<ThemeName, Theme>;
 /** Named bundles of theme + render style. */
 export declare const presets: Record<PresetName, Partial<GeoGlobeOptions>>;

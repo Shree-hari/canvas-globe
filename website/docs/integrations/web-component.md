@@ -6,7 +6,7 @@ description: The <geo-globe> custom element — works in any framework, or none.
 # Web component
 
 ```js
-import "@swiftools/geo-globe/element";
+import "canvas-globe/element";
 ```
 
 ```html
@@ -16,7 +16,7 @@ import "@swiftools/geo-globe/element";
 The UMD bundle registers it automatically, so a `<script>` tag alone is enough:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@swiftools/geo-globe/dist/geo-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
 <geo-globe preset="neon" mode="map"></geo-globe>
 ```
 
@@ -127,7 +127,7 @@ el.markers = markers;
 ## Registering under another name
 
 ```js
-import { defineGeoGlobe } from "@swiftools/geo-globe/element";
+import { defineGeoGlobe } from "canvas-globe/element";
 
 defineGeoGlobe("my-globe");
 ```

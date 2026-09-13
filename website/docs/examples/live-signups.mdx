@@ -62,7 +62,7 @@ disappearing.
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Globe } from "@swiftools/geo-globe/react";
+import { Globe } from "canvas-globe/react";
 
 export function SocialProofGlobe({ cities, total }) {
   const globe = useRef(null);
@@ -148,7 +148,7 @@ A signup ping is personal data wearing a coat.
   spinning globe on your home page.
 
 ```js
-import { countryPoint } from "@swiftools/geo-globe";
+import { countryPoint } from "canvas-globe";
 
 const place = countryPoint(event.countryCode);
 if (place) globe.ping({ ...place, label: `Someone in ${event.country} just signed up` });

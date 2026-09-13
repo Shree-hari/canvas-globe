@@ -218,7 +218,7 @@ The live canvas at its current size.
 record(opts?): { promise: Promise<Blob>; stop(): Promise<Blob>; mimeType?: string }
 ```
 
-WebM from the canvas stream, encoded in the tab. Check `GeoGlobe.canRecord` first.
+WebM from the canvas stream, encoded in the tab. Check the exported `canRecord()` helper first.
 
 ## Lifecycle
 
@@ -242,8 +242,10 @@ WebM from the canvas stream, encoded in the tab. Check `GeoGlobe.canRecord` firs
 | `world` | `CountryShape[]` | Resolved geometry |
 | `hits` | array | Hit targets from the last frame |
 
-## Statics
+## Capability helper
 
 ```js
-GeoGlobe.canRecord;   // boolean — MediaRecorder support
+import { canRecord } from "canvas-globe";
+
+canRecord(); // boolean — MediaRecorder support
 ```

@@ -85,7 +85,9 @@ await globe.toBlob();      // → Blob
 entirely in the tab** — nothing is uploaded and no encoder dependency is involved.
 
 ```js
-if (GeoGlobe.canRecord) {
+import { canRecord } from "canvas-globe";
+
+if (canRecord()) {
   const { promise, stop } = globe.record({ duration: 6000, filename: "globe.webm" });
   const blob = await promise;
 }
@@ -102,7 +104,7 @@ if (GeoGlobe.canRecord) {
 Check support first — Safari's coverage is narrower than Chrome's:
 
 ```js
-import { canRecord, supportedRecordingType } from "@swiftools/geo-globe";
+import { canRecord, supportedRecordingType } from "canvas-globe";
 
 canRecord();                 // boolean
 supportedRecordingType();    // "video/webm;codecs=vp9" or null

@@ -32,7 +32,7 @@ build either way: image markers plus a CSV.
       x.fillText(text, 64, 68);
       return c;
     };
-    const { fromCSV } = await import("@swiftools/geo-globe");
+    const { fromCSV } = await import("canvas-globe");
     const markers = fromCSV("city,count\nAhmedabad,4\nLondon,3\nNew York,2\nTokyo,2\nNairobi,1\nSão Paulo,1")
       .map((m, i) => ({ ...m, image: swatch(m.label[0], i * 57), imageSize: 20 }));
     globe.setMarkers(markers).fitToMarkers();
@@ -44,7 +44,7 @@ build either way: image markers plus a CSV.
 ## The code
 
 ```js
-import { createGlobe, fromCSV } from "@swiftools/geo-globe";
+import { createGlobe, fromCSV } from "canvas-globe";
 
 const csv = `city,count,image,label
 Ahmedabad,4,/team/ahmedabad.jpg,Ahmedabad

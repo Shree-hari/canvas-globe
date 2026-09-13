@@ -34,7 +34,7 @@ export class SphereTexture {
     img.crossOrigin = "anonymous";
     img.onload = () => this._ingest(img);
     img.onerror = () => {
-      this.error = new Error(`geo-globe: could not load texture "${url}"`);
+      this.error = new Error(`canvas-globe: could not load texture "${url}"`);
       this._onLoad?.(this);
     };
     img.src = url;
@@ -57,7 +57,7 @@ export class SphereTexture {
       this.th = h;
       this.ready = true;
     } catch {
-      this.error = new Error("geo-globe: texture is cross-origin and could not be read");
+      this.error = new Error("canvas-globe: texture is cross-origin and could not be read");
     }
     this._onLoad?.(this);
   }

@@ -11,7 +11,7 @@ Real data arrives as a spreadsheet, not a GeoJSON `FeatureCollection`. `fromCSV`
 with no geocoding service and no API key.
 
 ```js
-import { fromCSV } from "@swiftools/geo-globe";
+import { fromCSV } from "canvas-globe";
 
 const markers = fromCSV(`city,count
 Ahmedabad,12
@@ -25,7 +25,7 @@ globe.setMarkers(markers).fitToMarkers();
 <GlobeDemo
   options={{ mode: "map", preset: "atlas", autoRotate: false, tooltip: true, labels: "markers" }}
   onReady={async (globe, say) => {
-    const { fromCSV } = await import("@swiftools/geo-globe");
+    const { fromCSV } = await import("canvas-globe");
     const markers = fromCSV("city,count\nAhmedabad,12\nLondon,8\nTokyo,4\nNairobi,2\nSão Paulo,3");
     globe.setMarkers(markers).fitToMarkers();
     say(`${markers.length} placed${markers.skipped.length ? `, ${markers.skipped.length} skipped` : ""}`);
@@ -91,7 +91,7 @@ spreadsheets, not a substitute for real geocoding.
 `parseCSV` handles quoted fields, embedded commas, escaped quotes and CRLF, and lowercases headers.
 
 ```js
-import { parseCSV, fromRows } from "@swiftools/geo-globe";
+import { parseCSV, fromRows } from "canvas-globe";
 
 const rows = parseCSV(text);        // → [{ city: "London", count: "8" }, …]
 const markers = fromRows(rows);     // → markers
@@ -106,7 +106,7 @@ const markers = fromRows(await res.json());
 ## Resolving single places
 
 ```js
-import { geocode, countryPoint, placeLocation } from "@swiftools/geo-globe";
+import { geocode, countryPoint, placeLocation } from "canvas-globe";
 
 geocode("Tokyo");            // city table, then countries
 geocode("Ahmedabad", { gazetteer });

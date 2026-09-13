@@ -1,4 +1,4 @@
-// Builds dist/geo-globe.umd.js for plain <script> users by inlining the ESM
+// Builds dist/canvas-globe.umd.js for plain <script> users by inlining the ESM
 // sources in dependency order and stripping module syntax. No bundler.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -9,17 +9,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
 
 // Modules that make up the bundle, in dependency order.
-const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/geo-globe.js", "src/element.js"];
+const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/license.js", "src/geo-globe.js", "src/element.js"];
 const EXPORTS = [
-  "GeoGlobe", "createGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "scenes",
+  "GeoGlobe", "CanvasGlobe", "createGlobe", "createCanvasGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "scenes",
   "countryPalette", "exportPresets", "exportSize",
   "fromCSV", "fromRows", "parseCSV", "geocode", "countryPoint",
   "locateViewer", "locateViewerPrecise", "timeZoneLocation", "countryLocation", "placeLocation",
   "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
   "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
   "geometryBounds", "projections", "world",
+  "DEFAULT_LICENSE_KEY", "OPEN_SOURCE_LICENSE_KEY", "inspectLicenseKey", "hasLicenseKey",
 ];
-const SIZE_BUDGET_KB = Number(process.env.GEO_GLOBE_SIZE_BUDGET_KB || 125);
+const SIZE_BUDGET_KB = Number(process.env.CANVAS_GLOBE_SIZE_BUDGET_KB || 125);
 
 const strip = (src, file) => {
   const out = src
@@ -40,14 +41,15 @@ const parts = [
   stripData(read("src/data/timezones.js")),
   "const bundledWorld = world;",
   ...MODULES.map((m) => strip(read(m), m)),
+  "const CanvasGlobe = GeoGlobe; const createCanvasGlobe = createGlobe;",
   `return { ${EXPORTS.join(", ")}, default: createGlobe };`,
 ];
 
-const umd = `/*! @swiftools/geo-globe | MIT | https://github.com/swiftools/geo-globe */
+const umd = `/*! canvas-globe | GPL-3.0-only OR commercial | https://github.com/swiftools/canvas-globe */
 (function (root, factory) {
   if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
   else if (typeof define === "function" && define.amd) define(factory);
-  else root.GeoGlobe = factory();
+  else root.CanvasGlobe = factory();
 })(typeof self !== "undefined" ? self : this, function () {
 "use strict";
 ${parts.join("\n")}
@@ -55,13 +57,13 @@ ${parts.join("\n")}
 `;
 
 mkdirSync(join(root, "dist"), { recursive: true });
-writeFileSync(join(root, "dist", "geo-globe.umd.js"), umd);
+writeFileSync(join(root, "dist", "canvas-globe.umd.js"), umd);
 // The package is ESM; this marks the UMD output as CommonJS for require().
 writeFileSync(join(root, "dist", "package.json"), `{ "type": "commonjs" }\n`);
 
 const raw = Buffer.byteLength(umd) / 1024;
 const gzip = gzipSync(umd).length / 1024;
-console.log(`dist/geo-globe.umd.js — ${raw.toFixed(1)} KB raw · ${gzip.toFixed(1)} KB gzipped`);
+console.log(`dist/canvas-globe.umd.js — ${raw.toFixed(1)} KB raw · ${gzip.toFixed(1)} KB gzipped`);
 
 if (gzip > SIZE_BUDGET_KB) {
   console.error(`Bundle exceeds the ${SIZE_BUDGET_KB} KB gzipped budget.`);

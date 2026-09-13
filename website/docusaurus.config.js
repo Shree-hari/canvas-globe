@@ -1,16 +1,66 @@
 // @ts-check
 import { themes as prismThemes } from "prism-react-renderer";
 
+const canonicalUrl = "https://swiftools.github.io/canvas-globe/";
+const softwareSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  name: "CanvasGlobe",
+  alternateName: "Canvas Globe",
+  identifier: "canvas-globe",
+  description:
+    "A zero-dependency JavaScript and React library for interactive 3D globes and flat world maps rendered with Canvas 2D, without WebGL.",
+  url: canonicalUrl,
+  codeRepository: "https://github.com/swiftools/canvas-globe",
+  downloadUrl: "https://www.npmjs.com/package/canvas-globe",
+  programmingLanguage: "JavaScript",
+  runtimePlatform: "Web browser with Canvas 2D",
+  license: "https://www.gnu.org/licenses/gpl-3.0.html",
+  acquireLicensePage: `${canonicalUrl}pricing`,
+  isAccessibleForFree: true,
+  keywords:
+    "JavaScript globe, interactive globe, Canvas globe, React globe, world map, Canvas 2D, no WebGL, choropleth map, great-circle arcs",
+  author: { "@type": "Person", name: "Harsh" },
+  targetProduct: {
+    "@type": "SoftwareApplication",
+    name: "CanvasGlobe",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Any",
+    softwareRequirements: "A modern web browser with Canvas 2D",
+  },
+};
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "geo-globe",
-  tagline: "Interactive globe and world map on a plain 2D canvas. Zero dependencies.",
+  title: "CanvasGlobe",
+  titleDelimiter: "·",
+  tagline: "Interactive 3D globes and world maps—Canvas 2D, zero dependencies, no WebGL.",
   favicon: "img/favicon.svg",
 
   url: "https://swiftools.github.io",
-  baseUrl: "/geo-globe/",
+  baseUrl: "/canvas-globe/",
   organizationName: "swiftools",
-  projectName: "geo-globe",
+  projectName: "canvas-globe",
+  headTags: [
+    {
+      tagName: "link",
+      attributes: { rel: "describedby", href: `${canonicalUrl}llms.txt` },
+    },
+    {
+      tagName: "script",
+      attributes: { type: "application/ld+json" },
+      innerHTML: JSON.stringify(softwareSchema),
+    },
+  ],
+  customFields: {
+    commercialContactUrl: process.env.CANVAS_GLOBE_COMMERCIAL_CONTACT_URL || "",
+    checkoutUrls: {
+      solo: process.env.CANVAS_GLOBE_CHECKOUT_SOLO_URL || "",
+      team: process.env.CANVAS_GLOBE_CHECKOUT_TEAM_URL || "",
+      business: process.env.CANVAS_GLOBE_CHECKOUT_BUSINESS_URL || "",
+      oem: process.env.CANVAS_GLOBE_CHECKOUT_OEM_URL || "",
+    },
+  },
 
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
@@ -31,7 +81,7 @@ const config = {
     // scripts/drop-stale-cache.mjs for why the cache is cleared each run.
     function keepSymlinks() {
       return {
-        name: "geo-globe-keep-symlinks",
+        name: "canvas-globe-keep-symlinks",
         configureWebpack: () => ({ resolve: { symlinks: false } }),
       };
     },
@@ -45,7 +95,7 @@ const config = {
         docs: {
           sidebarPath: "./sidebars.js",
           routeBasePath: "/",
-          editUrl: "https://github.com/swiftools/geo-globe/tree/main/website/",
+          editUrl: "https://github.com/swiftools/canvas-globe/tree/main/website/",
         },
         blog: false,
         theme: { customCss: "./src/css/custom.css" },
@@ -56,18 +106,28 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      metadata: [
+        {
+          name: "keywords",
+          content:
+            "JavaScript globe, interactive globe, Canvas globe, React globe, world map library, Canvas 2D, no WebGL, choropleth map",
+        },
+        { name: "application-name", content: "CanvasGlobe" },
+      ],
       image: "img/social-card.png",
       colorMode: { defaultMode: "dark", respectPrefersColorScheme: true },
       liveCodeBlock: { playgroundPosition: "top" },
       navbar: {
-        title: "geo-globe",
-        logo: { alt: "geo-globe", src: "img/logo.svg" },
+        title: "CanvasGlobe",
+        logo: { alt: "CanvasGlobe", src: "img/logo.svg" },
         items: [
           { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
           { to: "/api/options", label: "API", position: "left" },
           { to: "/examples", label: "Examples", position: "left" },
           { to: "/playground", label: "Playground", position: "left" },
-          { href: "https://github.com/swiftools/geo-globe", label: "GitHub", position: "right" },
+          { to: "/pricing", label: "Pricing", position: "left" },
+          { to: "/licensing", label: "License", position: "left" },
+          { href: "https://github.com/swiftools/canvas-globe", label: "GitHub", position: "right" },
         ],
       },
       footer: {
@@ -90,14 +150,23 @@ const config = {
             ],
           },
           {
+            title: "Commercial",
+            items: [
+              { label: "Pricing", to: "/pricing" },
+              { label: "Licensing", to: "/licensing" },
+              { label: "Commercial FAQ", to: "/commercial-faq" },
+              { label: "Support & custom work", to: "/support" },
+            ],
+          },
+          {
             title: "More",
             items: [
-              { label: "GitHub", href: "https://github.com/swiftools/geo-globe" },
-              { label: "npm", href: "https://www.npmjs.com/package/@swiftools/geo-globe" },
+              { label: "GitHub", href: "https://github.com/swiftools/canvas-globe" },
+              { label: "npm", href: "https://www.npmjs.com/package/canvas-globe" },
             ],
           },
         ],
-        copyright: `MIT licensed. Geometry from Natural Earth (public domain) and Datameet (CC-0).`,
+        copyright: `GPLv3 or commercial license. Geometry from Natural Earth (public domain) and Datameet (CC0).`,
       },
       prism: {
         theme: prismThemes.github,

@@ -1,12 +1,21 @@
 ---
-title: React
-description: The Globe component, refs and imperative calls.
+title: React globe component with Canvas 2D
+description: Build an interactive React globe and world map without WebGL using the CanvasGlobe component, refs, markers, arcs, and imperative controls.
+slug: /react-globe
+keywords:
+  - React globe
+  - interactive React globe
+  - React world map
+  - Canvas 2D globe
 ---
 
-# React
+# React globe component
+
+CanvasGlobe provides a React component for interactive globes and flat world
+maps without Three.js, WebGL, map tiles, or an API key.
 
 ```bash
-npm install @swiftools/geo-globe react
+npm install canvas-globe react
 ```
 
 React is an **optional peer dependency** — only the `/react` entry point needs it.
@@ -14,7 +23,7 @@ React is an **optional peer dependency** — only the `/react` entry point needs
 ## The component
 
 ```jsx
-import { Globe } from "@swiftools/geo-globe/react";
+import { Globe } from "canvas-globe/react";
 
 export function Visitors({ markers }) {
   return <Globe markers={markers} preset="hologram" tooltip />;
@@ -39,7 +48,7 @@ The forwarded ref **is** the `GeoGlobe` instance.
 
 ```jsx
 import { useRef } from "react";
-import { Globe } from "@swiftools/geo-globe/react";
+import { Globe } from "canvas-globe/react";
 
 export function Explorer({ markers }) {
   const globe = useRef(null);
@@ -93,7 +102,7 @@ canvas obviously needs a browser. In the App Router, mark the file:
 ```jsx
 "use client";
 
-import { Globe } from "@swiftools/geo-globe/react";
+import { Globe } from "canvas-globe/react";
 ```
 
 Or load it lazily to keep it out of the server bundle entirely:
@@ -102,7 +111,7 @@ Or load it lazily to keep it out of the server bundle entirely:
 import dynamic from "next/dynamic";
 
 const Globe = dynamic(
-  () => import("@swiftools/geo-globe/react").then((m) => m.Globe),
+  () => import("canvas-globe/react").then((m) => m.Globe),
   { ssr: false, loading: () => <div style={{ aspectRatio: 1 }} /> },
 );
 ```
@@ -111,8 +120,8 @@ const Globe = dynamic(
 
 ```tsx
 import { useRef } from "react";
-import { Globe } from "@swiftools/geo-globe/react";
-import type { GeoGlobe, Marker } from "@swiftools/geo-globe";
+import { Globe } from "canvas-globe/react";
+import type { GeoGlobe, Marker } from "canvas-globe";
 
 const globe = useRef<GeoGlobe | null>(null);
 const markers: Marker[] = [{ lat: 23.03, lon: 72.58, count: 12 }];
@@ -126,8 +135,8 @@ const markers: Marker[] = [{ lat: 23.03, lon: 72.58, count: 12 }];
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Globe } from "@swiftools/geo-globe/react";
-import { fromCSV } from "@swiftools/geo-globe";
+import { Globe } from "canvas-globe/react";
+import { fromCSV } from "canvas-globe";
 
 export function SignupMap({ csv }) {
   const globe = useRef(null);

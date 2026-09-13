@@ -25,7 +25,7 @@ function Gallery({ onPick, height = 132, preview = false, previewOptions }) {
     let globes = [];
     let cancelled = false;
     (async () => {
-      const { createGlobe } = await import("@swiftools/geo-globe");
+      const { createGlobe } = await import("canvas-globe");
       if (cancelled || !hostRef.current) return;
       globes = [...hostRef.current.querySelectorAll("canvas[data-preset]")].map((canvas) =>
         createGlobe(canvas, {

@@ -113,6 +113,35 @@
   border-radius: 12px;
 }
 
+.license {
+  max-width: 780px;
+  margin: 4rem auto 0;
+  padding: 2rem;
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 18px;
+  background:
+    radial-gradient(80% 140% at 0% 0%, rgba(109, 40, 217, 0.14), transparent 60%),
+    var(--ifm-background-surface-color);
+}
+
+.license h2 {
+  margin: 0.35rem 0 0.8rem;
+}
+
+.license p:not(.eyebrow) {
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.7;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ifm-color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
 @media (max-width: 996px) {
   .heroInner {
     grid-template-columns: 1fr;
