@@ -22,7 +22,6 @@ key, tile service, or runtime network request.
 - **Four projections:** orthographic, equirectangular, Mercator, and Natural Earth
 - **Accessibility:** keyboard controls, a live region, and reduced-motion support
 - **Bindings:** vanilla JavaScript, a custom element, and React
-- **India boundary:** bundled geometry follows the Survey of India depiction
 
 Common uses include audience dashboards, launch pages, status boards, and share graphics.
 
@@ -430,10 +429,10 @@ createGlobe(canvas, {
 });
 ```
 
-The media is clipped to the real outline: for India that means the full Survey of India boundary,
-islands included. Sources resolve automatically: `.mp4`/`.webm` become looping muted video, `.gif`
-keeps animating, and anything `drawImage` accepts can be passed directly. `fit` mirrors CSS
-`object-fit`, and `opacity`, `blend`, `scale` and `offset` are available per country.
+The media is clipped to the bundled country outline, including islands. Sources resolve
+automatically: `.mp4`/`.webm` become looping muted video, `.gif` keeps animating, and anything
+`drawImage` accepts can be passed directly. `fit` mirrors CSS `object-fit`, and `opacity`, `blend`,
+`scale` and `offset` are available per country.
 
 `focusOn` zooms past `maxZoom` when it has to, since framing a country is an explicit request.
 `countryAspect("India")` returns the height/width ratio to size the canvas with, so the shape is not
@@ -597,26 +596,11 @@ chart costs nothing after the first paint. Geometry behind the horizon is clippe
 drawn, so a typical globe frame skips 20-60% of the world. On a laptop a 560 px canvas costs roughly
 4 ms per frame, or 25 ms with 5,000 clustered markers.
 
-## India's boundary
-
-India is drawn on the **Survey of India** boundary: Jammu and Kashmir, Ladakh and Aksai Chin
-included. There is no option for it and no overlay: it is what the bundled geometry says, the same
-way the geometry says where France is.
-
-Most world datasets, Natural Earth included, ship de-facto administrative lines instead. Rather than
-patch that at render time, the sources are reconciled when the data is generated: India carries
-Datameet's CC-0 `india-composite` outline, and that area is subtracted from its neighbours so no two
-countries claim the same ground. One continuous boundary at every land style, nothing overlapping,
-no special cases in the renderer.
-
-India behaves like any other country for choropleth, country media, labels, `focusOn`, tooltips and
-hit testing. Pass your own `world` GeoJSON if you need a different depiction.
-
 ## Data & licences
 
 - Country geometry: [Natural Earth](https://www.naturalearthdata.com/) 1:110m via `world-atlas`, **public domain**
 - ISO codes: [natural-earth-vector](https://github.com/nvkelso/natural-earth-vector), **public domain**
-- India boundary: [Datameet `india-composite`](https://github.com/datameet/maps), **CC-0**
+- Supplemental geometry: [Datameet maps](https://github.com/datameet/maps), **CC-0**
 - This package: **GPL-3.0-only or a commercial license**
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for source links and
