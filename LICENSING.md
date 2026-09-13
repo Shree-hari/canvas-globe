@@ -49,9 +49,7 @@ review items in [LAUNCH_PLAYBOOK.md](LAUNCH_PLAYBOOK.md).
 
 ## License keys
 
-License keys are receipts and support identifiers, not DRM. CanvasGlobe performs
-no license-server request and sends no telemetry. An open-source project can
-identify its selected license with:
+An open-source project can identify its selected license with:
 
 ```js
 createGlobe(canvas, {
@@ -59,17 +57,11 @@ createGlobe(canvas, {
 });
 ```
 
-A commercial customer supplies the key issued with their order. The presence
-or absence of a key does not create, replace, or modify legal rights. CanvasGlobe
-does not require a prefix or format for commercial keys. It preserves the value
-issued by the selected commerce platform and checks only that it is non-empty;
-it does not authenticate the key or prove that the deployment is within the
-purchased scope.
+A commercial customer supplies the key issued with their order.
 
-Like lightGallery, CanvasGlobe uses `0000-0000-000-0000` as its default
-evaluation placeholder. In a browser, a missing key logs an error and the
-placeholder logs a production warning. Any other non-empty value passes the
-soft check. These messages never stop rendering or contact a server.
+CanvasGlobe uses `0000-0000-000-0000` as its default evaluation placeholder.
+In a browser, a missing key logs an error and the placeholder logs a production
+warning.
 
 ## Third-party material
 

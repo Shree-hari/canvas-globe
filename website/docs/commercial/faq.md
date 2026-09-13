@@ -46,17 +46,6 @@ Not under Solo, Team, or ordinary Business terms. Contact sales for SDKs,
 builders, themes/templates, component libraries, white-label offerings,
 installable products, and other downstream distribution.
 
-## Does the key call home?
-
-No. It is checked locally as a soft compliance reminder. The library has no
-licensing telemetry and no required network calls. The check only detects
-whether a value is present; it does not require a prefix, parse the provider's
-format, contact CanvasGlobe, or authenticate a purchase.
-
-The behavior matches lightGallery: no value logs an error, the default
-`0000-0000-000-0000` logs a production warning, and every other non-empty value
-passes without authentication or feature gating.
-
 ## Can we evaluate before purchase?
 
 Yes. Evaluate the full library. Do not ship a proprietary distribution until

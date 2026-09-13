@@ -106,7 +106,7 @@ brand-aligned alias. The main class is exported as both `GeoGlobe` and
 CanvasGlobe is dual-licensed. A user may comply with GPL-3.0-only, including
 for commercial activity, or obtain a paid commercial license for proprietary
 distribution. Both paths use the same package and feature set. Commercial keys
-are offline receipt/support identifiers, not feature locks or network DRM.
+are supplied with completed commercial orders.
 Licensing depends on how the software is copied, combined, and distributed;
 the documentation is not legal advice.
 

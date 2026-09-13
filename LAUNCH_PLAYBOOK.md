@@ -37,7 +37,7 @@ For CanvasGlobe, the defensible version of this strategy is:
 
 - one capable package, not a crippled “community edition”;
 - GPLv3 for users who can comply and commercial terms for proprietary use;
-- offline license keys as receipts, not DRM;
+- license keys supplied for the selected license path;
 - sharp plan boundaries based on developers, products, and redistribution;
 - perpetual use with only 12 months of updates/support, not lifetime service;
 - OEM pricing separated from ordinary app use;
@@ -473,7 +473,7 @@ or approval, ⬜ still to execute.
 - ✅ Set SPDX license to `GPL-3.0-only` and include the canonical text.
 - ✅ Add dual-licensing and third-party-notice files to the package.
 - ✅ Add repository, homepage, bugs, and author metadata.
-- ✅ Add an offline `licenseKey` option with no telemetry or feature lock.
+- ✅ Add the `licenseKey` option and browser-console reminders.
 - ✅ Add license behavior tests and TypeScript declarations.
 - ✅ Add a release-validation script and full `npm run release:check`.
 - ✅ Extend CI to test package contents and build the documentation.

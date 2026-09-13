@@ -616,12 +616,9 @@ export interface LicenseKeyStatus {
   kind: "missing" | "placeholder" | "open-source" | "commercial";
   key: string;
 }
-/**
- * Classifies a key locally without parsing provider-specific commercial keys.
- * This is not authentication or proof of legal entitlement.
- */
+/** Returns the configured license-key status. */
 export declare function inspectLicenseKey(value: unknown): LicenseKeyStatus;
-/** Returns whether a non-placeholder GPL or externally issued key was supplied. */
+/** Returns whether a configured license key is available. */
 export declare function hasLicenseKey(value: unknown): boolean;
 export declare const themes: Record<ThemeName, Theme>;
 /** Named bundles of theme + render style. */

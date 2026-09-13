@@ -42,11 +42,10 @@ CanvasGlobe is dual-licensed:
 - **GPL-3.0-only** for projects that can comply with GNU GPLv3; or
 - a **paid commercial license** for proprietary products.
 
-The full package and feature set are the same on both paths. License keys are
-offline receipts/compliance reminders: there is no licensing telemetry or
-feature lock. GPL permits commercial activity; whether a particular
-distribution can comply is fact-specific. See [LICENSING.md](LICENSING.md) and
-the [commercial plans](https://swiftools.github.io/canvas-globe/pricing).
+The full package and feature set are the same on both paths. GPL permits
+commercial activity; whether a particular distribution can comply is
+fact-specific. See [LICENSING.md](LICENSING.md) and the
+[commercial plans](https://swiftools.github.io/canvas-globe/pricing).
 
 Select the GPL path explicitly, or use the key supplied by the commerce
 platform with a commercial order:
@@ -55,11 +54,8 @@ platform with a commercial order:
 createGlobe(canvas, { licenseKey: "GPL-3.0" });
 ```
 
-The check is local and non-authoritative: it only checks whether a value is
-present. CanvasGlobe imposes no prefix or format and preserves commercial keys
-exactly as supplied. A key does not replace the applicable licence or prove
-purchase. The default `0000-0000-000-0000` value is for evaluation only and
-produces a console warning in browser builds, matching lightGallery's behavior.
+The default `0000-0000-000-0000` value is for evaluation only and produces a
+console warning in browser builds.
 
 ## Install
 

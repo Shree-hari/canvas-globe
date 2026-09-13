@@ -17,7 +17,7 @@ test("recognizes the documented open-source key", () => {
   });
 });
 
-test("accepts provider-issued commercial keys without assuming a format", () => {
+test("recognizes a configured commercial key", () => {
   const providerKey = "lic_2pQ9Ab-cd_XY.7";
   const status = inspectLicenseKey(providerKey);
   assert.deepEqual(status, {
@@ -29,7 +29,7 @@ test("accepts provider-issued commercial keys without assuming a format", () => 
   assert.equal(hasLicenseKey("platform-specific-value"), true);
 });
 
-test("missing and placeholder keys are rejected locally", () => {
+test("recognizes missing and placeholder keys", () => {
   assert.equal(DEFAULT_LICENSE_KEY, "0000-0000-000-0000");
   assert.equal(inspectLicenseKey(null).kind, "missing");
   assert.equal(inspectLicenseKey("").kind, "missing");
@@ -38,7 +38,7 @@ test("missing and placeholder keys are rejected locally", () => {
   assert.equal(hasLicenseKey(DEFAULT_LICENSE_KEY), false);
 });
 
-test("the browser-console check matches lightGallery's soft behavior", () => {
+test("reports missing and placeholder keys in the browser console", () => {
   const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, "location");
   const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");
   const originalWarn = console.warn;
@@ -67,7 +67,7 @@ test("the browser-console check matches lightGallery's soft behavior", () => {
     assert.equal(warnings.length, 0);
     assert.equal(errors.length, 0);
 
-    assert.doesNotThrow(() => reportLicenseStatus("provider-key-with-any-format"));
+    assert.doesNotThrow(() => reportLicenseStatus("commercial-order-key"));
     assert.equal(warnings.length, 0);
     assert.equal(errors.length, 0);
 

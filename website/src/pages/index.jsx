@@ -123,8 +123,8 @@ createGlobe(document.querySelector("#globe"), {
           <h2>Open source when you can. Commercial when you need proprietary terms.</h2>
           <p>
             Use the full library under GPLv3 for a compatible project, or buy a
-            commercial license for a proprietary product. There is no separate
-            feature-locked edition and no license-server dependency.
+            commercial license for a proprietary product. Both options use the
+            same package and API.
           </p>
           <div className={styles.actions}>
             <Link className="button button--primary" to="/pricing">
