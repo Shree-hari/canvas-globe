@@ -3,6 +3,12 @@
 export function installGlobals() {
   globalThis.requestAnimationFrame = () => 0;
   globalThis.cancelAnimationFrame = () => {};
+  if (typeof globalThis.navigator === "undefined") {
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: { language: "en-US", languages: ["en-US"] },
+    });
+  }
 }
 
 const GRADIENT = { addColorStop() {} };
