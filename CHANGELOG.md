@@ -6,6 +6,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-14
+
 - Renamed the public product and package to CanvasGlobe / `canvas-globe`,
   with matching repository, documentation, CDN, UMD, structured-data, and
   social-preview identities. Added `CanvasGlobe` and `createCanvasGlobe` aliases.
@@ -141,9 +143,3 @@ All notable changes to this package are documented here. The format follows
   across the map.
 - Marker hit testing now walks front-to-back so overlapping markers resolve to the topmost one.
 - `destroy()` removes the tooltip, live region and reduced-motion listener.
-
-## [0.1.0]
-
-- Initial release: orthographic globe and equirectangular map, markers with emoji bubbles and live
-  pulse rings, three themes, drag to spin, `flyTo`, `project`, `snapshot`, and the official Survey
-  of India boundary.
