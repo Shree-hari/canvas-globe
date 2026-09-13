@@ -85,7 +85,7 @@
     "build": "node scripts/build.mjs",
     "data": "node scripts/generate-data.mjs && node scripts/generate-timezones.mjs",
     "example": "node scripts/serve.mjs",
-    "test": "node --test \"test/*.test.js\"",
+    "test": "node --test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "smoke:package": "node scripts/package-smoke.mjs",
     "release:check": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs && npm run smoke:package",
