@@ -1,8 +1,5 @@
 import type { CountryShape } from "../index.js";
 
-export declare const world: {
-  type: "FeatureCollection";
-  features: CountryShape[];
-};
+export declare const world: CountryShape[];
 
 export default world;
