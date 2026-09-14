@@ -64,6 +64,21 @@ if (existsSync(join(root, "dist/canvas-globe.umd.js"))) {
   const bundle = readFileSync(join(root, "dist/canvas-globe.umd.js"), "utf8");
   assert(bundle.includes("Copyright (C) 2026 Harsh Jhunjhunuwala"), "UMD banner has stale ownership text");
   assert(bundle.includes("GPL-3.0-only OR commercial"), "UMD banner has stale license text");
+
+  const trackedBundle = spawnSync(
+    "git",
+    ["diff", "HEAD", "--exit-code", "--ignore-space-at-eol", "--", "dist/canvas-globe.umd.js"],
+    { cwd: root, encoding: "utf8" },
+  );
+  const trackedBundlePath = spawnSync(
+    "git",
+    ["ls-files", "--error-unmatch", "--", "dist/canvas-globe.umd.js"],
+    { cwd: root, encoding: "utf8" },
+  );
+  assert(
+    trackedBundle.status === 0 && trackedBundlePath.status === 0,
+    "committed UMD bundle is stale or untracked; run npm run build and commit dist/canvas-globe.umd.js",
+  );
 }
 
 if (existsSync(join(root, "codemeta.json"))) {

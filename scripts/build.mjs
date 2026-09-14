@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const read = (p) => readFileSync(join(root, p), "utf8");
+const read = (p) => readFileSync(join(root, p), "utf8").replace(/\r\n?/g, "\n");
 
 // Modules that make up the bundle, in dependency order.
 const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/license.js", "src/geo-globe.js", "src/element.js"];

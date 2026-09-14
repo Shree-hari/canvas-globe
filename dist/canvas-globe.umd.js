@@ -680,6 +680,7 @@ const colorScale = (domain = [0, 1], range = ["#e0f2fe", "#0369a1"]) => {
  * region-accurate, not street-accurate: call `locateViewerPrecise()` to offer
  * a GPS upgrade behind the usual permission prompt.
  */
+
 let byZone = null;
 let byCountry = null;
 let byCity = null;
@@ -807,6 +808,9 @@ function locateViewerPrecise({ timeout = 10000, maximumAge = 60000, enableHighAc
  * lat/lon columns first, then a city name, then a country code or name: using
  * only geometry that already ships in the package.
  */
+
+
+
 const LAT_KEYS = ["lat", "latitude", "y"];
 const LON_KEYS = ["lon", "lng", "long", "longitude", "x"];
 const CITY_KEYS = ["city", "place", "town", "location"];
@@ -1026,6 +1030,7 @@ function downloadBlob(blob, filename) {
  * reduced resolution and upscaled: roughly 2 ms for a 430 px globe, which
  * fits comfortably inside a 30 fps budget.
  */
+
 const makeSurface = (w, h) => {
   if (typeof OffscreenCanvas !== "undefined") return new OffscreenCanvas(w, h);
   if (typeof document === "undefined") return null;
@@ -1349,6 +1354,15 @@ function reportLicenseStatus(value) {
  * canvas-globe: interactive globe & world map on a 2D canvas.
  * No dependencies, no WebGL, no network calls, no API keys.
  */
+
+
+
+
+
+
+
+
+
 
 
 const DEFAULTS = {
@@ -4194,6 +4208,7 @@ function createGlobe(canvas, options) {
  * `<geo-globe>` custom element. Wraps GeoGlobe so it can be dropped into any
  * framework or plain HTML without requiring the imperative API.
  */
+
 const BOOLS = ["auto-rotate", "interactive", "keyboard", "graticule", "stars", "shade", "terminator", "cluster", "tooltip", "zoomable"];
 const NUMBERS = ["zoom", "min-zoom", "max-zoom", "rotate-speed", "marker-scale", "radius-ratio", "fps", "cluster-radius", "arc-lift", "arc-speed", "lat", "lon", "orbits", "dot-spacing", "dot-size"];
 const STRINGS = ["mode", "projection", "theme", "preset", "land-style", "marker-style", "aria-label", "license-key"];
@@ -4235,7 +4250,7 @@ const createElementClass = () => class GeoGlobeElement extends HTMLElement {
       onClick: (marker, pos) => this._emit("geo-click", { marker, pos }),
       onCountryHover: (country, pos) => this._emit("geo-country-hover", { country, pos }),
       onCountryClick: (country, pos) => this._emit("geo-country-click", { country, pos }),
-      onRender: () => this._emit("geo-render", { globe: this.globe }),
+      onRender: (globe) => this._emit("geo-render", { globe }),
     });
   }
 
