@@ -6,6 +6,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-14
+
 - Added npm, CI, license, TypeScript, and zero-dependency badges to the README.
 - Added guided bug, feature, documentation, and showcase issue forms.
 - Added support and community conduct documents plus release-note categories.
