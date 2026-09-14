@@ -4235,7 +4235,7 @@ const createElementClass = () => class GeoGlobeElement extends HTMLElement {
       onClick: (marker, pos) => this._emit("geo-click", { marker, pos }),
       onCountryHover: (country, pos) => this._emit("geo-country-hover", { country, pos }),
       onCountryClick: (country, pos) => this._emit("geo-country-click", { country, pos }),
-      onRender: () => this._emit("geo-render", { globe: this.globe }),
+      onRender: (globe) => this._emit("geo-render", { globe }),
     });
   }
 
