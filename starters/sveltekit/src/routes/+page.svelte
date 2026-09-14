@@ -11,11 +11,17 @@
   ];
 
   onMount(() => {
+    let disposed = false;
     let globe;
     import("canvas-globe").then(({ createGlobe }) => {
-      globe = createGlobe(canvas, { licenseKey: env.PUBLIC_CANVAS_GLOBE_LICENSE_KEY, preset: "midnight", markers, arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })), tooltip: (marker) => marker.name });
+      const instance = createGlobe(canvas, { licenseKey: env.PUBLIC_CANVAS_GLOBE_LICENSE_KEY, preset: "midnight", markers, arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })), tooltip: (marker) => marker.name });
+      if (disposed) instance.destroy();
+      else globe = instance;
     });
-    return () => globe?.destroy();
+    return () => {
+      disposed = true;
+      globe?.destroy();
+    };
   });
 </script>
 

@@ -715,7 +715,12 @@ npm test        # node --test, no test framework to install
 npm run build   # dist/canvas-globe.umd.js, with a gzipped size budget
 npm run example # demo at http://localhost:8099
 npm run release:check # tests, types, build and packed-artifact validation
+npm run capture:readme # regenerate the animated README demo with Chrome or Chromium
 ```
+
+The README capture script detects common Chrome and Chromium locations. If the
+browser is installed elsewhere, set `CANVAS_GLOBE_CHROME` to its executable
+path before running `npm run capture:readme`.
 
 The product website and documentation are maintained separately at
 [canvasglobe.swiftools.com](https://canvasglobe.swiftools.com/).

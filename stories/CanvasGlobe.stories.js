@@ -21,7 +21,6 @@ function globeElement(options = {}) {
   globe.style.cssText = "display:block;width:100%;aspect-ratio:1";
   globe.setAttribute("aria-label", "Interactive CanvasGlobe Storybook example");
   globe.options = {
-    licenseKey: "canvas-globe-storybook",
     preset: "hologram",
     markers: cities,
     tooltip: (marker) => marker.name,

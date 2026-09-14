@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import gifenc from "gifenc";
@@ -25,13 +25,32 @@ async function waitForServer() {
   throw new Error(`Timed out waiting for ${url}`);
 }
 
-const chrome = process.env.CANVAS_GLOBE_CHROME || (process.platform === "win32"
-  ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-  : undefined);
+async function findChrome() {
+  const candidates = [
+    process.env.CANVAS_GLOBE_CHROME,
+    process.platform === "win32" ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : null,
+    process.platform === "darwin" ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" : null,
+    process.platform === "linux" ? "/usr/bin/google-chrome" : null,
+    process.platform === "linux" ? "/usr/bin/chromium" : null,
+    process.platform === "linux" ? "/usr/bin/chromium-browser" : null,
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {}
+  }
+
+  throw new Error(
+    "Chrome or Chromium was not found. Set CANVAS_GLOBE_CHROME to the browser executable path before running npm run capture:readme.",
+  );
+}
 
 let browser;
 try {
   await waitForServer();
+  const chrome = await findChrome();
   browser = await chromium.launch({ executablePath: chrome, headless: true });
   const page = await browser.newPage({ viewport: { width: 800, height: 450 }, deviceScaleFactor: 1 });
   await page.goto(url, { waitUntil: "networkidle" });
