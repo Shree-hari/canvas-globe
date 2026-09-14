@@ -1,0 +1,32 @@
+name: Documentation improvement
+description: Report unclear, missing, or incorrect documentation.
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page or section
+      placeholder: https://canvasglobe.swiftools.com/guides/markers
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What was unclear or incorrect?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+  - type: dropdown
+    id: blocked
+    attributes:
+      label: Did this block implementation?
+      options:
+        - "Yes"
+        - "Partly"
+        - "No"
+    validations:
+      required: true

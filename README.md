@@ -1,11 +1,19 @@
 # CanvasGlobe
 
+[![npm version](https://img.shields.io/npm/v/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
+[![npm downloads](https://img.shields.io/npm/dm/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
+[![CI](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml/badge.svg)](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml)
+[![GPL-3.0-only](https://img.shields.io/npm/l/canvas-globe.svg)](LICENSE)
+[![TypeScript declarations](https://img.shields.io/badge/types-included-3178c6.svg)](types/index.d.ts)
+[![zero runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-2ea44f.svg)](package.json)
+
 [![CanvasGlobe interactive JavaScript globe with markers and animated routes](https://raw.githubusercontent.com/Shree-hari/canvas-globe/main/assets/readme/canvas-globe-hero.webp)](https://canvasglobe.swiftools.com/playground)
 
 [**Open the live playground**](https://canvasglobe.swiftools.com/playground) ·
 [Examples](https://canvasglobe.swiftools.com/examples) ·
 [Documentation](https://canvasglobe.swiftools.com/intro) ·
 [React guide](https://canvasglobe.swiftools.com/react-globe) ·
+[Showcase](https://canvasglobe.swiftools.com/showcase) ·
 [Commercial pricing](https://canvasglobe.swiftools.com/pricing)
 
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
@@ -638,6 +646,11 @@ The product website and documentation are maintained separately at
 
 For installation help, licensing questions, commercial inquiries, or general
 support, email [globe@swiftools.com](mailto:globe@swiftools.com).
+
+Found a bug or have an idea? Use the repository's guided issue forms. Built
+something with CanvasGlobe? Submit it to the
+[community showcase](https://canvasglobe.swiftools.com/showcase); projects are
+only displayed after the owner grants permission.
 
 ## Author
 

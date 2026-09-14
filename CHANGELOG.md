@@ -6,6 +6,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Added npm, CI, license, TypeScript, and zero-dependency badges to the README.
+- Added guided bug, feature, documentation, and showcase issue forms.
+- Added support and community conduct documents plus release-note categories.
+
 ## [0.1.1] - 2026-09-14
 
 - Added real product renders to the npm and GitHub README, including a clickable
