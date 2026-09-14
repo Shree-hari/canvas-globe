@@ -1,0 +1,24 @@
+{
+  "name": "create-canvas-globe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scaffold CanvasGlobe projects for vanilla JavaScript, React, Next.js, Vue, SvelteKit, or Web Components.",
+  "license": "GPL-3.0-only",
+  "author": { "name": "Harsh Jhunjhunuwala" },
+  "homepage": "https://canvasglobe.swiftools.com/getting-started/installation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git",
+    "directory": "packages/create-canvas-globe"
+  },
+  "type": "module",
+  "bin": { "create-canvas-globe": "./bin/create-canvas-globe.js" },
+  "files": ["bin", "templates", "README.md", "LICENSE", "LICENSING.md"],
+  "scripts": {
+    "build:templates": "node scripts/sync-templates.mjs",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=18" },
+  "publishConfig": { "access": "public" },
+  "keywords": ["create-canvas-globe", "canvas-globe", "react-globe", "globe-starter", "project-scaffold"]
+}

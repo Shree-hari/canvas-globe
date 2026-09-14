@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "types": ["react"],
+    "baseUrl": ".",
+    "paths": {
+      "react-canvas-globe": ["./packages/react-canvas-globe/index.d.ts"]
+    }
+  },
+  "include": [
+    "registry/**/*.tsx",
+    "packages/react-canvas-globe/**/*.d.ts",
+    "test/ecosystem-types.tsx"
+  ]
+}

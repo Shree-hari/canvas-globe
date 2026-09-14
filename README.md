@@ -7,8 +7,9 @@
 [![GPL-3.0-only](https://img.shields.io/npm/l/canvas-globe.svg)](LICENSE)
 [![TypeScript declarations](https://img.shields.io/badge/types-included-3178c6.svg)](types/index.d.ts)
 [![zero runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-2ea44f.svg)](package.json)
+[![Agent skill](https://img.shields.io/badge/agent_skill-install-111827.svg)](https://skills.sh/Shree-hari/canvas-globe)
 
-[![CanvasGlobe interactive JavaScript globe with markers and animated routes](https://raw.githubusercontent.com/Shree-hari/canvas-globe/main/assets/readme/canvas-globe-hero.webp)](https://canvasglobe.swiftools.com/playground)
+[![Animated CanvasGlobe demo cycling through interactive globe themes, markers, and routes](https://raw.githubusercontent.com/Shree-hari/canvas-globe/main/assets/readme/canvas-globe-demo.gif)](https://canvasglobe.swiftools.com/playground)
 
 [**Open the live playground**](https://canvasglobe.swiftools.com/playground) ·
 [Examples](https://canvasglobe.swiftools.com/examples) ·
@@ -19,6 +20,10 @@
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/Shree-hari/canvas-globe?startScript=start)
 [![Open in CodeSandbox](https://img.shields.io/badge/Open_in-CodeSandbox-151515?logo=codesandbox)](https://codesandbox.io/p/github/Shree-hari/canvas-globe)
+
+**Start with your stack:** [Vanilla JS](starters/vanilla-vite) | [React + Vite](starters/react-vite) | [Next.js](starters/nextjs-app-router) | [Vue](starters/vue-vite) | [SvelteKit](starters/sveltekit) | [Web Component](starters/web-component-vite)
+
+**Install with shadcn:** `npx shadcn@latest add https://canvasglobe.swiftools.com/r/canvas-globe.json`
 
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
 **3D globe** and **flat world map** on Canvas 2D. It works with
@@ -226,6 +231,16 @@ export function Visitors({ markers }) {
 ```
 
 React is an optional peer dependency: only the `/react` entry point needs it.
+
+### AI-assisted setup
+
+Install the repository's CanvasGlobe skill for compatible coding agents:
+
+```bash
+npx skills add https://github.com/Shree-hari/canvas-globe --skill canvas-globe
+```
+
+Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require a real license key before shipping. Proprietary projects are directed to [commercial pricing](https://canvasglobe.swiftools.com/pricing); GPLv3-compatible projects are directed to the [GPL licensing path](https://canvasglobe.swiftools.com/licensing).
 
 ## Options
 
@@ -700,7 +715,12 @@ npm test        # node --test, no test framework to install
 npm run build   # dist/canvas-globe.umd.js, with a gzipped size budget
 npm run example # demo at http://localhost:8099
 npm run release:check # tests, types, build and packed-artifact validation
+npm run capture:readme # regenerate the animated README demo with Chrome or Chromium
 ```
+
+The README capture script detects common Chrome and Chromium locations. If the
+browser is installed elsewhere, set `CANVAS_GLOBE_CHROME` to its executable
+path before running `npm run capture:readme`.
 
 The product website and documentation are maintained separately at
 [canvasglobe.swiftools.com](https://canvasglobe.swiftools.com/).

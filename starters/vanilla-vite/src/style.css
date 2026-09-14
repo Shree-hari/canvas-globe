@@ -1,0 +1,8 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #e7f7ff; background: #050816; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+main { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(300px, 1fr); align-items: center; gap: 4rem; max-width: 1120px; margin: auto; padding: 2rem; }
+.copy p { color: #22d3ee; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+h1 { font-size: clamp(2.4rem, 6vw, 5.4rem); line-height: 0.98; margin: 0; }
+#globe { display: block; width: 100%; aspect-ratio: 1; touch-action: none; }
+@media (max-width: 760px) { main { grid-template-columns: 1fr; gap: 1rem; text-align: center; } }
