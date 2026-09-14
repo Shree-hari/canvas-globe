@@ -24,6 +24,7 @@ const SIZE_BUDGET_KB = Number(process.env.CANVAS_GLOBE_SIZE_BUDGET_KB || 125);
 
 const strip = (src, file) => {
   const out = src
+    .replace(/^\/\* @ts-self-types=.*\*\/\r?\n\r?\n/gm, "")
     .replace(/^\s*import[^;]+;\s*$/gm, "")
     .replace(/^export default .*$/gm, "")
     .replace(/^export \{[^}]*\};?\s*$/gm, "")

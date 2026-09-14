@@ -1,6 +1,7 @@
 # CanvasGlobe
 
 [![npm version](https://img.shields.io/npm/v/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
+[![JSR](https://jsr.io/badges/@swiftools/canvas-globe)](https://jsr.io/@swiftools/canvas-globe)
 [![npm downloads](https://img.shields.io/npm/dm/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
 [![CI](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml/badge.svg)](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml)
 [![GPL-3.0-only](https://img.shields.io/npm/l/canvas-globe.svg)](LICENSE)
@@ -15,6 +16,9 @@
 [React guide](https://canvasglobe.swiftools.com/react-globe) ·
 [Showcase](https://canvasglobe.swiftools.com/showcase) ·
 [Commercial pricing](https://canvasglobe.swiftools.com/pricing)
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/Shree-hari/canvas-globe?startScript=start)
+[![Open in CodeSandbox](https://img.shields.io/badge/Open_in-CodeSandbox-151515?logo=codesandbox)](https://codesandbox.io/p/github/Shree-hari/canvas-globe)
 
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
 **3D globe** and **flat world map** on Canvas 2D. It works with
@@ -80,14 +84,73 @@ console warning in browser builds.
 
 ## Install
 
+Choose the package manager already used by your project:
+
+```bash
+# npm
+npm install canvas-globe
+
+# pnpm
+pnpm add canvas-globe
+
+# Yarn
+yarn add canvas-globe
+
+# Bun
+bun add canvas-globe
+
+# Deno and JSR-aware projects
+deno add jsr:@swiftools/canvas-globe
+npx jsr add @swiftools/canvas-globe
+```
+
+You can also import the JSR release directly in Deno:
+
+```js
+import { createGlobe } from "jsr:@swiftools/canvas-globe@0.1.3";
+```
+
+The React entry point remains on npm so React's peer dependency is resolved by
+your existing application rather than installing a second React copy.
+
+### Browser CDN
+
+For a plain `<script>` installation, use the versioned UMD build:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.3/dist/canvas-globe.umd.js"></script>
+```
+
+The same npm release is also available from UNPKG:
+
+```html
+<script src="https://unpkg.com/canvas-globe@0.1.3/dist/canvas-globe.umd.js"></script>
+```
+
+Modern browsers can import the package through an ESM CDN:
+
+```js
+import { createGlobe } from "https://esm.sh/canvas-globe@0.1.3";
+```
+
+Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
+
+### Quick start
+
 ```bash
 npm install canvas-globe
 ```
 
-Or drop it on a page with no build step at all:
+Then import the library:
+
+```js
+import { createGlobe } from "canvas-globe";
+```
+
+Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.3/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {

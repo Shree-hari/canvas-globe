@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/element.d.ts" */
+
 /**
  * `<geo-globe>` custom element. Wraps GeoGlobe so it can be dropped into any
  * framework or plain HTML without requiring the imperative API.
@@ -45,7 +47,7 @@ const createElementClass = () => class GeoGlobeElement extends HTMLElement {
       onClick: (marker, pos) => this._emit("geo-click", { marker, pos }),
       onCountryHover: (country, pos) => this._emit("geo-country-hover", { country, pos }),
       onCountryClick: (country, pos) => this._emit("geo-country-click", { country, pos }),
-      onRender: () => this._emit("geo-render", { globe: this.globe }),
+      onRender: (globe) => this._emit("geo-render", { globe }),
     });
   }
 

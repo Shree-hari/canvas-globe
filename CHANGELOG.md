@@ -6,6 +6,14 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-14
+
+- Added JSR package configuration and tokenless GitHub publishing workflow.
+- Added a Custom Elements Manifest for `<geo-globe>` so catalogs, IDEs, and
+  documentation tools can discover its attributes, properties, methods, and events.
+- Added installation guidance for npm, pnpm, Yarn, Bun, Deno, jsDelivr, UNPKG,
+  and browser ESM CDNs.
+
 ## [0.1.2] - 2026-09-14
 
 - Added npm, CI, license, TypeScript, and zero-dependency badges to the README.

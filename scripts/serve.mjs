@@ -6,7 +6,8 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const port = Number(process.argv[2]) || 8099;
+const port = Number(process.argv[2] || process.env.PORT) || 8099;
+const host = process.env.HOST || "127.0.0.1";
 const TYPES = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -51,4 +52,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end("not found");
   }
-}).listen(port, "127.0.0.1", () => console.log(`CanvasGlobe demo → http://localhost:${port}/`));
+}).listen(port, host, () => console.log(`CanvasGlobe demo → http://${host}:${port}/`));
