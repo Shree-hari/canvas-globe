@@ -1,5 +1,13 @@
 # CanvasGlobe
 
+[![CanvasGlobe interactive JavaScript globe with markers and animated routes](https://raw.githubusercontent.com/Shree-hari/canvas-globe/main/assets/readme/canvas-globe-hero.webp)](https://canvasglobe.swiftools.com/playground)
+
+[**Open the live playground**](https://canvasglobe.swiftools.com/playground) ·
+[Examples](https://canvasglobe.swiftools.com/examples) ·
+[Documentation](https://canvasglobe.swiftools.com/intro) ·
+[React guide](https://canvasglobe.swiftools.com/react-globe) ·
+[Commercial pricing](https://canvasglobe.swiftools.com/pricing)
+
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
 **3D globe** and **flat world map** on Canvas 2D. It works with
 vanilla JavaScript, React, or a Web Component and requires no WebGL, map API
@@ -24,6 +32,12 @@ key, tile service, or runtime network request.
 - **Bindings:** vanilla JavaScript, a custom element, and React
 
 Common uses include audience dashboards, launch pages, status boards, and share graphics.
+
+[![CanvasGlobe examples showing route maps, choropleths, visual presets, and flat map projections](https://raw.githubusercontent.com/Shree-hari/canvas-globe/main/assets/readme/canvas-globe-showcase.webp)](https://canvasglobe.swiftools.com/examples)
+
+The images above are generated from real CanvasGlobe renders. Open the
+[interactive playground](https://canvasglobe.swiftools.com/playground) to drag,
+zoom, change projections, switch presets, toggle data layers, and export the result.
 
 ## When to choose CanvasGlobe
 

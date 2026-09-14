@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Preparing CanvasGlobe artwork</title>
+  <style>
+    html, body { margin: 0; background: #070a14; color: white; font-family: Inter, system-ui, sans-serif; }
+    body { display: grid; place-items: start; }
+    #art { width: 1200px; height: 675px; display: block; }
+    #download { position: fixed; top: 12px; right: 12px; z-index: 3; padding: 9px 13px; color: white; background: #4f46e5; border-radius: 8px; text-decoration: none; font: 600 13px system-ui; }
+    .source { position: fixed; left: -3000px; top: 0; display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="art" width="1200" height="675"></canvas>
+  <a id="download" hidden>Download image</a>
+  <script type="module">
+    import { createGlobe, colorScale } from "../src/index.js";
+
+    const W = 1200;
+    const H = 675;
+    const art = document.querySelector("#art");
+    const ctx = art.getContext("2d");
+    const download = document.querySelector("#download");
+    const instances = [];
+    const cities = [
+      { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12 },
+      { name: "London", lat: 51.5, lon: -0.12, count: 8 },
+      { name: "New York", lat: 40.71, lon: -74.01, count: 6 },
+      { name: "Tokyo", lat: 35.68, lon: 139.69, count: 4 },
+      { name: "São Paulo", lat: -23.55, lon: -46.63, count: 3 },
+      { name: "Sydney", lat: -33.87, lon: 151.21, count: 2 },
+    ];
+    const hub = { lat: 23.03, lon: 72.58 };
+    const arcs = cities.slice(1).map((city, index) => ({ from: hub, to: city, duration: 2600 + index * 180 }));
+    const visits = { IN: 940, US: 720, GB: 480, JP: 300, BR: 260, AU: 180, DE: 220, FR: 160, CA: 130 };
+    const scale = colorScale([0, 1000], ["#172033", "#a78bfa"]);
+    const countryColors = Object.fromEntries(Object.entries(visits).map(([iso, value]) => [iso, scale(value)]));
+
+    function sourceCanvas(width, height, options) {
+      const canvas = document.createElement("canvas");
+      canvas.className = "source";
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      document.body.append(canvas);
+      const globe = createGlobe(canvas, { autoRotate: false, respectReducedMotion: false, center: { lon: 30, lat: 18 }, ...options });
+      instances.push(globe);
+      return canvas;
+    }
+
+    function background() {
+      const fill = ctx.createLinearGradient(0, 0, W, H);
+      fill.addColorStop(0, "#15112f");
+      fill.addColorStop(.52, "#090e20");
+      fill.addColorStop(1, "#071822");
+      ctx.fillStyle = fill;
+      ctx.fillRect(0, 0, W, H);
+      const glow = ctx.createRadialGradient(950, 300, 10, 950, 300, 390);
+      glow.addColorStop(0, "rgba(34,211,238,.16)");
+      glow.addColorStop(1, "rgba(34,211,238,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "rgba(255,255,255,.035)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= W; x += 48) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y <= H; y += 48) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    }
+
+    function roundRect(x, y, width, height, radius, fill, stroke) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, radius);
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+    }
+
+    function pill(text, x, y) {
+      ctx.font = "600 13px Inter, system-ui, sans-serif";
+      const width = ctx.measureText(text).width + 26;
+      roundRect(x, y, width, 34, 17, "rgba(8,13,30,.72)", "rgba(255,255,255,.18)");
+      ctx.fillStyle = "#eef2ff";
+      ctx.fillText(text, x + 13, y + 22);
+      return width;
+    }
+
+    function wrapped(text, x, y, maxWidth, lineHeight) {
+      const words = text.split(" ");
+      let line = "";
+      let lineY = y;
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          ctx.fillText(line, x, lineY);
+          line = word;
+          lineY += lineHeight;
+        } else line = test;
+      }
+      if (line) ctx.fillText(line, x, lineY);
+      return lineY;
+    }
+
+    function hero(globeCanvas) {
+      background();
+      ctx.fillStyle = "#b9c2ff";
+      ctx.font = "750 19px Inter, system-ui, sans-serif";
+      ctx.fillText("◎  canvas-globe", 66, 88);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 62px Inter, system-ui, sans-serif";
+      ctx.fillText("Interactive globes", 66, 190);
+      ctx.fillText("and maps you can", 66, 256);
+      const accent = ctx.createLinearGradient(66, 0, 430, 0);
+      accent.addColorStop(0, "#a78bfa");
+      accent.addColorStop(1, "#22d3ee");
+      ctx.fillStyle = accent;
+      ctx.fillText("ship today.", 66, 322);
+      ctx.fillStyle = "#c4cbea";
+      ctx.font = "400 21px Inter, system-ui, sans-serif";
+      wrapped("A zero-dependency JavaScript and React library rendered with Canvas 2D. No WebGL, map API key, tiles, or runtime network calls.", 66, 370, 560, 31);
+      let x = 66;
+      for (const label of ["Vanilla JavaScript", "React", "Web Component", "TypeScript"]) {
+        x += pill(label, x, 450) + 10;
+      }
+      roundRect(66, 513, 292, 48, 10, "#050815", "rgba(103,232,249,.32)");
+      ctx.fillStyle = "#a5f3fc";
+      ctx.font = "500 16px ui-monospace, SFMono-Regular, Consolas, monospace";
+      ctx.fillText("npm install canvas-globe", 84, 543);
+      ctx.drawImage(globeCanvas, 670, 70, 510, 510);
+      ctx.fillStyle = "#8f9ac0";
+      ctx.font = "400 12px Inter, system-ui, sans-serif";
+      ctx.fillText("Actual CanvasGlobe render", 1004, 646);
+    }
+
+    function card(x, y, canvas, eyebrow, title, body, tokens, wide = false) {
+      roundRect(x, y, 550, 270, 18, "rgba(8,12,28,.84)", "rgba(255,255,255,.13)");
+      const imageX = x + 18;
+      const imageY = wide ? y + 60 : y + 25;
+      ctx.drawImage(canvas, imageX, imageY, 210, wide ? 150 : 210);
+      const copyX = x + 246;
+      ctx.fillStyle = "#67e8f9";
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.fillText(eyebrow.toUpperCase(), copyX, y + 50);
+      ctx.fillStyle = "#f7f8ff";
+      ctx.font = "750 22px Inter, system-ui, sans-serif";
+      ctx.fillText(title, copyX, y + 84);
+      ctx.fillStyle = "#aeb7d6";
+      ctx.font = "400 14px Inter, system-ui, sans-serif";
+      wrapped(body, copyX, y + 114, 280, 21);
+      let tokenX = copyX;
+      for (const token of tokens) {
+        ctx.font = "600 11px Inter, system-ui, sans-serif";
+        const tokenWidth = ctx.measureText(token).width + 18;
+        roundRect(tokenX, y + 205, tokenWidth, 28, 7, "rgba(139,92,246,.15)", null);
+        ctx.fillStyle = "#d8d2ff";
+        ctx.fillText(token, tokenX + 9, y + 223);
+        tokenX += tokenWidth + 6;
+      }
+    }
+
+    function gallery(canvases) {
+      background();
+      ctx.fillStyle = "#67e8f9";
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.fillText("ONE PACKAGE, MULTIPLE USE CASES", 42, 47);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 34px Inter, system-ui, sans-serif";
+      ctx.fillText("Real CanvasGlobe renders", 42, 86);
+      ctx.fillStyle = "#9ea8cb";
+      ctx.font = "400 15px Inter, system-ui, sans-serif";
+      ctx.fillText("Interactive on the web · Exportable to PNG and WebM", 805, 78);
+      card(42, 110, canvases[0], "Live activity", "Markers, routes and pings", "Show signups, traffic, deliveries or events with animated great-circle arcs.", ["markers", "arcs", "clusters"]);
+      card(608, 110, canvases[1], "Data visualization", "Coverage and choropleths", "Colour countries from your own data, then add legends, heatmaps or spikes.", ["choropleth", "heatmap", "legend"], true);
+      card(42, 395, canvases[2], "Brand-ready", "Ten composable presets", "Choose atlas, hologram, neon, blueprint, aurora, noir and more.", ["themes", "presets", "scenes"]);
+      card(608, 395, canvases[3], "Flat maps too", "Four map projections", "Switch between an orthographic globe, Equirectangular, Mercator and Natural Earth.", ["Canvas 2D", "no tiles", "no WebGL"], true);
+    }
+
+    const view = new URLSearchParams(location.search).get("view") || "hero";
+    let filename;
+    if (view === "gallery") {
+      const canvases = [
+        sourceCanvas(210, 210, { preset: "neon", markers: cities, arcs, orbits: 2 }),
+        sourceCanvas(210, 150, { mode: "map", projection: "naturalEarth", preset: "midnight", markers: cities, countryColors, heatmap: { radius: 22, intensity: .7, color: "#22d3ee" }, legend: { title: "Coverage", position: "bottom-left" } }),
+        sourceCanvas(210, 210, { preset: "blueprint", markers: cities.slice(0, 4), arcs: arcs.slice(0, 3) }),
+        sourceCanvas(210, 150, { mode: "map", projection: "equirectangular", preset: "political", markers: cities }),
+      ];
+      setTimeout(() => { gallery(canvases); finish("canvas-globe-showcase.webp"); }, 700);
+    } else {
+      const canvas = sourceCanvas(510, 510, { preset: "hologram", markers: cities, arcs, orbits: 3, counter: { value: 21947, label: "live visitors", position: "bottom-left" } });
+      setTimeout(() => { hero(canvas); finish("canvas-globe-hero.webp"); }, 700);
+    }
+
+    function finish(name) {
+      filename = name;
+      for (const instance of instances) instance.destroy();
+      art.toBlob(async (blob) => {
+        const url = URL.createObjectURL(blob);
+        download.href = url;
+        download.download = filename;
+        download.hidden = false;
+        const exportImage = new Image();
+        exportImage.src = url;
+        exportImage.alt = filename;
+        exportImage.style.cssText = "position:fixed;left:-10px;top:-10px;width:1px;height:1px;opacity:0";
+        document.body.append(exportImage);
+        const response = await fetch(`/__capture?name=${encodeURIComponent(filename)}`, { method: "POST", body: blob });
+        document.title = response.ok ? `Saved: ${filename}` : `Save failed: ${filename}`;
+      }, "image/webp", .9);
+    }
+  </script>
+</body>
+</html>
