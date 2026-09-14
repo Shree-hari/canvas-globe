@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/element.d.ts" */
+
 /**
  * `<geo-globe>` custom element. Wraps GeoGlobe so it can be dropped into any
  * framework or plain HTML without requiring the imperative API.

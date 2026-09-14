@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "2.1.0",
+  "readme": "README.md",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "GeoGlobeElement",
+          "description": "Framework-independent interactive globe and flat world map rendered with Canvas 2D.",
+          "customElement": true,
+          "tagName": "geo-globe",
+          "superclass": {
+            "name": "HTMLElement",
+            "package": "global:"
+          },
+          "members": [
+            {
+              "kind": "field",
+              "name": "globe",
+              "description": "Underlying GeoGlobe instance after the element is connected.",
+              "type": { "text": "GeoGlobe | null" }
+            },
+            {
+              "kind": "field",
+              "name": "markers",
+              "description": "Marker data displayed on the globe.",
+              "type": { "text": "Marker[]" }
+            },
+            {
+              "kind": "field",
+              "name": "arcs",
+              "description": "Great-circle route data displayed on the globe.",
+              "type": { "text": "Arc[]" }
+            },
+            {
+              "kind": "field",
+              "name": "options",
+              "description": "Applies options that cannot be represented as HTML attributes. Accepts Partial<GeoGlobeOptions>."
+            },
+            {
+              "kind": "method",
+              "name": "flyTo",
+              "description": "Animates the view to a longitude and latitude.",
+              "parameters": [
+                { "name": "lon", "type": { "text": "number" } },
+                { "name": "lat", "type": { "text": "number" } },
+                { "name": "opts", "type": { "text": "FlyToOptions" }, "optional": true }
+              ],
+              "return": { "type": { "text": "this" } }
+            },
+            {
+              "kind": "method",
+              "name": "fitTo",
+              "description": "Fits the view to geographic bounds.",
+              "parameters": [
+                { "name": "bounds", "type": { "text": "[number, number, number, number]" } },
+                { "name": "opts", "type": { "text": "FlyToOptions & { padding?: number }" }, "optional": true }
+              ],
+              "return": { "type": { "text": "this" } }
+            },
+            {
+              "kind": "method",
+              "name": "snapshot",
+              "description": "Returns a data URL snapshot of the current canvas.",
+              "parameters": [
+                { "name": "type", "type": { "text": "string" }, "optional": true },
+                { "name": "quality", "type": { "text": "number" }, "optional": true }
+              ],
+              "return": { "type": { "text": "string | undefined" } }
+            }
+          ],
+          "attributes": [
+            { "name": "mode", "description": "Rendering mode.", "type": { "text": "'globe' | 'map'" }, "default": "globe" },
+            { "name": "projection", "description": "Flat-map projection.", "type": { "text": "'equirectangular' | 'mercator' | 'naturalEarth'" }, "default": "equirectangular" },
+            { "name": "theme", "description": "Built-in theme name or serialized theme object.", "type": { "text": "string" }, "default": "atlas" },
+            { "name": "preset", "description": "Built-in visual preset.", "type": { "text": "string" } },
+            { "name": "land-style", "description": "Land rendering style.", "type": { "text": "'fill' | 'dots' | 'outline' | 'glow' | 'none'" }, "default": "fill" },
+            { "name": "marker-style", "description": "Marker rendering style.", "type": { "text": "string" } },
+            { "name": "aria-label", "description": "Accessible label for the canvas.", "type": { "text": "string" } },
+            { "name": "license-key", "description": "CanvasGlobe license key.", "type": { "text": "string" } },
+            { "name": "auto-rotate", "description": "Enables automatic rotation.", "type": { "text": "boolean" } },
+            { "name": "interactive", "description": "Enables pointer interaction.", "type": { "text": "boolean" }, "default": "true" },
+            { "name": "keyboard", "description": "Enables keyboard controls.", "type": { "text": "boolean" }, "default": "true" },
+            { "name": "graticule", "description": "Shows latitude and longitude grid lines.", "type": { "text": "boolean" } },
+            { "name": "stars", "description": "Shows the star background.", "type": { "text": "boolean" } },
+            { "name": "shade", "description": "Enables sphere shading.", "type": { "text": "boolean" } },
+            { "name": "terminator", "description": "Shows the day and night terminator.", "type": { "text": "boolean" } },
+            { "name": "cluster", "description": "Clusters nearby markers.", "type": { "text": "boolean" } },
+            { "name": "tooltip", "description": "Enables the built-in tooltip.", "type": { "text": "boolean" } },
+            { "name": "zoomable", "description": "Enables wheel and pinch zoom.", "type": { "text": "boolean" }, "default": "true" },
+            { "name": "zoom", "description": "Initial zoom level.", "type": { "text": "number" } },
+            { "name": "min-zoom", "description": "Minimum zoom level.", "type": { "text": "number" } },
+            { "name": "max-zoom", "description": "Maximum zoom level.", "type": { "text": "number" } },
+            { "name": "rotate-speed", "description": "Automatic rotation speed.", "type": { "text": "number" } },
+            { "name": "marker-scale", "description": "Global marker scale.", "type": { "text": "number" } },
+            { "name": "radius-ratio", "description": "Globe radius relative to its canvas.", "type": { "text": "number" } },
+            { "name": "fps", "description": "Maximum animation frame rate.", "type": { "text": "number" } },
+            { "name": "cluster-radius", "description": "Marker clustering radius in pixels.", "type": { "text": "number" } },
+            { "name": "arc-lift", "description": "Default arc lift above the sphere.", "type": { "text": "number" } },
+            { "name": "arc-speed", "description": "Default animated arc speed.", "type": { "text": "number" } },
+            { "name": "lat", "description": "Initial centre latitude.", "type": { "text": "number" } },
+            { "name": "lon", "description": "Initial centre longitude.", "type": { "text": "number" } },
+            { "name": "orbits", "description": "Number of decorative orbit rings.", "type": { "text": "number" } },
+            { "name": "dot-spacing", "description": "Dot land-style spacing in degrees.", "type": { "text": "number" } },
+            { "name": "dot-size", "description": "Dot land-style radius in pixels.", "type": { "text": "number" } },
+            { "name": "markers", "description": "Serialized marker array.", "type": { "text": "Marker[]" } },
+            { "name": "arcs", "description": "Serialized route array.", "type": { "text": "Arc[]" } },
+            { "name": "country-colors", "description": "Serialized country colour mapping.", "type": { "text": "Record<string, string>" } },
+            { "name": "lat-range", "description": "Serialized latitude range.", "type": { "text": "[number, number]" } }
+          ],
+          "events": [
+            { "name": "geo-hover", "description": "Fires when the hovered marker changes.", "type": { "text": "CustomEvent<{ marker: Marker | ClusterMarker | null; pos: { x: number; y: number } | null }>" } },
+            { "name": "geo-click", "description": "Fires when a marker is clicked.", "type": { "text": "CustomEvent<{ marker: Marker | ClusterMarker; pos: { x: number; y: number } }>" } },
+            { "name": "geo-country-hover", "description": "Fires when the hovered country changes.", "type": { "text": "CustomEvent<{ country: CountryShape | null; pos: { x: number; y: number } | null }>" } },
+            { "name": "geo-country-click", "description": "Fires when a country is clicked.", "type": { "text": "CustomEvent<{ country: CountryShape; pos: { x: number; y: number } }>" } },
+            { "name": "geo-render", "description": "Fires after CanvasGlobe renders a frame.", "type": { "text": "CustomEvent<{ globe: GeoGlobe }>" } }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "GeoGlobeElement",
+          "declaration": { "name": "GeoGlobeElement", "module": "src/element.js" }
+        },
+        {
+          "kind": "js",
+          "name": "defineGeoGlobe",
+          "declaration": { "name": "defineGeoGlobe", "module": "src/element.js" }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "geo-globe",
+          "declaration": { "name": "GeoGlobeElement", "module": "src/element.js" }
+        }
+      ]
+    }
+  ]
+}

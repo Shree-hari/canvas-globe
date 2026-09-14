@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/react.d.ts" */
+
 /**
  * React binding. `import { Globe } from "canvas-globe/react"`.
  * React is a peer dependency and is only required by this entry point.

@@ -16,6 +16,9 @@
 [Showcase](https://canvasglobe.swiftools.com/showcase) ·
 [Commercial pricing](https://canvasglobe.swiftools.com/pricing)
 
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/Shree-hari/canvas-globe?startScript=start)
+[![Open in CodeSandbox](https://img.shields.io/badge/Open_in-CodeSandbox-151515?logo=codesandbox)](https://codesandbox.io/p/github/Shree-hari/canvas-globe)
+
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
 **3D globe** and **flat world map** on Canvas 2D. It works with
 vanilla JavaScript, React, or a Web Component and requires no WebGL, map API
@@ -80,14 +83,66 @@ console warning in browser builds.
 
 ## Install
 
+Choose the package manager already used by your project:
+
+```bash
+# npm
+npm install canvas-globe
+
+# pnpm
+pnpm add canvas-globe
+
+# Yarn
+yarn add canvas-globe
+
+# Bun
+bun add canvas-globe
+```
+
+No separate package is required for Deno. It can use the npm release directly:
+
+```js
+import { createGlobe } from "npm:canvas-globe@0.1.3";
+```
+
+### Browser CDN
+
+For a plain `<script>` installation, use the versioned UMD build:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.3/dist/canvas-globe.umd.js"></script>
+```
+
+The same npm release is also available from UNPKG:
+
+```html
+<script src="https://unpkg.com/canvas-globe@0.1.3/dist/canvas-globe.umd.js"></script>
+```
+
+Modern browsers can import the package through an ESM CDN:
+
+```js
+import { createGlobe } from "https://esm.sh/canvas-globe@0.1.3";
+```
+
+Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
+
+### Quick start
+
 ```bash
 npm install canvas-globe
 ```
 
-Or drop it on a page with no build step at all:
+Then import the library:
+
+```js
+import { createGlobe } from "canvas-globe";
+```
+
+Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.3/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {

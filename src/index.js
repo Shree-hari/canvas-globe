@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/index.d.ts" */
+
 export {
   GeoGlobe,
   GeoGlobe as CanvasGlobe,
