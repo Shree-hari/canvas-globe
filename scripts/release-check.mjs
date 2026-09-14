@@ -96,6 +96,9 @@ if (existsSync(join(root, "jsr.json"))) {
   assert(jsr.exports?.["./element"] === "./jsr/element.js", "JSR element export is stale");
   assert(jsr.exports?.["./data/world"] === "./jsr/data/world.js", "JSR world-data export is stale");
   assert(!jsr.exports?.["./react"], "JSR must not bundle a separate React peer");
+  assert(!jsr.publish?.include?.includes("types"), "JSR must not include npm-only global declarations");
+  assert(!jsr.publish?.include?.includes("src/react.js"), "JSR must not include the npm-only React entry point");
+  assert(jsr.publish?.include?.includes("types/jsr-element.d.ts"), "JSR element declarations are missing");
 }
 
 if (existsSync(join(root, "custom-elements.json"))) {

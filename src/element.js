@@ -1,4 +1,4 @@
-/* @ts-self-types="../types/element.d.ts" */
+/* @ts-self-types="../types/jsr-element.d.ts" */
 
 /**
  * `<geo-globe>` custom element. Wraps GeoGlobe so it can be dropped into any
