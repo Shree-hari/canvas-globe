@@ -1,0 +1,47 @@
+name: Publish companion npm package
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Companion package to publish
+        required: true
+        type: choice
+        options:
+          - react-canvas-globe
+          - create-canvas-globe
+      npm_tag:
+        description: npm distribution tag
+        required: true
+        default: latest
+        type: choice
+        options:
+          - latest
+          - next
+          - beta
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - name: Verify companion package
+        env:
+          PACKAGE_NAME: ${{ inputs.package }}
+        run: |
+          node -e "const fs=require('node:fs'); const root=require('./package.json'); const pkg=require('./packages/'+process.env.PACKAGE_NAME+'/package.json'); if(pkg.private) throw new Error('Package is private'); if(pkg.name!==process.env.PACKAGE_NAME) throw new Error('Package name mismatch'); if(pkg.dependencies?.['canvas-globe'] && pkg.dependencies['canvas-globe'] !== '^'+root.version) throw new Error('canvas-globe dependency is stale');"
+          npm --prefix "packages/${PACKAGE_NAME}" pack --dry-run
+      - name: Publish with provenance
+        working-directory: packages/${{ inputs.package }}
+        run: npm publish --access public --provenance --tag "${{ inputs.npm_tag }}"

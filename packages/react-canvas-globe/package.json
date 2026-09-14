@@ -1,7 +1,6 @@
 {
   "name": "react-canvas-globe",
   "version": "0.1.0",
-  "private": true,
   "description": "React component for interactive 3D globes and world maps rendered with Canvas 2D, powered by canvas-globe.",
   "license": "GPL-3.0-only",
   "author": {
@@ -30,7 +29,7 @@
   "files": ["index.js", "index.d.ts", "README.md", "LICENSE", "LICENSING.md"],
   "sideEffects": false,
   "dependencies": {
-    "canvas-globe": "^0.1.4"
+    "canvas-globe": "^0.1.5"
   },
   "peerDependencies": {
     "react": ">=17"

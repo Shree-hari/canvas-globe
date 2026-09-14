@@ -6,6 +6,18 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-09-15
+
+- Added an animated README demo, Storybook stories, framework starters, a
+  shadcn registry component, Context7 metadata, and a reusable coding-agent
+  skill.
+- Added publishable `react-canvas-globe` and `create-canvas-globe` companion
+  packages for package-name discovery and project scaffolding.
+- Fixed React client-component compatibility and forwarded-ref lifecycle
+  updates, plus safe cleanup for asynchronously loaded Svelte integrations.
+- Improved README capture portability and pinned the Chromatic workflow action
+  to an immutable release commit.
+
 ## [0.1.4] - 2026-09-14
 
 - Published the browser-safe package entry points to JSR under
