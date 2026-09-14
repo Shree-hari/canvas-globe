@@ -6,6 +6,13 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-14
+
+- Added real product renders to the npm and GitHub README, including a clickable
+  hero linked to the interactive playground and a visual feature gallery.
+- Moved live playground, examples, documentation, React, and pricing links to
+  the top of the README so evaluators can reach working demos immediately.
+
 ## [0.1.0] - 2026-09-14
 
 - Renamed the public product and package to CanvasGlobe / `canvas-globe`,
