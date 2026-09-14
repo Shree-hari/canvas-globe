@@ -1,6 +1,7 @@
 # CanvasGlobe
 
 [![npm version](https://img.shields.io/npm/v/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
+[![JSR](https://jsr.io/badges/@swiftools/canvas-globe)](https://jsr.io/@swiftools/canvas-globe)
 [![npm downloads](https://img.shields.io/npm/dm/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
 [![CI](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml/badge.svg)](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml)
 [![GPL-3.0-only](https://img.shields.io/npm/l/canvas-globe.svg)](LICENSE)
@@ -97,13 +98,20 @@ yarn add canvas-globe
 
 # Bun
 bun add canvas-globe
+
+# Deno and JSR-aware projects
+deno add jsr:@swiftools/canvas-globe
+npx jsr add @swiftools/canvas-globe
 ```
 
-No separate package is required for Deno. It can use the npm release directly:
+You can also import the JSR release directly in Deno:
 
 ```js
-import { createGlobe } from "npm:canvas-globe@0.1.3";
+import { createGlobe } from "jsr:@swiftools/canvas-globe@0.1.3";
 ```
+
+The React entry point remains on npm so React's peer dependency is resolved by
+your existing application rather than installing a second React copy.
 
 ### Browser CDN
 
