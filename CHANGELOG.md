@@ -6,6 +6,13 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-09-14
+
+- Published the browser-safe package entry points to JSR under
+  `@swiftools/canvas-globe`.
+- Made generated UMD builds deterministic across Windows and Linux.
+- Corrected the custom-element render event and world-data type contracts.
+
 ## [0.1.3] - 2026-09-14
 
 - Added JSR package configuration and tokenless GitHub publishing workflow.
