@@ -17,12 +17,12 @@ const registry = json("registry.json");
 assert.equal(registry.$schema, "https://ui.shadcn.com/schema/registry.json");
 const item = registry.items.find(({ name }) => name === "canvas-globe");
 assert.ok(item);
-assert.ok(item.dependencies.includes("canvas-globe@^0.1.4"));
+assert.ok(item.dependencies.includes("canvas-globe@^0.1.5"));
 for (const file of item.files) assert.ok(existsSync(join(root, file.path)), `Missing registry file: ${file.path}`);
 
 for (const packagePath of ["packages/react-canvas-globe/package.json", "packages/create-canvas-globe/package.json"]) {
   const pkg = json(packagePath);
-  assert.equal(pkg.private, true, `${packagePath} must remain private until publishing is approved`);
+  assert.notEqual(pkg.private, true, `${packagePath} must be publishable`);
   assert.equal(pkg.author.name, "Harsh Jhunjhunuwala");
   assert.equal(pkg.publishConfig.access, "public");
 }
@@ -70,5 +70,6 @@ assert.match(skill, /https:\/\/canvasglobe\.swiftools\.com\/pricing/);
 assert.ok(existsSync(join(root, "skills/canvas-globe/references/api-quick-reference.md")));
 
 assert.ok(existsSync(join(root, "assets/readme/canvas-globe-demo.gif")), "Animated README demo has not been generated");
+assert.ok(existsSync(join(root, ".github/workflows/publish-companions.yml")), "Companion publish workflow is missing");
 
 console.log("Context7, shadcn registry, companion packages, starters, CLI templates, agent skill, and README media are consistent.");

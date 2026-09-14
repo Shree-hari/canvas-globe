@@ -1,7 +1,6 @@
 {
   "name": "create-canvas-globe",
   "version": "0.1.0",
-  "private": true,
   "description": "Scaffold CanvasGlobe projects for vanilla JavaScript, React, Next.js, Vue, SvelteKit, or Web Components.",
   "license": "GPL-3.0-only",
   "author": { "name": "Harsh Jhunjhunuwala" },
@@ -16,7 +15,8 @@
   "files": ["bin", "templates", "README.md", "LICENSE", "LICENSING.md"],
   "scripts": {
     "build:templates": "node scripts/sync-templates.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "prepublishOnly": "npm test"
   },
   "engines": { "node": ">=18" },
   "publishConfig": { "access": "public" },
