@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/Shree-hari/canvas-globe/security/advisories/new
+    about: Report vulnerabilities privately. Do not disclose security details in a public issue.
+  - name: Licensing and commercial support
+    url: https://canvasglobe.swiftools.com/support
+    about: Ask about GPLv3, commercial plans, license keys, or separately scoped work.
+  - name: Documentation and live examples
+    url: https://canvasglobe.swiftools.com/
+    about: Read the guides, examples, API reference, and troubleshooting pages.

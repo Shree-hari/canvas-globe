@@ -1,0 +1,68 @@
+name: Bug report
+description: Report reproducible incorrect behavior in CanvasGlobe.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Do not include license keys, private data, or vulnerability details.
+  - type: input
+    id: version
+    attributes:
+      label: CanvasGlobe version
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: dropdown
+    id: entry
+    attributes:
+      label: Entry point
+      options:
+        - canvas-globe
+        - canvas-globe/react
+        - canvas-globe/element
+        - UMD / script tag
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, framework, and operating system
+      placeholder: Chrome 140, React 19, Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Link to a small public reproduction or paste the smallest code that demonstrates the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include screenshots, console output, and accessibility or reduced-motion settings when relevant.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and documentation.
+          required: true
+        - label: This report contains no license key, confidential data, or undisclosed vulnerability.
+          required: true

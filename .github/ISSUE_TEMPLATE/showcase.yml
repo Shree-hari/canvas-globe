@@ -1,0 +1,48 @@
+name: Submit a project to the showcase
+description: Share a public project built with CanvasGlobe.
+title: "[Showcase]: "
+labels: ["showcase"]
+body:
+  - type: input
+    id: project
+    attributes:
+      label: Project name
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Public project URL
+      placeholder: https://example.com/
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source repository
+      description: Optional. Leave blank for proprietary projects.
+  - type: textarea
+    id: use
+    attributes:
+      label: How does the project use CanvasGlobe?
+      description: Describe the use case and the most useful CanvasGlobe capabilities.
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Display name or organization
+      description: This is the attribution that may appear in the showcase.
+    validations:
+      required: true
+  - type: checkboxes
+    id: permission
+    attributes:
+      label: Permission
+      options:
+        - label: I control this project or am authorized to submit it.
+          required: true
+        - label: CanvasGlobe may display the submitted project name, URL, description, screenshot, and attribution in its public showcase and launch material.
+          required: true
+        - label: CanvasGlobe may quote my description as a testimonial with reasonable editing for length, without changing its meaning.
+          required: false
