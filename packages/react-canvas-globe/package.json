@@ -1,0 +1,50 @@
+{
+  "name": "react-canvas-globe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React component for interactive 3D globes and world maps rendered with Canvas 2D, powered by canvas-globe.",
+  "license": "GPL-3.0-only",
+  "author": {
+    "name": "Harsh Jhunjhunuwala"
+  },
+  "homepage": "https://canvasglobe.swiftools.com/react-globe",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git",
+    "directory": "packages/react-canvas-globe"
+  },
+  "bugs": {
+    "url": "https://github.com/Shree-hari/canvas-globe/issues"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["index.js", "index.d.ts", "README.md", "LICENSE", "LICENSING.md"],
+  "sideEffects": false,
+  "dependencies": {
+    "canvas-globe": "^0.1.4"
+  },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "react-globe",
+    "react-canvas-globe",
+    "interactive-globe",
+    "canvas-globe",
+    "world-map",
+    "no-webgl",
+    "data-visualization"
+  ]
+}

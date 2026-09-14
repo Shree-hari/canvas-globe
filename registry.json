@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "canvas-globe",
+  "homepage": "https://canvasglobe.swiftools.com/",
+  "items": [
+    {
+      "name": "canvas-globe",
+      "type": "registry:ui",
+      "title": "CanvasGlobe",
+      "description": "A responsive, interactive Canvas 2D globe for React with markers, animated routes, themes, keyboard controls, and no WebGL requirement.",
+      "author": "Harsh Jhunjhunuwala",
+      "dependencies": ["canvas-globe@^0.1.4"],
+      "files": [
+        {
+          "path": "registry/canvas-globe.tsx",
+          "type": "registry:ui",
+          "target": "@ui/canvas-globe.tsx"
+        }
+      ],
+      "docs": "Pass a real licenseKey. Proprietary projects must purchase a commercial license at https://canvasglobe.swiftools.com/pricing. GPLv3-compatible projects can follow https://canvasglobe.swiftools.com/licensing."
+    }
+  ]
+}

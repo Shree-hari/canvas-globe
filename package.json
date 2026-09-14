@@ -92,10 +92,16 @@
     "build": "node scripts/build.mjs",
     "data": "node scripts/generate-data.mjs && node scripts/generate-timezones.mjs",
     "example": "node scripts/serve.mjs",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "build:registry": "shadcn build --output .registry-build",
+    "capture:readme": "node scripts/capture-readme-demo.mjs",
     "test": "node --test",
+    "test:ecosystem": "npm run build:registry && node scripts/validate-ecosystem.mjs && npm --prefix packages/create-canvas-globe test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:ecosystem": "tsc --noEmit -p tsconfig.ecosystem.json",
     "smoke:package": "node scripts/package-smoke.mjs",
-    "release:check": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs && npm run smoke:package",
+    "release:check": "npm run test && npm run typecheck && npm run typecheck:ecosystem && npm run test:ecosystem && npm run build && node scripts/release-check.mjs && npm run smoke:package",
     "prepublishOnly": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs"
   },
   "peerDependencies": {
@@ -107,7 +113,16 @@
     }
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.6.0",
+    "@storybook/html-vite": "^10.6.0",
+    "@types/react": "^19.3.0",
+    "chromatic": "^18.8.1",
+    "gifenc": "^1.0.3",
+    "playwright-core": "^1.63.0",
+    "pngjs": "^7.0.0",
     "polygon-clipping": "^0.15.7",
+    "shadcn": "^4.21.0",
+    "storybook": "^10.6.0",
     "topojson-client": "^3.1.0",
     "typescript": "^5.5.0"
   },
