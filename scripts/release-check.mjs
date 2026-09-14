@@ -70,7 +70,15 @@ if (existsSync(join(root, "dist/canvas-globe.umd.js"))) {
     ["diff", "HEAD", "--exit-code", "--ignore-space-at-eol", "--", "dist/canvas-globe.umd.js"],
     { cwd: root, encoding: "utf8" },
   );
-  assert(trackedBundle.status === 0, "committed UMD bundle is stale; run npm run build and commit dist/canvas-globe.umd.js");
+  const trackedBundlePath = spawnSync(
+    "git",
+    ["ls-files", "--error-unmatch", "--", "dist/canvas-globe.umd.js"],
+    { cwd: root, encoding: "utf8" },
+  );
+  assert(
+    trackedBundle.status === 0 && trackedBundlePath.status === 0,
+    "committed UMD bundle is stale or untracked; run npm run build and commit dist/canvas-globe.umd.js",
+  );
 }
 
 if (existsSync(join(root, "codemeta.json"))) {
