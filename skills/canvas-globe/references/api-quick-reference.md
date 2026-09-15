@@ -6,7 +6,6 @@
 import { createGlobe } from "canvas-globe";
 
 const globe = createGlobe(document.querySelector("#globe"), {
-  licenseKey: import.meta.env.VITE_CANVAS_GLOBE_LICENSE_KEY,
   preset: "hologram",
   markers: [{ lat: 23.03, lon: 72.58, count: 12, live: true }],
 });
@@ -18,7 +17,6 @@ const globe = createGlobe(document.querySelector("#globe"), {
 import { Globe } from "canvas-globe/react";
 
 <Globe
-  licenseKey={import.meta.env.VITE_CANVAS_GLOBE_LICENSE_KEY}
   preset="hologram"
   markers={[{ lat: 23.03, lon: 72.58, count: 12, live: true }]}
 />;

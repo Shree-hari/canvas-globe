@@ -3,7 +3,10 @@ main = "src/index.js"
 compatibility_date = "2026-09-16"
 
 [vars]
-KELVIQ_PRODUCT_IDENTIFIER = "canvas-globe"
+KELVIQ_PRODUCT_IDENTIFIER = "d3f4429d-9a3f-4201-bfb2-44166b07cb32"
+CANVAS_GLOBE_UPDATE_MONTHS = "12"
+# Add each published commercial version before it can be activated.
+CANVAS_GLOBE_RELEASES = '{"1.0.0-beta.1":"2026-09-16T00:00:00Z"}'
 
 # Add these through `wrangler secret put`, never in this file:
 # KELVIQ_SERVER_API_KEY

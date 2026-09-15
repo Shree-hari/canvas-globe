@@ -1,10 +1,9 @@
 # CanvasGlobe
 
 [![npm version](https://img.shields.io/npm/v/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
-[![JSR](https://jsr.io/badges/@swiftools/canvas-globe)](https://jsr.io/@swiftools/canvas-globe)
 [![npm downloads](https://img.shields.io/npm/dm/canvas-globe.svg)](https://www.npmjs.com/package/canvas-globe)
 [![CI](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml/badge.svg)](https://github.com/Shree-hari/canvas-globe/actions/workflows/ci.yml)
-[![GPL-3.0-only](https://img.shields.io/npm/l/canvas-globe.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-commercial-7c3aed.svg)](https://canvasglobe.swiftools.com/licensing)
 [![TypeScript declarations](https://img.shields.io/badge/types-included-3178c6.svg)](types/index.d.ts)
 [![zero runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-2ea44f.svg)](package.json)
 [![Agent skill](https://img.shields.io/badge/agent_skill-install-111827.svg)](https://skills.sh/Shree-hari/canvas-globe)
@@ -66,25 +65,25 @@ cameras, custom shaders, or thousands of independent 3D objects. See the
 
 ## Licensing
 
-CanvasGlobe is dual-licensed:
+CanvasGlobe 1.0 and later are proprietary commercial software. Start with the
+[full-featured 30-day trial](https://canvasglobe.swiftools.com/trial), then
+purchase a [Solo, Team, Business, or OEM license](https://canvasglobe.swiftools.com/pricing)
+before production use or redistribution.
 
-- **GPL-3.0-only** for projects that can comply with GNU GPLv3; or
-- a **paid commercial license** for proprietary products.
+Activate locally or in CI before building. The checkout key is never placed in
+application code, and websites using CanvasGlobe make no runtime license-server
+or analytics requests to Swiftools:
 
-The full package and feature set are the same on both paths. GPL permits
-commercial activity; whether a particular distribution can comply is
-fact-specific. See [LICENSING.md](LICENSING.md) and the
-[commercial plans](https://canvasglobe.swiftools.com/pricing).
-
-Pass the license key supplied with a commercial order. GPLv3-compatible
-projects can request a complimentary key through the licensing page:
-
-```js
-createGlobe(canvas, { licenseKey: "your_license_key" });
+```bash
+npm install canvas-globe
+npm install --save-dev canvas-globe-licensing
+npx canvas-globe-license activate
+npm run build
 ```
 
-The default `0000-0000-000-0000` value is for evaluation only and produces a
-console warning in browser builds.
+Versions through 0.1.6 remain available under GPL-3.0-only under the terms
+supplied with those releases. See [LICENSING.md](LICENSING.md) and the
+[license history](https://canvasglobe.swiftools.com/gpl-history).
 
 ## Install
 
@@ -252,13 +251,13 @@ Install the repository's CanvasGlobe skill for compatible coding agents:
 npx skills add https://github.com/Shree-hari/canvas-globe --skill canvas-globe
 ```
 
-Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require a real license key before shipping. Proprietary projects are directed to [commercial pricing](https://canvasglobe.swiftools.com/pricing); GPLv3-compatible projects are directed to the [GPL licensing path](https://canvasglobe.swiftools.com/licensing).
+Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require the user to start a trial or purchase a production license before shipping. They also run the local activation step without exposing the checkout key.
 
 ## Options
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `licenseKey` | `"0000-0000-000-0000"` | The key supplied for a GPLv3-compatible project or with a commercial order |
+| `licenseKey` | `null` | Optional signed activation token for direct CDN use; npm projects should use `canvas-globe-licensing` |
 | `mode` | `"globe"` | `"globe"` (orthographic, spinnable) or `"map"` (flat) |
 | `projection` | `"equirectangular"` | Flat-map projection: also `"mercator"`, `"naturalEarth"` |
 | `preset` | Not set | Named bundle of theme + render style, applied under your options |
@@ -713,7 +712,8 @@ drawn, so a typical globe frame skips 20-60% of the world. On a laptop a 560 px 
 - Country geometry: [Natural Earth](https://www.naturalearthdata.com/) 1:110m via `world-atlas`, **public domain**
 - ISO codes: [natural-earth-vector](https://github.com/nvkelso/natural-earth-vector), **public domain**
 - Supplemental geometry: [Datameet maps](https://github.com/datameet/maps), **CC-0**
-- This package: **GPL-3.0-only or a commercial license**
+- CanvasGlobe 1.0 and later: **CanvasGlobe Software License Agreement**
+- CanvasGlobe through 0.1.6: **GPL-3.0-only**
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for source links and
 provenance.

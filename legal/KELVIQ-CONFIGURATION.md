@@ -12,7 +12,7 @@ live paid checkout descriptions until the approved EULA is linked.
 - License duration: 30 days
 - Activation limit: 1
 - Purpose: internal evaluation only, no production or redistribution
-- Deliverable: setup link to `/docs/licensing/activate`
+- Deliverable: setup link to `https://canvasglobe.swiftools.com/activate`
 
 ## Paid plans
 

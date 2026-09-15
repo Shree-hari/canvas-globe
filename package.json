@@ -103,6 +103,7 @@
     "typecheck:ecosystem": "tsc --noEmit -p tsconfig.ecosystem.json",
     "smoke:package": "node scripts/package-smoke.mjs",
     "commercial:check": "npm run test:licensing && node scripts/commercial-release-check.mjs",
+    "commercial:prepare": "node scripts/prepare-commercial-release.mjs",
     "release:check": "npm run test && npm run test:licensing && npm run typecheck && npm run typecheck:ecosystem && npm run test:ecosystem && npm run build && node scripts/release-check.mjs && npm run smoke:package",
     "prepublishOnly": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs"
   },

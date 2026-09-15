@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte";
-  import { env } from "$env/dynamic/public";
   import "../app.css";
 
   let canvas;
@@ -14,7 +13,7 @@
     let disposed = false;
     let globe;
     import("canvas-globe").then(({ createGlobe }) => {
-      const instance = createGlobe(canvas, { licenseKey: env.PUBLIC_CANVAS_GLOBE_LICENSE_KEY, preset: "midnight", markers, arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })), tooltip: (marker) => marker.name });
+      const instance = createGlobe(canvas, { preset: "midnight", markers, arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })), tooltip: (marker) => marker.name });
       if (disposed) instance.destroy();
       else globe = instance;
     });

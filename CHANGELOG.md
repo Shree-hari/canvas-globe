@@ -6,6 +6,14 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Prepared an opt-in proprietary 1.x licensing model with a 30-day trial,
+  local activation, CI-safe activation tokens, and an in-component purchase
+  notice for unlicensed production use.
+- Added a Cloudflare activation service template, Kelviq entitlement checks,
+  paid update eligibility, release safeguards, and coordinated migration tools.
+- Removed public browser environment variables for checkout license keys from
+  starters and documentation.
+
 ## [0.1.6] - 2026-09-15
 
 - Improved the package description and discovery metadata used by npm,

@@ -382,8 +382,8 @@ export type TooltipKind = "marker" | "cluster" | "country";
 
 export interface GeoGlobeOptions {
   /**
-   * License key supplied for a GPLv3-compatible project or with a commercial
-   * order. Never sent over the network and never used to disable features.
+   * Optional signed activation token for direct CDN or no-build use. npm
+   * projects should normally use the licensing CLI before the build.
    */
   licenseKey?: string | null;
   /** "globe" (orthographic, spinnable) or "map" (flat). Default "globe". */

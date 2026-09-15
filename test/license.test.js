@@ -65,7 +65,7 @@ test("commercial presentation appears only for public use without a key", () => 
   const production = new URL("https://customer.example");
   const development = new URL("http://localhost:5173");
   const missing = getLicensePresentation(null, production, true);
-  assert.equal(missing.notice?.text, "CanvasGlobe • Get a license");
+  assert.equal(missing.notice?.text, "CanvasGlobe: Purchase a license");
   assert.equal(missing.notice?.url, LICENSE_PAGE_URL);
   assert.equal(getLicensePresentation("unactivated-checkout-key", production, true).notice?.url, LICENSE_PAGE_URL);
   assert.equal(getLicensePresentation(null, development, true).notice, null);
@@ -87,7 +87,7 @@ test("verifies signed offline activation tokens", async () => {
   assert.equal(invalid.kind, "invalid");
 });
 
-test("reports missing and placeholder keys in the browser console", () => {
+test("reports license problems without making runtime network calls", () => {
   const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, "location");
   const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");
   const originalWarn = console.warn;
@@ -128,6 +128,9 @@ test("reports missing and placeholder keys in the browser console", () => {
     assert.equal(errors.length, 2);
     assert.match(warnings[0], /not valid for production use/);
     assert.match(errors[0], /provide a valid license key/);
+
+    assert.doesNotThrow(() => reportLicenseStatus("raw-checkout-key", true));
+    assert.match(errors.at(-1), /activate the checkout key/);
     assert.equal(fetchCalls, 0);
   } finally {
     console.warn = originalWarn;

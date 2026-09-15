@@ -31,6 +31,18 @@ prints either the checkout key or the token.
 npx canvas-globe-licensing info
 ```
 
+To configure CI or a direct CDN integration, print the signed offline token
+once and copy it directly into the appropriate secret store. This command
+never prints the checkout key:
+
+```bash
+npx canvas-globe-licensing token
+```
+
+Treat the activation token as a secret. Do not commit it or post it in build
+logs. For a bundled npm application, the token will necessarily be present in
+the compiled browser output, but the original checkout key will not be.
+
 The default activation endpoint is
 `https://canvasglobe.swiftools.com/api/license/activate`. Set
 `CANVAS_GLOBE_LICENSE_ENDPOINT` only for local testing or an approved private

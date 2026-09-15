@@ -13,15 +13,15 @@ import { scenes, sceneKeys } from "./scenes.js";
 import { exportSize } from "./export.js";
 import {
   COMMERCIAL_LICENSE_MODE,
-  DEFAULT_LICENSE_KEY,
   getLicensePresentation,
+  inspectLicenseKey,
   reportLicenseStatus,
   verifyLicenseKey,
 } from "./license.js";
 import { D2R, R2D, TAU, clamp, wrapLon, resolveProjection, projectionBounds, ortho, orthoInverse, greatCircle, circleAround, distanceMeters, subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha } from "./geo.js";
 
 const DEFAULTS = {
-  licenseKey: DEFAULT_LICENSE_KEY,
+  licenseKey: null,
   mode: "globe",
   projection: "equirectangular",
   theme: "atlas",
@@ -1150,6 +1150,7 @@ export class GeoGlobe {
 
   async _verifyLicense(value) {
     if (!COMMERCIAL_LICENSE_MODE) return;
+    if (inspectLicenseKey(value, true).kind !== "checking") return;
     const expected = value;
     const status = await verifyLicenseKey(value, true);
     if (this._destroyed || this.o.licenseKey !== expected) return;

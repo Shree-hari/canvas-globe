@@ -102,10 +102,11 @@ async function main() {
     await writeFile(join(target, ".gitignore"), ignored);
 
     console.log(`\nCreated ${name} with the ${template} starter.`);
-    console.log(`\n  cd ${name}\n  copy .env.example .env\n  npm install\n  npm run dev`);
-    console.log("\nBefore shipping, add a real CanvasGlobe license key to .env.");
-    console.log("Proprietary projects must purchase a license: https://canvasglobe.swiftools.com/pricing");
-    console.log("GPLv3-compatible projects: https://canvasglobe.swiftools.com/licensing");
+    console.log(`\n  cd ${name}\n  npm install\n  npm run dev`);
+    console.log("\nBefore shipping, start a trial or purchase a CanvasGlobe license:");
+    console.log("  Trial: https://canvasglobe.swiftools.com/trial");
+    console.log("  Pricing: https://canvasglobe.swiftools.com/pricing");
+    console.log("  Activation: https://canvasglobe.swiftools.com/activate");
   } finally {
     rl.close();
   }

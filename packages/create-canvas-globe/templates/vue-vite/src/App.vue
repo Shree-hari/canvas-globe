@@ -11,7 +11,7 @@ const markers = [
 ];
 
 onMounted(() => {
-  globe = createGlobe(canvas.value, { licenseKey: import.meta.env.VITE_CANVAS_GLOBE_LICENSE_KEY, preset: "aurora", markers, arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })), tooltip: (marker) => marker.name });
+  globe = createGlobe(canvas.value, { preset: "aurora", markers, arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })), tooltip: (marker) => marker.name });
 });
 onBeforeUnmount(() => globe?.destroy());
 </script>

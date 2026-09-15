@@ -13,6 +13,8 @@ const requireCondition = (condition, message) => {
 const pkg = json("package.json");
 const licenseSource = read("src/license.js");
 const cli = json("packages/canvas-globe-licensing/package.json");
+const reactPackage = json("packages/react-canvas-globe/package.json");
+const createPackage = json("packages/create-canvas-globe/package.json");
 const currentDocs = ["README.md", "LICENSING.md", "codemeta.json", "jsr.json"]
   .filter((path) => existsSync(join(root, path)))
   .map((path) => `${path}\n${read(path)}`)
@@ -39,8 +41,35 @@ requireCondition(
   "canvas-globe-licensing must contain its own approved LICENSE.md",
 );
 requireCondition(
-  !/GPL-3\.0|GNU GPL|GPLv3-compatible|GPL key/i.test(currentDocs),
-  "current package documentation or metadata still presents the GPL licensing path",
+  reactPackage.license === "SEE LICENSE IN LICENSE.md" && createPackage.license === "SEE LICENSE IN LICENSE.md",
+  "companion package metadata has not moved to the commercial license",
+);
+requireCondition(
+  cli.version === pkg.version && reactPackage.version === pkg.version && createPackage.version === pkg.version,
+  "commercial package versions are not aligned",
+);
+requireCondition(
+  reactPackage.dependencies?.["canvas-globe"] === (pkg.version.includes("-") ? pkg.version : `^${pkg.version}`),
+  "react-canvas-globe does not depend on the matching commercial release",
+);
+for (const directory of ["canvas-globe-licensing", "react-canvas-globe", "create-canvas-globe"]) {
+  const path = join(root, "packages", directory, "LICENSE.md");
+  requireCondition(existsSync(path), `${directory} is missing its packaged LICENSE.md`);
+  if (existsSync(path) && existsSync(join(root, "LICENSE.md"))) {
+    requireCondition(readFileSync(path, "utf8") === read("LICENSE.md"), `${directory} LICENSE.md is out of sync`);
+  }
+}
+requireCondition(
+  !/dual-license|GPLv3-compatible|GPL key|complimentary key/i.test(currentDocs),
+  "current package documentation or metadata still presents GPL as a current licensing path",
+);
+requireCondition(!existsSync(join(root, "jsr.json")), "JSR publishing has not been paused for the proprietary release");
+requireCondition(!existsSync(join(root, "LICENSE")), "the former root GPL LICENSE is still in the commercial package tree");
+requireCondition(
+  !/VITE_CANVAS_GLOBE_LICENSE_KEY|NEXT_PUBLIC_CANVAS_GLOBE_LICENSE_KEY|PUBLIC_CANVAS_GLOBE_LICENSE_KEY/.test(
+    read("README.md") + read("skills/canvas-globe/SKILL.md") + read("starters/README.md"),
+  ),
+  "public browser license-key instructions remain in current setup material",
 );
 requireCondition(
   existsSync(join(root, "src/license-public-key.js")),

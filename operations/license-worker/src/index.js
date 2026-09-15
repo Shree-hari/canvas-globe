@@ -1,4 +1,41 @@
 const KELVIQ_ACTIVATE_URL = "https://api.kelviq.com/api/v1/license/activate/";
+const KELVIQ_DEACTIVATE_URL = "https://api.kelviq.com/api/v1/license/deactivate/";
+
+const addUtcMonths = (value, months) => {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return null;
+  date.setUTCMonth(date.getUTCMonth() + months);
+  return date;
+};
+
+export function checkVersionEntitlement(activation, packageVersion, env) {
+  const plan = String(activation?.license?.plan?.identifier || "").toLowerCase();
+  if (plan.includes("trial")) return { allowed: true };
+
+  let releases;
+  try {
+    releases = JSON.parse(env.CANVAS_GLOBE_RELEASES || "{}");
+  } catch {
+    return { allowed: false, status: 503, message: "The release entitlement configuration is invalid." };
+  }
+  const releasedAt = new Date(releases[packageVersion]);
+  if (!Number.isFinite(releasedAt.getTime())) {
+    return { allowed: false, status: 409, message: "This CanvasGlobe version is not available for activation yet." };
+  }
+  const updateMonths = Number(env.CANVAS_GLOBE_UPDATE_MONTHS || 12);
+  const updatesThrough = addUtcMonths(activation?.license?.activatedOn, updateMonths);
+  if (!updatesThrough || !Number.isInteger(updateMonths) || updateMonths < 0) {
+    return { allowed: false, status: 503, message: "The update entitlement configuration is invalid." };
+  }
+  if (releasedAt > updatesThrough) {
+    return {
+      allowed: false,
+      status: 403,
+      message: "This version was released after the license update period. Renew updates or install an eligible CanvasGlobe version.",
+    };
+  }
+  return { allowed: true, updatesThrough: updatesThrough.toISOString() };
+}
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -31,6 +68,23 @@ async function signActivation(payload, privateJwk) {
     encodedPayload,
   );
   return `${bytesToBase64Url(encodedPayload)}.${bytesToBase64Url(new Uint8Array(signature))}`;
+}
+
+async function releaseRejectedActivation(activation, licenseKey, env) {
+  if (!activation?.instanceId) return true;
+  try {
+    const response = await fetch(KELVIQ_DEACTIVATE_URL, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${env.KELVIQ_SERVER_API_KEY}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ licenseKey, instanceId: activation.instanceId }),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 async function activate(request, env) {
@@ -69,7 +123,22 @@ async function activate(request, env) {
   const product = activation?.license?.plan?.product;
   const expectedProduct = env.KELVIQ_PRODUCT_IDENTIFIER || "canvas-globe";
   if (!product || (product.identifier !== expectedProduct && product.id !== expectedProduct)) {
-    return json({ message: "This key is not valid for CanvasGlobe." }, 403);
+    const released = await releaseRejectedActivation(activation, licenseKey, env);
+    return json({
+      message: released
+        ? "This key is not valid for CanvasGlobe."
+        : "This key is not valid for CanvasGlobe. Contact globe@swiftools.com to reset the attempted activation.",
+    }, 403);
+  }
+
+  const entitlement = checkVersionEntitlement(activation, packageVersion, env);
+  if (!entitlement.allowed) {
+    const released = await releaseRejectedActivation(activation, licenseKey, env);
+    return json({
+      message: released
+        ? entitlement.message
+        : `${entitlement.message} Contact globe@swiftools.com to reset the attempted activation.`,
+    }, entitlement.status);
   }
 
   const payload = {
@@ -81,6 +150,7 @@ async function activate(request, env) {
     maxVersion: packageVersion,
     issuedAt: activation.activatedAt || new Date().toISOString(),
     expiresAt: activation.expiresOn || activation.license.expiresOn || null,
+    updatesThrough: entitlement.updatesThrough || null,
   };
   const privateJwk = JSON.parse(env.CANVAS_GLOBE_SIGNING_PRIVATE_JWK);
   const activationToken = await signActivation(payload, privateJwk);

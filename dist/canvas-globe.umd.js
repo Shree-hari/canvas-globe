@@ -1338,9 +1338,9 @@ const CANVAS_GLOBE_VERSION = "0.1.6";
 
 const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 const LICENSE_PAGE_URL =
-  "https://canvasglobe.swiftools.com/license/?utm_source=canvas-globe&utm_medium=runtime-notice";
+  "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
 const TRIAL_PAGE_URL =
-  "https://canvasglobe.swiftools.com/license/?intent=trial&utm_source=canvas-globe&utm_medium=runtime-notice";
+  "https://canvasglobe.swiftools.com/trial?utm_source=canvas-globe&utm_medium=runtime-notice";
 
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the EULA, activation
@@ -1533,7 +1533,7 @@ function getLicensePresentation(
     status,
     runtime,
     notice: {
-      text: "CanvasGlobe • Get a license",
+      text: "CanvasGlobe: Purchase a license",
       ariaLabel: "CanvasGlobe requires a license for production use. Open licensing options.",
       url: LICENSE_PAGE_URL,
     },
@@ -1557,6 +1557,14 @@ function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
         ? `canvas-globe: the evaluation placeholder is not a production license. ${LICENSE_PAGE_URL}`
         : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
+  } else if (mode && status.kind === "unactivated") {
+    console.error(`canvas-globe: activate the checkout key before a production build. ${LICENSE_PAGE_URL}`);
+  } else if (mode && status.kind === "invalid") {
+    console.error(`canvas-globe: the activation token is invalid. ${LICENSE_PAGE_URL}`);
+  } else if (mode && status.kind === "expired") {
+    console.error(`canvas-globe: the trial or license activation has expired. ${LICENSE_PAGE_URL}`);
+  } else if (mode && status.kind === "update-required") {
+    console.error(`canvas-globe: this package version is outside the license update period. ${LICENSE_PAGE_URL}`);
   }
   return status;
 }
@@ -1577,7 +1585,7 @@ function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
 
 
 const DEFAULTS = {
-  licenseKey: DEFAULT_LICENSE_KEY,
+  licenseKey: null,
   mode: "globe",
   projection: "equirectangular",
   theme: "atlas",
@@ -2706,6 +2714,7 @@ class GeoGlobe {
 
   async _verifyLicense(value) {
     if (!COMMERCIAL_LICENSE_MODE) return;
+    if (inspectLicenseKey(value, true).kind !== "checking") return;
     const expected = value;
     const status = await verifyLicenseKey(value, true);
     if (this._destroyed || this.o.licenseKey !== expected) return;

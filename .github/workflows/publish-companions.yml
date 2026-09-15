@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - canvas-globe-licensing
           - react-canvas-globe
           - create-canvas-globe
       npm_tag:
@@ -40,7 +41,8 @@ jobs:
         env:
           PACKAGE_NAME: ${{ inputs.package }}
         run: |
-          node -e "const fs=require('node:fs'); const root=require('./package.json'); const pkg=require('./packages/'+process.env.PACKAGE_NAME+'/package.json'); if(pkg.private) throw new Error('Package is private'); if(pkg.name!==process.env.PACKAGE_NAME) throw new Error('Package name mismatch'); if(pkg.dependencies?.['canvas-globe'] && pkg.dependencies['canvas-globe'] !== '^'+root.version) throw new Error('canvas-globe dependency is stale');"
+          node -e "const fs=require('node:fs'); const root=require('./package.json'); const pkg=require('./packages/'+process.env.PACKAGE_NAME+'/package.json'); const expected=root.version.includes('-')?root.version:'^'+root.version; if(pkg.private) throw new Error('Package is private'); if(pkg.name!==process.env.PACKAGE_NAME) throw new Error('Package name mismatch'); if(pkg.version!==root.version) throw new Error('Package version mismatch'); if(pkg.license!=='SEE LICENSE IN LICENSE.md') throw new Error('Commercial license metadata is missing'); if(!fs.existsSync('./packages/'+process.env.PACKAGE_NAME+'/LICENSE.md')) throw new Error('Packaged LICENSE.md is missing'); if(pkg.dependencies?.['canvas-globe'] && pkg.dependencies['canvas-globe']!==expected) throw new Error('canvas-globe dependency is stale');"
+          npm --prefix "packages/${PACKAGE_NAME}" test --if-present
           npm --prefix "packages/${PACKAGE_NAME}" pack --dry-run
       - name: Publish with provenance
         working-directory: packages/${{ inputs.package }}

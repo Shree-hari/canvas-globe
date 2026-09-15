@@ -13,6 +13,7 @@ function help() {
 Usage:
   canvas-globe-license activate
   canvas-globe-license info
+  canvas-globe-license token
   canvas-globe-license help
 
 Environment:
@@ -90,6 +91,18 @@ function hasActivation(cwd) {
   return !/ACTIVATED_LICENSE_TOKEN\s*=\s*null/.test(source);
 }
 
+function savedActivation(cwd) {
+  const statePath = join(cwd, STATE_FILE);
+  if (!existsSync(statePath)) {
+    throw new Error("No saved activation token found. Run canvas-globe-license activate first.");
+  }
+  const token = JSON.parse(readFileSync(statePath, "utf8")).activationToken;
+  if (typeof token !== "string" || !decodePayload(token)) {
+    throw new Error("The saved activation token is invalid. Activate again.");
+  }
+  return token;
+}
+
 async function activate(cwd) {
   const reusable = reusableActivation(cwd);
   if (reusable) {
@@ -121,6 +134,11 @@ async function main() {
   if (command === "help" || command === "--help" || command === "-h") return help();
   if (command === "info") {
     console.log(hasActivation(cwd) ? "CanvasGlobe license is activated." : "CanvasGlobe license is not activated.");
+    return;
+  }
+  if (command === "token") {
+    console.error("Treat this activation token as a secret. Store it only in your CI secret manager or no-build configuration.");
+    console.log(savedActivation(cwd));
     return;
   }
   if (command === "activate") return activate(cwd);

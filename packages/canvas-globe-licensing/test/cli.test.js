@@ -66,6 +66,11 @@ test("activates into the installed package without embedding the checkout key", 
     assert.equal(info.code, 0, info.stderr);
     assert.match(info.stdout, /is activated/);
 
+    const token = await run(root, ["token"]);
+    assert.equal(token.code, 0, token.stderr);
+    assert.equal(token.stdout.trim(), offlineToken);
+    assert.match(token.stderr, /Treat this activation token as a secret/);
+
     await writeFile(join(installed, "src", "license-data.js"), "export const ACTIVATED_LICENSE_TOKEN = null;\n");
     const restored = await run(root, ["activate"]);
     assert.equal(restored.code, 0, restored.stderr);

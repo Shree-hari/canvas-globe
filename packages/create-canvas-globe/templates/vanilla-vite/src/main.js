@@ -9,7 +9,6 @@ const markers = [
 ];
 
 const globe = createGlobe(document.querySelector("#globe"), {
-  licenseKey: import.meta.env.VITE_CANVAS_GLOBE_LICENSE_KEY,
   preset: "hologram",
   markers,
   arcs: markers.slice(1).map((city) => ({ from: markers[0], to: city })),

@@ -17,7 +17,7 @@
           "target": "@ui/canvas-globe.tsx"
         }
       ],
-      "docs": "Pass a real licenseKey. Proprietary projects must purchase a commercial license at https://canvasglobe.swiftools.com/pricing. GPLv3-compatible projects can follow https://canvasglobe.swiftools.com/licensing."
+      "docs": "Start a 30-day trial at https://canvasglobe.swiftools.com/trial or purchase a production license at https://canvasglobe.swiftools.com/pricing, then activate before building: https://canvasglobe.swiftools.com/activate."
     }
   ]
 }

@@ -4,11 +4,11 @@ Thank you for helping improve CanvasGlobe.
 
 ## Before contributing code
 
-CanvasGlobe uses a dual-license model. The project must have permission to ship
-all accepted code under both GPLv3 and commercial licenses.
+CanvasGlobe must have permission to ship accepted contributions under its
+proprietary commercial terms and any current or future licenses.
 
 The [CanvasGlobe Contributor License Agreement](CLA.md) grants the project the
-rights required for GPLv3 and commercial distribution. Before an external code
+rights required for CanvasGlobe distribution. Before an external code
 contribution can be merged:
 
 - issues, bug reports, documentation corrections, and design discussion are

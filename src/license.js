@@ -5,9 +5,9 @@ import { CANVAS_GLOBE_VERSION } from "./version.js";
 
 export const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 export const LICENSE_PAGE_URL =
-  "https://canvasglobe.swiftools.com/license/?utm_source=canvas-globe&utm_medium=runtime-notice";
+  "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
 export const TRIAL_PAGE_URL =
-  "https://canvasglobe.swiftools.com/license/?intent=trial&utm_source=canvas-globe&utm_medium=runtime-notice";
+  "https://canvasglobe.swiftools.com/trial?utm_source=canvas-globe&utm_medium=runtime-notice";
 
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the EULA, activation
@@ -200,7 +200,7 @@ export function getLicensePresentation(
     status,
     runtime,
     notice: {
-      text: "CanvasGlobe • Get a license",
+      text: "CanvasGlobe: Purchase a license",
       ariaLabel: "CanvasGlobe requires a license for production use. Open licensing options.",
       url: LICENSE_PAGE_URL,
     },
@@ -224,6 +224,14 @@ export function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
         ? `canvas-globe: the evaluation placeholder is not a production license. ${LICENSE_PAGE_URL}`
         : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
+  } else if (mode && status.kind === "unactivated") {
+    console.error(`canvas-globe: activate the checkout key before a production build. ${LICENSE_PAGE_URL}`);
+  } else if (mode && status.kind === "invalid") {
+    console.error(`canvas-globe: the activation token is invalid. ${LICENSE_PAGE_URL}`);
+  } else if (mode && status.kind === "expired") {
+    console.error(`canvas-globe: the trial or license activation has expired. ${LICENSE_PAGE_URL}`);
+  } else if (mode && status.kind === "update-required") {
+    console.error(`canvas-globe: this package version is outside the license update period. ${LICENSE_PAGE_URL}`);
   }
   return status;
 }

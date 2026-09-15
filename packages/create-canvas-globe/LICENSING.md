@@ -1,10 +1,13 @@
 # Licensing
 
-`create-canvas-globe` and its CanvasGlobe starter templates follow the CanvasGlobe dual-license model.
+`create-canvas-globe` and its CanvasGlobe starter templates follow the current
+CanvasGlobe proprietary license.
 
-- GPLv3-compatible projects may use them under GPL-3.0-only.
-- Proprietary and closed-source projects must purchase a commercial license at https://canvasglobe.swiftools.com/pricing.
+- Start a 30-day trial at https://canvasglobe.swiftools.com/trial.
+- Purchase a production license at https://canvasglobe.swiftools.com/pricing.
+- Activate before a production build using https://canvasglobe.swiftools.com/activate.
 
-Do not commit the supplied license key. Each generated starter includes an `.env.example` showing where to place it.
+Do not commit or expose a checkout key. Versions through 0.1.0 remain under
+the terms supplied with those versions.
 
 Questions: globe@swiftools.com

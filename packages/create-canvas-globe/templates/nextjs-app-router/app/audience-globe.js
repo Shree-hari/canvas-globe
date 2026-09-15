@@ -9,5 +9,5 @@ const markers = [
 ];
 
 export default function AudienceGlobe() {
-  return <Globe licenseKey={process.env.NEXT_PUBLIC_CANVAS_GLOBE_LICENSE_KEY} preset="blueprint" markers={markers} arcs={markers.slice(1).map((city) => ({ from: markers[0], to: city }))} tooltip={(marker) => marker.name} />;
+  return <Globe preset="blueprint" markers={markers} arcs={markers.slice(1).map((city) => ({ from: markers[0], to: city }))} tooltip={(marker) => marker.name} />;
 }
