@@ -6,6 +6,14 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-09-15
+
+- Improved the package description and discovery metadata used by npm,
+  Context7, CodeMeta, search engines, and coding assistants.
+- Removed the discontinued CodeSandbox repository-import link from the README.
+- Hardened project maintenance with scheduled dependency updates and more
+  reliable Storybook visual-test baselines.
+
 ## [0.1.5] - 2026-09-15
 
 - Added an animated README demo, Storybook stories, framework starters, a

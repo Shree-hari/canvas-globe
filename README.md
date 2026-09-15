@@ -111,7 +111,7 @@ npx jsr add @swiftools/canvas-globe
 You can also import the JSR release directly in Deno:
 
 ```js
-import { createGlobe } from "jsr:@swiftools/canvas-globe@0.1.5";
+import { createGlobe } from "jsr:@swiftools/canvas-globe@0.1.6";
 ```
 
 The React entry point remains on npm so React's peer dependency is resolved by
@@ -122,19 +122,19 @@ your existing application rather than installing a second React copy.
 For a plain `<script>` installation, use the versioned UMD build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.5/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.6/dist/canvas-globe.umd.js"></script>
 ```
 
 The same npm release is also available from UNPKG:
 
 ```html
-<script src="https://unpkg.com/canvas-globe@0.1.5/dist/canvas-globe.umd.js"></script>
+<script src="https://unpkg.com/canvas-globe@0.1.6/dist/canvas-globe.umd.js"></script>
 ```
 
 Modern browsers can import the package through an ESM CDN:
 
 ```js
-import { createGlobe } from "https://esm.sh/canvas-globe@0.1.5";
+import { createGlobe } from "https://esm.sh/canvas-globe@0.1.6";
 ```
 
 Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
@@ -154,7 +154,7 @@ import { createGlobe } from "canvas-globe";
 Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.5/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@0.1.6/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {

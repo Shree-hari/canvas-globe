@@ -29,7 +29,7 @@
   "files": ["index.js", "index.d.ts", "README.md", "LICENSE", "LICENSING.md"],
   "sideEffects": false,
   "dependencies": {
-    "canvas-globe": "^0.1.5"
+    "canvas-globe": "^0.1.6"
   },
   "peerDependencies": {
     "react": ">=17"
