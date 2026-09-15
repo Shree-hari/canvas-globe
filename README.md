@@ -19,7 +19,6 @@
 [Commercial pricing](https://canvasglobe.swiftools.com/pricing)
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/Shree-hari/canvas-globe?startScript=start)
-[![Open in CodeSandbox](https://img.shields.io/badge/Open_in-CodeSandbox-151515?logo=codesandbox)](https://codesandbox.io/p/github/Shree-hari/canvas-globe)
 
 **Start with your stack:** [Vanilla JS](starters/vanilla-vite) | [React + Vite](starters/react-vite) | [Next.js](starters/nextjs-app-router) | [Vue](starters/vue-vite) | [SvelteKit](starters/sveltekit) | [Web Component](starters/web-component-vite)
 
