@@ -9,7 +9,7 @@
       "title": "CanvasGlobe",
       "description": "A responsive, interactive Canvas 2D globe for React with markers, animated routes, themes, keyboard controls, and no WebGL requirement.",
       "author": "Harsh Jhunjhunuwala",
-      "dependencies": ["canvas-globe@^0.1.5"],
+      "dependencies": ["canvas-globe@^0.1.6"],
       "files": [
         {
           "path": "registry/canvas-globe.tsx",
