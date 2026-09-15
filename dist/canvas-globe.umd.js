@@ -1313,38 +1313,249 @@ function drawFitted(ctx, media, box) {
   return true;
 }
 
-/** License-key configuration helpers. */
-const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
+// This file is replaced inside node_modules by the CanvasGlobe licensing CLI.
+// It must never contain a checkout license key or another customer secret.
+const ACTIVATED_LICENSE_TOKEN = null;
 
-/** Returns the configured license-key status. */
-function inspectLicenseKey(value) {
-  const key = typeof value === "string" ? value : "";
-  if (!key) return { valid: false, kind: "missing", key: "" };
-  if (key === DEFAULT_LICENSE_KEY) {
-    return { valid: false, kind: "placeholder", key };
+// Generated public verification key. The matching private key is never published.
+const LICENSE_PUBLIC_KEY = Object.freeze({
+  "key_ops": [
+    "verify"
+  ],
+  "ext": true,
+  "kty": "EC",
+  "x": "h67vBAlHYDw_K2XuthsJ_8clmhvMwTpc-kL_nQWV-b4",
+  "y": "onMKhSnaHduPSFJjFvU07HwZi76GWpqNV7eQ4Yqk7Xk",
+  "crv": "P-256"
+});
+
+// Keep in sync with package.json. Release checks enforce this value.
+const CANVAS_GLOBE_VERSION = "0.1.6";
+
+/** License-key configuration and production-use presentation helpers. */
+
+
+
+const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
+const LICENSE_PAGE_URL =
+  "https://canvasglobe.swiftools.com/license/?utm_source=canvas-globe&utm_medium=runtime-notice";
+const TRIAL_PAGE_URL =
+  "https://canvasglobe.swiftools.com/license/?intent=trial&utm_source=canvas-globe&utm_medium=runtime-notice";
+
+// This remains false while the latest published line is GPLv3. The commercial
+// release checklist requires an intentional switch after the EULA, activation
+// service, trial flow and website copy have all been approved and deployed.
+const COMMERCIAL_LICENSE_MODE = false;
+
+const PRIVATE_HOST_PATTERNS = [
+  /^localhost$/,
+  /\.localhost$/,
+  /\.local$/,
+  /\.test$/,
+  /^127(?:\.\d{1,3}){3}$/,
+  /^10(?:\.\d{1,3}){3}$/,
+  /^192\.168(?:\.\d{1,3}){2}$/,
+  /^172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}$/,
+  /^::1$/,
+];
+const verificationCache = new Map();
+
+const resolveLicenseValue = (value) => {
+  const supplied = typeof value === "string" ? value.trim() : "";
+  const activated = typeof ACTIVATED_LICENSE_TOKEN === "string" ? ACTIVATED_LICENSE_TOKEN.trim() : "";
+  return { key: supplied || activated, supplied: Boolean(supplied) };
+};
+
+const base64UrlBytes = (value) => {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+};
+
+const decodeActivation = (token) => {
+  const parts = token.split(".");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+  try {
+    const payloadBytes = base64UrlBytes(parts[0]);
+    const payload = JSON.parse(new TextDecoder().decode(payloadBytes));
+    return { payload, payloadBytes, signature: base64UrlBytes(parts[1]) };
+  } catch {
+    return null;
   }
-  return { valid: true, kind: "provided", key };
+};
+
+const versionParts = (value) => {
+  const [core, prerelease = ""] = String(value || "").split("-", 2);
+  const numbers = core.split(".").map((part) => Number(part));
+  if (numbers.length !== 3 || numbers.some((part) => !Number.isInteger(part) || part < 0)) return null;
+  return { numbers, prerelease: prerelease ? prerelease.split(".") : [] };
+};
+
+const comparePrerelease = (left, right) => {
+  if (!left.length && !right.length) return 0;
+  if (!left.length) return 1;
+  if (!right.length) return -1;
+  const length = Math.max(left.length, right.length);
+  for (let index = 0; index < length; index += 1) {
+    if (left[index] === undefined) return -1;
+    if (right[index] === undefined) return 1;
+    const aNumber = /^\d+$/.test(left[index]);
+    const bNumber = /^\d+$/.test(right[index]);
+    if (aNumber && bNumber) {
+      const difference = Number(left[index]) - Number(right[index]);
+      if (difference) return difference;
+    } else if (aNumber !== bNumber) {
+      return aNumber ? -1 : 1;
+    } else if (left[index] !== right[index]) {
+      return left[index] < right[index] ? -1 : 1;
+    }
+  }
+  return 0;
+};
+
+const versionAtMost = (current, maximum) => {
+  const a = versionParts(current);
+  const b = versionParts(maximum);
+  if (!a || !b) return false;
+  for (let index = 0; index < 3; index += 1) {
+    if (a.numbers[index] < b.numbers[index]) return true;
+    if (a.numbers[index] > b.numbers[index]) return false;
+  }
+  return comparePrerelease(a.prerelease, b.prerelease) <= 0;
+};
+
+const activationStatus = (payload, key) => {
+  if (payload?.v !== 1 || payload?.product !== "canvas-globe" || !payload?.licenseId) {
+    return { valid: false, kind: "invalid", key: "" };
+  }
+  const expires = payload.expiresAt ? Date.parse(payload.expiresAt) : null;
+  if (expires !== null && (!Number.isFinite(expires) || expires <= Date.now())) {
+    return { valid: false, kind: "expired", key: "", plan: payload.plan || "" };
+  }
+  if (!payload.maxVersion || !versionAtMost(CANVAS_GLOBE_VERSION, payload.maxVersion)) {
+    return { valid: false, kind: "update-required", key: "", plan: payload.plan || "" };
+  }
+  return {
+    valid: true,
+    kind: String(payload.plan || "").toLowerCase().includes("trial") ? "trial" : "licensed",
+    key,
+    plan: payload.plan || "",
+    expiresAt: payload.expiresAt || null,
+  };
+};
+
+/** Returns development, production or unknown for a browser location. */
+function inspectRuntime(locationValue = globalThis.location) {
+  if (!locationValue) return { kind: "unknown", hostname: "", public: false };
+  const protocol = String(locationValue.protocol || "").toLowerCase();
+  const hostname = String(locationValue.hostname || "").toLowerCase().replace(/^\[|\]$/g, "");
+  if (!hostname || (protocol && protocol !== "http:" && protocol !== "https:")) {
+    return { kind: "unknown", hostname, public: false };
+  }
+  const local = PRIVATE_HOST_PATTERNS.some((pattern) => pattern.test(hostname));
+  return { kind: local ? "development" : "production", hostname, public: !local };
 }
 
-/** Returns whether a configured license key is available. */
+/** Returns the configured license-key status. */
+function inspectLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  const { key, supplied } = resolveLicenseValue(value);
+  if (!key) return { valid: false, kind: "missing", key: "" };
+  if (key === DEFAULT_LICENSE_KEY) return { valid: false, kind: "placeholder", key };
+  if (!mode) return { valid: true, kind: supplied ? "provided" : "activated", key };
+  const cached = verificationCache.get(key);
+  if (cached && !(cached instanceof Promise)) return cached;
+  if (decodeActivation(key)) return { valid: false, kind: "checking", key: "" };
+  return { valid: false, kind: "unactivated", key: "" };
+}
+
+/** Cryptographically verifies an offline activation token. */
+async function verifyLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  const { key } = resolveLicenseValue(value);
+  const initial = inspectLicenseKey(value, mode);
+  if (!mode || initial.valid || initial.kind === "missing" || initial.kind === "placeholder" || initial.kind === "unactivated") {
+    return initial;
+  }
+  const existing = verificationCache.get(key);
+  if (existing) return existing instanceof Promise ? existing : existing;
+
+  const verification = (async () => {
+    const activation = decodeActivation(key);
+    if (!activation || !globalThis.crypto?.subtle) return { valid: false, kind: "invalid", key: "" };
+    try {
+      const publicKey = await globalThis.crypto.subtle.importKey(
+        "jwk",
+        LICENSE_PUBLIC_KEY,
+        { name: "ECDSA", namedCurve: "P-256" },
+        false,
+        ["verify"],
+      );
+      const validSignature = await globalThis.crypto.subtle.verify(
+        { name: "ECDSA", hash: "SHA-256" },
+        publicKey,
+        activation.signature,
+        activation.payloadBytes,
+      );
+      return validSignature
+        ? activationStatus(activation.payload, key)
+        : { valid: false, kind: "invalid", key: "" };
+    } catch {
+      return { valid: false, kind: "invalid", key: "" };
+    }
+  })();
+  verificationCache.set(key, verification);
+  const result = await verification;
+  verificationCache.set(key, result);
+  return result;
+}
+
+/** Returns whether a configured or activated license key is available. */
 function hasLicenseKey(value) {
   return inspectLicenseKey(value).valid;
 }
 
+/**
+ * Returns the notice that the commercial release displays for public use.
+ * The mode argument exists for release tooling and tests, not as a public
+ * option that applications can use to suppress licensing UI.
+ */
+function getLicensePresentation(
+  value,
+  locationValue = globalThis.location,
+  mode = COMMERCIAL_LICENSE_MODE,
+) {
+  const status = inspectLicenseKey(value, mode);
+  const runtime = inspectRuntime(locationValue);
+  if (!mode || status.valid || status.kind === "checking" || !runtime.public) {
+    return { status, runtime, notice: null };
+  }
+  return {
+    status,
+    runtime,
+    notice: {
+      text: "CanvasGlobe • Get a license",
+      ariaLabel: "CanvasGlobe requires a license for production use. Open licensing options.",
+      url: LICENSE_PAGE_URL,
+    },
+  };
+}
+
 /** Reports missing or placeholder keys in the browser console. */
-function reportLicenseStatus(value) {
-  const status = inspectLicenseKey(value);
-  // CanvasGlobe can be constructed in non-browser test and rendering
-  // environments. Console messaging applies when it is used in a browser.
+function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
+  const presentation = getLicensePresentation(value, globalThis.location, mode);
+  const { status } = presentation;
   if (typeof location === "undefined") return status;
   if (status.kind === "missing") {
     console.error(
-      "canvas-globe: please provide a valid license key. For help, email globe@swiftools.com",
+      mode
+        ? `canvas-globe: a license is required for production use. ${LICENSE_PAGE_URL}`
+        : "canvas-globe: please provide a valid license key. For help, email globe@swiftools.com",
     );
   } else if (status.kind === "placeholder") {
     console.warn(
-      `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. ` +
-        "For help, email globe@swiftools.com",
+      mode
+        ? `canvas-globe: the evaluation placeholder is not a production license. ${LICENSE_PAGE_URL}`
+        : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
   }
   return status;
@@ -1454,6 +1665,7 @@ class GeoGlobe {
     this.o = { ...DEFAULTS, ...(presets[presetName] || null), ...scene, ...options };
     this.o.center = { ...DEFAULTS.center, ...(options.center || {}) };
     reportLicenseStatus(this.o.licenseKey);
+    this._verifyLicense(this.o.licenseKey);
 
     this.lon = this.o.center.lon;
     this.lat = this.o.center.lat;
@@ -1486,6 +1698,8 @@ class GeoGlobe {
     this._media = new Map();
     this._markerMedia = new Map();
     this._counterShown = null;
+    this._licenseHit = null;
+    this._licenseHovered = false;
 
     this._applyWorld();
     this._applyMarkers(this.o.markers);
@@ -1517,7 +1731,10 @@ class GeoGlobe {
   setOptions(patch = {}) {
     patch = this._expandLooks(patch);
     Object.assign(this.o, patch);
-    if ("licenseKey" in patch) reportLicenseStatus(patch.licenseKey);
+    if ("licenseKey" in patch) {
+      reportLicenseStatus(patch.licenseKey);
+      this._verifyLicense(patch.licenseKey);
+    }
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
     if ("zoom" in patch) this._zoom = clamp(patch.zoom, this.o.minZoom, this.o.maxZoom);
@@ -2058,6 +2275,7 @@ class GeoGlobe {
     this.hits = this.o.mode === "map" ? this._paintMap(w, h) : this._paintGlobe(w, h);
     this._dirty = false;
     this.o.onRender?.(this);
+    this._paintLicenseNotice(w, h);
     return this;
   }
 
@@ -2090,6 +2308,7 @@ class GeoGlobe {
     this._markerMedia.clear();
     this._tip = null;
     this._live = null;
+    this._licenseHit = null;
     return this;
   }
 
@@ -2469,7 +2688,7 @@ class GeoGlobe {
       c.style.cursor = "default";
       return;
     }
-    c.style.cursor = this._hovered || this._hoveredCountry ? "pointer" : this._drag ? "grabbing" : "grab";
+    c.style.cursor = this._licenseHovered || this._hovered || this._hoveredCountry ? "pointer" : this._drag ? "grabbing" : "grab";
   }
 
   _local(e) {
@@ -2483,6 +2702,20 @@ class GeoGlobe {
       if (Math.hypot(m.x - x, m.y - y) <= m.r + 3) return m;
     }
     return null;
+  }
+
+  async _verifyLicense(value) {
+    if (!COMMERCIAL_LICENSE_MODE) return;
+    const expected = value;
+    const status = await verifyLicenseKey(value, true);
+    if (this._destroyed || this.o.licenseKey !== expected) return;
+    if (!status.valid) reportLicenseStatus(value, true);
+    this.invalidate();
+  }
+
+  _licenseHitAt(x, y) {
+    const hit = this._licenseHit;
+    return Boolean(hit && x >= hit.x && x <= hit.x + hit.w && y >= hit.y && y <= hit.y + hit.h);
   }
 
   _bind() {
@@ -2508,6 +2741,11 @@ class GeoGlobe {
     this._onMove = (e) => {
       const [x, y] = this._local(e);
       this._pointer = { x: e.clientX, y: e.clientY };
+      const licenseHovered = this._licenseHitAt(x, y);
+      if (licenseHovered !== this._licenseHovered) {
+        this._licenseHovered = licenseHovered;
+        this._cursor();
+      }
       if (this._pointers.has(e.pointerId)) this._pointers.set(e.pointerId, [x, y]);
 
       if (this._pinch && this._pointers.size === 2) {
@@ -2573,6 +2811,7 @@ class GeoGlobe {
     this._onLeave = (e) => {
       this._onUp(e);
       this._pointer = null;
+      this._licenseHovered = false;
       if (this._hovered || this._hoveredCountry) {
         if (this._hovered) this.o.onHover?.(null, null);
         if (this._hoveredCountry) this.o.onCountryHover?.(null, null);
@@ -2587,6 +2826,11 @@ class GeoGlobe {
     this._onClick = (e) => {
       if (this._dragMoved) return;
       const [x, y] = this._local(e);
+      if (this._licenseHitAt(x, y)) {
+        const opened = globalThis.open?.(this._licenseHit.url, "_blank", "noopener,noreferrer");
+        if (opened) opened.opener = null;
+        return;
+      }
       const hit = this._hitAt(x, y);
       if (hit) {
         this.o.onClick?.(hit.marker, { x: hit.x, y: hit.y });
@@ -3337,6 +3581,49 @@ class GeoGlobe {
       ctx.fillText(spec.text, x, y + size + offset);
     }
     ctx.restore();
+  }
+
+  /** Licensing notice for public production use of the commercial edition. */
+  _paintLicenseNotice(w, h) {
+    const presentation = getLicensePresentation(this.o.licenseKey);
+    const notice = presentation.notice;
+    this._licenseHit = null;
+    this.canvas.removeAttribute?.("data-canvas-globe-license-notice");
+    if (!notice) return;
+
+    const { ctx } = this;
+    const fontSize = Math.max(10, Math.min(13, Math.round(Math.min(w, h) * 0.03)));
+    const horizontal = 10;
+    const vertical = 7;
+    const margin = Math.max(8, Math.round(Math.min(w, h) * 0.025));
+
+    ctx.save();
+    ctx.font = `600 ${fontSize}px Inter,system-ui,sans-serif`;
+    const textWidth = ctx.measureText(notice.text).width;
+    const boxWidth = Math.min(w - margin * 2, textWidth + horizontal * 2);
+    const boxHeight = fontSize + vertical * 2;
+    const x = Math.max(margin, w - boxWidth - margin);
+    const y = Math.max(margin, h - boxHeight - margin);
+
+    ctx.globalAlpha = 0.94;
+    ctx.fillStyle = "rgba(9, 18, 35, 0.92)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, boxWidth, boxHeight, 6);
+    else ctx.rect(x, y, boxWidth, boxHeight);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(notice.text, x + boxWidth / 2, y + boxHeight / 2, boxWidth - horizontal * 2);
+    ctx.restore();
+
+    this._licenseHit = { x, y, w: boxWidth, h: boxHeight, url: notice.url };
+    this.canvas.setAttribute?.("data-canvas-globe-license-notice", "visible");
   }
 
   _paintCountries(t, trace, textured) {
@@ -4349,5 +4636,5 @@ function defineGeoGlobe(tag = "geo-globe") {
 defineGeoGlobe();
 
 const CanvasGlobe = GeoGlobe; const createCanvasGlobe = createGlobe;
-return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, inspectLicenseKey, hasLicenseKey, default: createGlobe };
+return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, LICENSE_PAGE_URL, TRIAL_PAGE_URL, inspectRuntime, inspectLicenseKey, verifyLicenseKey, hasLicenseKey, default: createGlobe };
 });

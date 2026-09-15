@@ -609,13 +609,30 @@ export { GeoGlobe as CanvasGlobe };
 /** Brand-aligned alias for `createGlobe`. */
 export { createGlobe as createCanvasGlobe };
 export declare const DEFAULT_LICENSE_KEY: "0000-0000-000-0000";
+/** Canonical licensing page used by CanvasGlobe notices. */
+export declare const LICENSE_PAGE_URL: string;
+/** Canonical free-trial page. */
+export declare const TRIAL_PAGE_URL: string;
+/** Classifies a browser location without making a network request. */
+export declare function inspectRuntime(locationValue?: {
+  protocol?: string;
+  hostname?: string;
+} | null): {
+  kind: "development" | "production" | "unknown";
+  hostname: string;
+  public: boolean;
+};
 export interface LicenseKeyStatus {
   valid: boolean;
-  kind: "missing" | "placeholder" | "provided";
+  kind: "missing" | "placeholder" | "provided" | "activated" | "checking" | "unactivated" | "invalid" | "expired" | "update-required" | "trial" | "licensed";
   key: string;
+  plan?: string;
+  expiresAt?: string | null;
 }
 /** Returns the configured license-key status. */
 export declare function inspectLicenseKey(value: unknown): LicenseKeyStatus;
+/** Cryptographically verifies an offline activation token. */
+export declare function verifyLicenseKey(value: unknown): Promise<LicenseKeyStatus>;
 /** Returns whether a configured license key is available. */
 export declare function hasLicenseKey(value: unknown): boolean;
 export declare const themes: Record<ThemeName, Theme>;

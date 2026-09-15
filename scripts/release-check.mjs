@@ -27,6 +27,14 @@ const requiredFiles = [
   "types/data/world.d.ts",
 ];
 
+if (existsSync(join(root, "src/version.js"))) {
+  const versionSource = readFileSync(join(root, "src/version.js"), "utf8");
+  assert(
+    versionSource.includes(`CANVAS_GLOBE_VERSION = "${pkg.version}"`),
+    "src/version.js does not match package.json",
+  );
+}
+
 assert(pkg.name === "canvas-globe", "unexpected package name");
 assert(pkg.author?.name === "Harsh Jhunjhunuwala", "unexpected package author");
 assert(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(pkg.version), "version is not valid semver");
@@ -99,6 +107,9 @@ if (existsSync(join(root, "jsr.json"))) {
   assert(!jsr.publish?.include?.includes("types"), "JSR must not include npm-only global declarations");
   assert(!jsr.publish?.include?.includes("src/react.js"), "JSR must not include the npm-only React entry point");
   assert(jsr.publish?.include?.includes("types/jsr-element.d.ts"), "JSR element declarations are missing");
+  assert(jsr.publish?.include?.includes("src/license-data.js"), "JSR license data module is missing");
+  assert(jsr.publish?.include?.includes("src/license-public-key.js"), "JSR license public key is missing");
+  assert(jsr.publish?.include?.includes("src/version.js"), "JSR version module is missing");
 }
 
 if (existsSync(join(root, "custom-elements.json"))) {

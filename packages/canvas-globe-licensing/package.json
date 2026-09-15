@@ -1,0 +1,21 @@
+{
+  "name": "canvas-globe-licensing",
+  "version": "0.1.0",
+  "description": "Build-time license activation for CanvasGlobe.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "canvas-globe-license": "./bin/canvas-globe-license.js"
+  },
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "SEE LICENSE IN ../canvas-globe/LICENSE.md"
+}

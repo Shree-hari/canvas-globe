@@ -1,0 +1,10 @@
+name = "canvas-globe-license"
+main = "src/index.js"
+compatibility_date = "2026-09-16"
+
+[vars]
+KELVIQ_PRODUCT_IDENTIFIER = "canvas-globe"
+
+# Add these through `wrangler secret put`, never in this file:
+# KELVIQ_SERVER_API_KEY
+# CANVAS_GLOBE_SIGNING_PRIVATE_JWK

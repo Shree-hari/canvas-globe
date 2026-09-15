@@ -1,0 +1,60 @@
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const read = (path) => readFileSync(join(root, path), "utf8");
+const json = (path) => JSON.parse(read(path));
+const failures = [];
+const requireCondition = (condition, message) => {
+  if (!condition) failures.push(message);
+};
+
+const pkg = json("package.json");
+const licenseSource = read("src/license.js");
+const cli = json("packages/canvas-globe-licensing/package.json");
+const currentDocs = ["README.md", "LICENSING.md", "codemeta.json", "jsr.json"]
+  .filter((path) => existsSync(join(root, path)))
+  .map((path) => `${path}\n${read(path)}`)
+  .join("\n");
+
+requireCondition(
+  pkg.license === "SEE LICENSE IN LICENSE.md",
+  "package.json must use SEE LICENSE IN LICENSE.md",
+);
+requireCondition(/^1\./.test(pkg.version), "commercial package version must start at 1.x");
+requireCondition(existsSync(join(root, "LICENSE.md")), "approved LICENSE.md is missing");
+if (existsSync(join(root, "LICENSE.md"))) {
+  const license = read("LICENSE.md");
+  requireCondition(!/DRAFT|\[[A-Z][A-Z ,.-]+\]/.test(license), "LICENSE.md still contains draft markers");
+  requireCondition(license.includes("Harsh Jhunjhunuwala"), "LICENSE.md is missing the licensor");
+}
+requireCondition(
+  /COMMERCIAL_LICENSE_MODE\s*=\s*true/.test(licenseSource),
+  "COMMERCIAL_LICENSE_MODE has not been enabled",
+);
+requireCondition(cli.private !== true, "canvas-globe-licensing is still private");
+requireCondition(
+  cli.license === "SEE LICENSE IN LICENSE.md",
+  "canvas-globe-licensing must contain its own approved LICENSE.md",
+);
+requireCondition(
+  !/GPL-3\.0|GNU GPL|GPLv3-compatible|GPL key/i.test(currentDocs),
+  "current package documentation or metadata still presents the GPL licensing path",
+);
+requireCondition(
+  existsSync(join(root, "src/license-public-key.js")),
+  "license public verification key is missing",
+);
+requireCondition(
+  !existsSync(join(root, ".license-secrets", "DO_NOT_PUBLISH")),
+  "a release-blocking secret marker is present",
+);
+
+if (failures.length) {
+  console.error("Commercial release is blocked:");
+  for (const failure of failures) console.error(`  - ${failure}`);
+  process.exit(1);
+}
+
+console.log("Commercial license release checks passed.");

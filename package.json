@@ -97,11 +97,13 @@
     "build:registry": "shadcn build --output .registry-build",
     "capture:readme": "node scripts/capture-readme-demo.mjs",
     "test": "node --test",
+    "test:licensing": "npm --prefix packages/canvas-globe-licensing test",
     "test:ecosystem": "npm run build:registry && node scripts/validate-ecosystem.mjs && npm --prefix packages/create-canvas-globe test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:ecosystem": "tsc --noEmit -p tsconfig.ecosystem.json",
     "smoke:package": "node scripts/package-smoke.mjs",
-    "release:check": "npm run test && npm run typecheck && npm run typecheck:ecosystem && npm run test:ecosystem && npm run build && node scripts/release-check.mjs && npm run smoke:package",
+    "commercial:check": "npm run test:licensing && node scripts/commercial-release-check.mjs",
+    "release:check": "npm run test && npm run test:licensing && npm run typecheck && npm run typecheck:ecosystem && npm run test:ecosystem && npm run build && node scripts/release-check.mjs && npm run smoke:package",
     "prepublishOnly": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs"
   },
   "peerDependencies": {
