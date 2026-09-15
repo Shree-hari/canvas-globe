@@ -1,7 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
   "projectTitle": "CanvasGlobe",
-  "description": "Zero-dependency JavaScript and React library for interactive Canvas 2D globes and flat world maps, with markers, routes, choropleths, themes, exports, and no WebGL requirement.",
+  "description": "CanvasGlobe helps developers add interactive 3D globes and flat world maps to JavaScript and React apps with Canvas 2D, without WebGL, map tiles, API keys, or runtime network calls.",
   "excludeFolders": ["dist", "node_modules", "test", "assets"],
   "excludeFiles": ["CHANGELOG.md", "package-lock.json"],
   "rules": [
