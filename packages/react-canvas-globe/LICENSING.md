@@ -4,7 +4,7 @@
 same proprietary license.
 
 - Purchase a production license at https://canvasglobe.swiftools.com/pricing.
-- Pass the supplied `GLO` key through the `licenseKey` option.
+- Pass the supplied license key through the `licenseKey` option.
 
 Versions through 0.1.0 remain under the terms supplied with those versions.
 

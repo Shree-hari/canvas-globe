@@ -381,7 +381,7 @@ export interface RenderMarkerContext {
 export type TooltipKind = "marker" | "cluster" | "country";
 
 export interface GeoGlobeOptions {
-  /** Commercial license key supplied after purchase. Keys begin with `GLO`. */
+  /** Commercial license key supplied after purchase. */
   licenseKey?: string | null;
   /** "globe" (orthographic, spinnable) or "map" (flat). Default "globe". */
   mode?: "globe" | "map";
@@ -606,8 +606,6 @@ export { GeoGlobe as CanvasGlobe };
 /** Brand-aligned alias for `createGlobe`. */
 export { createGlobe as createCanvasGlobe };
 export declare const DEFAULT_LICENSE_KEY: "0000-0000-000-0000";
-/** Prefix used by CanvasGlobe commercial license keys. */
-export declare const LICENSE_KEY_PREFIX: "GLO";
 /** Canonical licensing page used by CanvasGlobe notices. */
 export declare const LICENSE_PAGE_URL: string;
 export declare const LICENSE_SETUP_URL: string;

@@ -35,8 +35,8 @@ requireCondition(
   "COMMERCIAL_LICENSE_MODE has not been enabled",
 );
 requireCondition(
-  /LICENSE_KEY_PREFIX\s*=\s*"GLO"/.test(licenseSource),
-  "the local GLO license-key prefix check is missing",
+  /LICENSE_KEY_MARKER\s*=\s*String\.fromCharCode\(/.test(licenseSource),
+  "the local license-key format check is missing",
 );
 requireCondition(
   reactPackage.license === "SEE LICENSE IN LICENSE.md" && createPackage.license === "SEE LICENSE IN LICENSE.md",

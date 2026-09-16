@@ -6,14 +6,24 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-17
+
+- Released the first stable commercial version of CanvasGlobe.
+- Added a professional in-canvas licensing panel, a persistent unlicensed
+  watermark and a direct purchase action for public production use.
+- Kept license checks local, with no license-server request or package
+  telemetry.
+- Simplified license-key setup across public documentation, generated starter
+  guidance, type declarations and customer-facing messages.
+
 ## [1.0.0-beta.3] - 2026-09-17
 
 - Replaced the small production license badge with a professional in-canvas
   license panel containing purchase, preview and existing-key actions.
 - Added a persistent unlicensed watermark and purchase ribbon after the panel
   is dismissed, while keeping the globe interactive.
-- Simplified customer-facing runtime copy to refer to the license key without
-  exposing its technical prefix convention.
+- Simplified customer-facing runtime copy to refer only to the supplied
+  license key.
 
 ## [1.0.0-beta.2] - 2026-09-17
 
@@ -24,8 +34,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [1.0.0-beta.1] - 2026-09-16
 
-- Prepared an opt-in proprietary 1.x licensing model with a local `GLO`
-  license-key check and an in-component purchase notice for unlicensed
+- Prepared an opt-in proprietary 1.x licensing model with a local license-key
+  check and an in-component purchase notice for unlicensed
   production use.
 - Added commercial release safeguards and coordinated migration tools without
   introducing license-server or visitor-analytics requests.

@@ -23,8 +23,8 @@ GPL versions. Website and README copy must never claim otherwise.
 | --- | --- |
 | Local development, no key | Globe works; console setup reminder |
 | Public production, no key | Globe works; in-canvas licensing notice and console warning |
-| Key without the exact `GLO` prefix | Treated as invalid |
-| Key beginning with `GLO` | Globe works without licensing notices |
+| Invalid key | Treated as invalid |
+| Valid purchased key | Globe works without licensing notices |
 
 The key check runs entirely in the package. It makes no request to Kelviq,
 Cloudflare, Swiftools or another license server.
@@ -33,7 +33,7 @@ Cloudflare, Swiftools or another license server.
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "GLO-your-license-key",
+  licenseKey: "your-license-key",
 });
 ```
 
@@ -44,7 +44,7 @@ createGlobe(canvas, {
 3. Set npm metadata to `SEE LICENSE IN LICENSE.md`.
 4. Update the package banner to `Proprietary commercial software`.
 5. Keep current README, starters, wrappers, skill, registry component,
-   metadata and website pages aligned with the local `GLO` key convention.
+   metadata and website pages aligned with the commercial key convention.
 6. Keep a historical page explaining that versions through 0.1.6 remain GPLv3.
 7. Pause JSR releases unless JSR confirms the proprietary license is accepted.
 8. Never introduce a license-server request into the browser package.

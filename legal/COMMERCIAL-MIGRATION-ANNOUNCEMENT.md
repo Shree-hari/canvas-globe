@@ -8,11 +8,11 @@ changed.
 
 CanvasGlobe `1.0.0-beta.1` and later are proprietary commercial software. A
 paid license is required for production use. Customers receive a license key
-beginning with `GLO` and add it through the `licenseKey` option:
+and add it through the `licenseKey` option:
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "GLO-your-license-key",
+  licenseKey: "your-license-key",
 });
 ```
 
@@ -24,7 +24,7 @@ The first beta is published under npm's `next` tag so existing users are not
 automatically moved from the GPL release line. Install it explicitly with:
 
 ```bash
-npm install canvas-globe@next
+npm install canvas-globe
 ```
 
 Review plans and terms before production use:

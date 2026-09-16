@@ -17,12 +17,12 @@ Add the license key supplied after purchase to your CanvasGlobe options:
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "GLO-your-license-key",
+  licenseKey: "your-license-key",
 });
 ```
 
-CanvasGlobe checks the key locally. A valid commercial key begins with `GLO`.
-The package makes no license-server request and sends no visitor analytics.
+CanvasGlobe checks the supplied key locally. The package makes no
+license-server request and sends no visitor analytics.
 
 Public production use without a valid key displays a small in-canvas licensing
 notice and a browser-console warning. Local development remains functional so

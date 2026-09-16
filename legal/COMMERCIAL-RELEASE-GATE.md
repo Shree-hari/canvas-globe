@@ -18,8 +18,8 @@ checked.
 ## Kelviq
 
 - [x] Enable license-key delivery for Solo, Team and Business.
-- [x] Confirm generated keys begin with the exact uppercase prefix `GLO`.
-- [x] Owner confirmed Kelviq delivers `GLO` keys.
+- [x] Confirm generated keys use the format expected by the package.
+- [x] Owner confirmed the checkout provider delivers compatible keys.
 - [ ] Test a production checkout with a low-value or fully reversed internal
       purchase approved by the merchant of record.
 
@@ -29,7 +29,7 @@ checked.
 - [x] Replace GPL package metadata and files with the approved EULA.
 - [x] Bump all coordinated packages to `1.0.0-beta.2`.
 - [x] Prepare UMD, npm, React, custom-element, starters and skill instructions.
-- [x] Add local `GLO` key checks with no server request.
+- [x] Add local license-key checks with no server request.
 - [x] Add render tests for visible and cleared notices.
 - [x] Run the complete release check and inspect `npm pack` contents.
 - [x] Publish beta with `npm publish --tag next --access public`.
