@@ -8,6 +8,14 @@ import { fileURLToPath } from "node:url";
 
 const testDirectory = fileURLToPath(new URL(".", import.meta.url));
 
+test("shows beta-channel commands in help", () => {
+  const cli = join(testDirectory, "..", "bin", "create-canvas-globe.js");
+  const result = spawnSync(process.execPath, [cli, "--help"], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /npm create canvas-globe@next/);
+  assert.match(result.stdout, /npx create-canvas-globe@next/);
+});
+
 test("scaffolds a named project from a template", async () => {
   const scratch = await mkdtemp(join(tmpdir(), "create-canvas-globe-"));
   try {

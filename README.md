@@ -238,7 +238,7 @@ To scaffold a complete starter for React, Next.js, Vue, SvelteKit, Vanilla
 JavaScript, or Web Components, run:
 
 ```bash
-npm create canvas-globe@latest my-globe
+npm create canvas-globe@next my-globe
 ```
 
 ### AI-assisted setup

@@ -28,8 +28,8 @@ function usage() {
   console.log(`Create a CanvasGlobe project
 
 Usage:
-  npm create canvas-globe@latest my-globe -- --template react
-  npx create-canvas-globe my-globe --template vanilla
+  npm create canvas-globe@next my-globe -- --template react
+  npx create-canvas-globe@next my-globe --template vanilla
 
 Templates:
   vanilla, react, nextjs, vue, sveltekit, web-component

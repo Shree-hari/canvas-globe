@@ -5,7 +5,7 @@
   "identifier": "canvas-globe",
   "description": "CanvasGlobe helps developers add interactive 3D globes and flat world maps to JavaScript and React apps with Canvas 2D, without WebGL, map tiles, API keys, or runtime network calls.",
   "url": "https://canvasglobe.swiftools.com/",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "codeRepository": "https://github.com/Shree-hari/canvas-globe",
   "issueTracker": "https://github.com/Shree-hari/canvas-globe/issues",
   "downloadUrl": "https://www.npmjs.com/package/canvas-globe",
