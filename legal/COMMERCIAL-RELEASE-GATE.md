@@ -31,7 +31,7 @@ checked.
 - [x] Prepare UMD, npm, React, custom-element, starters and skill instructions.
 - [x] Add local `GLO` key checks with no server request.
 - [x] Add render tests for visible and cleared notices.
-- [ ] Run the complete release check and inspect `npm pack` contents.
+- [x] Run the complete release check and inspect `npm pack` contents.
 - [ ] Publish beta with `npm publish --tag next --access public`.
 - [ ] Do not move `latest` until the beta is tested in each starter.
 
