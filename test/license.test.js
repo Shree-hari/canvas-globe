@@ -4,11 +4,15 @@ import {
   DEFAULT_LICENSE_KEY,
   LICENSE_KEY_PREFIX,
   LICENSE_PAGE_URL,
+  createGlobe,
   inspectLicenseKey,
   inspectRuntime,
   hasLicenseKey,
 } from "../src/index.js";
 import { getLicensePresentation, reportLicenseStatus, verifyLicenseKey } from "../src/license.js";
+import { installGlobals, makeCanvas } from "./helpers.js";
+
+installGlobals();
 
 test("accepts commercial license keys with the GLO prefix", () => {
   assert.equal(LICENSE_KEY_PREFIX, "GLO");
@@ -77,6 +81,31 @@ test("commercial presentation appears only for public use without a GLO key", ()
   assert.equal(getLicensePresentation(null, production, false).notice, null);
 });
 
+test("the rendered production notice clears after adding a GLO key", () => {
+  const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, "location");
+  const originalError = console.error;
+  Object.defineProperty(globalThis, "location", {
+    configurable: true,
+    value: new URL("https://customer.example"),
+  });
+  console.error = () => {};
+
+  try {
+    const canvas = makeCanvas();
+    const globe = createGlobe(canvas, { autoRotate: false });
+    globe.render();
+    assert.equal(canvas.getAttribute("data-canvas-globe-license-notice"), "visible");
+
+    globe.setOptions({ licenseKey: "GLO-PAID-KEY" }).render();
+    assert.equal(canvas.hasAttribute("data-canvas-globe-license-notice"), false);
+    globe.destroy();
+  } finally {
+    console.error = originalError;
+    if (locationDescriptor) Object.defineProperty(globalThis, "location", locationDescriptor);
+    else delete globalThis.location;
+  }
+});
+
 test("verifies the key locally without making a network request", async () => {
   const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");
   let fetchCalls = 0;
@@ -123,7 +152,7 @@ test("reports local license problems without making runtime network calls", () =
   console.error = (...args) => errors.push(args.join(" "));
 
   try {
-    assert.doesNotThrow(() => reportLicenseStatus("historical-key"));
+    assert.doesNotThrow(() => reportLicenseStatus("historical-key", false));
     assert.equal(warnings.length, 0);
     assert.equal(errors.length, 0);
 

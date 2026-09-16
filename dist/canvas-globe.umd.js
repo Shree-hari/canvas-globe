@@ -1,4 +1,4 @@
-/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | GPL-3.0-only OR commercial | https://github.com/Shree-hari/canvas-globe */
+/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | Proprietary commercial software | https://github.com/Shree-hari/canvas-globe */
 (function (root, factory) {
   if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
   else if (typeof define === "function" && define.amd) define(factory);
@@ -1314,7 +1314,7 @@ function drawFitted(ctx, media, box) {
 }
 
 // Keep in sync with package.json. Release checks enforce this value.
-const CANVAS_GLOBE_VERSION = "0.1.6";
+const CANVAS_GLOBE_VERSION = "1.0.0-beta.1";
 
 /** Local license-key checks and production-use presentation helpers. */
 
@@ -1326,7 +1326,7 @@ const LICENSE_PAGE_URL =
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the agreement and
 // website copy have been approved and deployed.
-const COMMERCIAL_LICENSE_MODE = false;
+const COMMERCIAL_LICENSE_MODE = true;
 
 const PRIVATE_HOST_PATTERNS = [
   /^localhost$/,

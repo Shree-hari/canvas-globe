@@ -46,7 +46,7 @@ const parts = [
   `return { ${EXPORTS.join(", ")}, default: createGlobe };`,
 ];
 
-const umd = `/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | GPL-3.0-only OR commercial | https://github.com/Shree-hari/canvas-globe */
+const umd = `/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | Proprietary commercial software | https://github.com/Shree-hari/canvas-globe */
 (function (root, factory) {
   if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
   else if (typeof define === "function" && define.amd) define(factory);

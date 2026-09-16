@@ -28,7 +28,7 @@ requireCondition(existsSync(join(root, "LICENSE.md")), "approved LICENSE.md is m
 if (existsSync(join(root, "LICENSE.md"))) {
   const license = read("LICENSE.md");
   requireCondition(!/DRAFT|\[[A-Z][A-Z ,.-]+\]/.test(license), "LICENSE.md still contains draft markers");
-  requireCondition(license.includes("Harsh Jhunjhunuwala"), "LICENSE.md is missing the licensor");
+  requireCondition(/Harsh\s+Jhunjhunuwala/.test(license), "LICENSE.md is missing the licensor");
 }
 requireCondition(
   /COMMERCIAL_LICENSE_MODE\s*=\s*true/.test(licenseSource),

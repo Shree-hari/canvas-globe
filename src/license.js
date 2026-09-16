@@ -8,7 +8,7 @@ export const LICENSE_PAGE_URL =
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the agreement and
 // website copy have been approved and deployed.
-export const COMMERCIAL_LICENSE_MODE = false;
+export const COMMERCIAL_LICENSE_MODE = true;
 
 const PRIVATE_HOST_PATTERNS = [
   /^localhost$/,

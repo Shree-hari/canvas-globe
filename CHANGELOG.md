@@ -6,6 +6,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] - 2026-09-16
+
 - Prepared an opt-in proprietary 1.x licensing model with a local `GLO`
   license-key check and an in-component purchase notice for unlicensed
   production use.

@@ -28,7 +28,7 @@ const license = read("LICENSE.md");
 if (/DRAFT|\[EFFECTIVE DATE\]|\[[A-Z][A-Z ,.-]+\]/.test(license)) {
   throw new Error("LICENSE.md still contains a draft label or unresolved placeholder.");
 }
-if (!license.includes("Harsh Jhunjhunuwala")) {
+if (!/Harsh\s+Jhunjhunuwala/.test(license)) {
   throw new Error("LICENSE.md does not identify Harsh Jhunjhunuwala as licensor.");
 }
 
