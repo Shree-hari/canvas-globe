@@ -1,6 +1,6 @@
 {
   "name": "create-canvas-globe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Scaffold CanvasGlobe projects for vanilla JavaScript, React, Next.js, Vue, SvelteKit, or Web Components.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
