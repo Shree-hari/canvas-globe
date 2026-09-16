@@ -6,13 +6,11 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
-- Prepared an opt-in proprietary 1.x licensing model with local activation,
-  CI-safe activation tokens, and an in-component purchase
-  notice for unlicensed production use.
-- Added a Cloudflare activation service template, Kelviq entitlement checks,
-  paid update eligibility, release safeguards, and coordinated migration tools.
-- Removed public browser environment variables for checkout license keys from
-  starters and documentation.
+- Prepared an opt-in proprietary 1.x licensing model with a local `GLO`
+  license-key check and an in-component purchase notice for unlicensed
+  production use.
+- Added commercial release safeguards and coordinated migration tools without
+  introducing license-server or visitor-analytics requests.
 
 ## [0.1.6] - 2026-09-15
 

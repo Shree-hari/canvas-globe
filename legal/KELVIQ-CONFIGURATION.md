@@ -1,26 +1,16 @@
 # Kelviq configuration for CanvasGlobe
 
 Configure these items in the existing CanvasGlobe product. Do not change the
-live paid checkout descriptions until the approved EULA is linked.
+live paid checkout descriptions until the approved agreement is linked.
 
 ## Paid plans
 
 Keep the current Solo, Team and Business prices unless a separate pricing
-decision is made. Configure license-key delivery and activation limits:
+decision is made. Enable generated license-key delivery for every paid plan.
 
-| Plan | Identifier | Suggested activation limit |
-| --- | --- | ---: |
-| Solo | `solo` | 2 |
-| Team | `team` | 10 |
-| Business | `business` | 40 |
-
-The activation count is intentionally larger than the developer count so that
-developers can use a workstation and CI without unnecessary support requests.
-The legal seat limit remains the number stated in the Order.
-
-For one-time plans, set key duration to perpetual if Kelviq supports it. The
-Order should include 12 months of new versions and support. The activation
-service token must preserve access to versions released during that period.
+Every generated CanvasGlobe key must begin with the exact uppercase prefix
+`GLO`. The package checks only this prefix and does not call the Kelviq API.
+Activation limits and license expiry are not required for this release.
 
 ## Checkout disclosures
 
@@ -34,14 +24,5 @@ Display or link these items before payment:
 - Privacy Notice
 - Support email: globe@swiftools.com
 
-Store the EULA version and acceptance timestamp with the Order where the
+Store the agreement version and acceptance timestamp with the Order where the
 checkout provider permits it.
-
-## Secrets
-
-- `KELVIQ_SERVER_API_KEY`: Cloudflare Worker secret only
-- `CANVAS_GLOBE_SIGNING_PRIVATE_JWK`: Cloudflare Worker secret only
-- Kelviq sandbox key: local testing or secret store only
-- Kelviq production key: never place in the package repository
-
-The public verification key in `src/license-public-key.js` is safe to publish.

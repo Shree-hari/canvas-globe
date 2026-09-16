@@ -1,6 +1,6 @@
 # Commercial licensing website copy
 
-This file is the approved content source once the EULA draft has completed
+This file is the approved content source once the agreement draft has completed
 legal review. It is not live copy while the current npm release remains GPLv3.
 
 ## Licensing page hero
@@ -13,8 +13,8 @@ fits your team and products.
 
 - Buy a commercial license
 
-No visitor analytics are added to websites using CanvasGlobe. License
-activation happens during developer setup or the application build.
+CanvasGlobe checks the purchased key locally. It makes no license-server or
+visitor-analytics requests.
 
 ## Paid plan note
 
@@ -27,52 +27,38 @@ updates and support.
 
 # CanvasGlobe needs a license
 
-This website is using CanvasGlobe without an activated production license.
+This website is using CanvasGlobe without a valid production license key.
 
-If you are the developer or website owner, purchase and activate a commercial
-license to remove this notice. Website visitors do not need to take any action.
+If you are the developer or website owner, purchase a commercial license to
+remove this notice. Website visitors do not need to take any action.
 
 - View pricing
-- Activate an existing license
+- Add an existing license key
 
-## Activation guide
+## License setup
 
-# Activate CanvasGlobe
+Add the key supplied after purchase to the CanvasGlobe options:
 
-Install the licensing helper in the same project as CanvasGlobe:
-
-```bash
-npm install canvas-globe canvas-globe-licensing
+```js
+createGlobe(canvas, {
+  licenseKey: "GLO-your-license-key",
+});
 ```
 
-Place the key received by email in an environment variable and activate before
-building the application:
-
-```bash
-CANVAS_GLOBE_LICENSE_KEY=your_key npx canvas-globe-license activate
-npm run build
-```
-
-For local development, you may instead create `canvas-globe-license.txt` in the
-project root. Add this file to `.gitignore` and never commit it.
-
-The command validates the key and embeds an offline activation token. It does
-not place your checkout key in browser JavaScript and it is not called by your
-website visitors.
+A valid key begins with `GLO`. The check runs locally and does not contact
+Kelviq, Cloudflare, Swiftools or another server.
 
 ## FAQ
 
 ### Will CanvasGlobe track my website visitors?
 
 No. The package does not send visitor activity, globe interactions or customer
-website analytics to Swiftools. License activation runs during developer setup
-or CI.
+website analytics to Swiftools.
 
-### What happens without an activated license?
+### What happens without a valid license key?
 
-CanvasGlobe remains available for evaluation, but public production use shows
-a licensing notice and browser-console warning. A valid commercial activation
-removes the notice.
+Public production use shows a licensing notice and browser-console warning. A
+valid `GLO` key removes the notice.
 
 ### Does a one-time license expire?
 
@@ -91,9 +77,3 @@ license. Email globe@swiftools.com.
 Purchases are final except where a refund is required by law or approved by the
 merchant of record. Review the public demos, documentation, license agreement,
 compatibility requirements and plan limits before purchasing.
-
-### What happened to the GPL version?
-
-CanvasGlobe versions through 0.1.6 remain available under GPLv3 under the terms
-that accompanied those releases. The current commercial release is governed by
-the CanvasGlobe Software License Agreement.

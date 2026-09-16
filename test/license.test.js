@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_LICENSE_KEY,
+  LICENSE_KEY_PREFIX,
   LICENSE_PAGE_URL,
   inspectLicenseKey,
   inspectRuntime,
@@ -9,35 +10,38 @@ import {
 } from "../src/index.js";
 import { getLicensePresentation, reportLicenseStatus, verifyLicenseKey } from "../src/license.js";
 
-const SIGNED_TEST_LICENSE = "eyJ2IjoxLCJwcm9kdWN0IjoiY2FudmFzLWdsb2JlIiwibGljZW5zZUlkIjoidGVzdC1saWNlbnNlIiwiaW5zdGFuY2VJZCI6InRlc3QtaW5zdGFuY2UiLCJwbGFuIjoic29sbyIsIm1heFZlcnNpb24iOiIxLjAuMCIsImlzc3VlZEF0IjoiMjAyNi0wOS0xNlQwMDowMDowMC4wMDBaIiwiZXhwaXJlc0F0IjoiMjA5OS0wMS0wMVQwMDowMDowMC4wMDBaIn0.4f8wpyal2_6VPSA6XLfrLbSsXjOx8uBUKtO2p3VGKBdjeznD8MK_btA2AOHdLgPht93pcrvL9bDa6i7sm7akIQ";
-
-test("recognizes an issued license key", () => {
-  assert.deepEqual(inspectLicenseKey("platform-issued-key"), {
+test("accepts commercial license keys with the GLO prefix", () => {
+  assert.equal(LICENSE_KEY_PREFIX, "GLO");
+  assert.deepEqual(inspectLicenseKey("GLO-ABCD-1234", true), {
     valid: true,
-    kind: "provided",
-    key: "platform-issued-key",
+    kind: "licensed",
+    key: "GLO-ABCD-1234",
   });
+  assert.equal(hasLicenseKey(" GLO123 ", true), true);
 });
 
-test("accepts provider-specific license-key formats", () => {
-  const providerKey = "lic_2pQ9Ab-cd_XY.7";
-  const status = inspectLicenseKey(providerKey);
-  assert.deepEqual(status, {
-    valid: true,
-    kind: "provided",
-    key: providerKey,
-  });
-  assert.equal(hasLicenseKey("550e8400-e29b-41d4-a716-446655440000"), true);
-  assert.equal(hasLicenseKey("platform-specific-value"), true);
+test("rejects commercial keys without the exact GLO prefix", () => {
+  for (const key of ["GLO", "glo-ABCD", "XGLO-ABCD", "platform-key", "1234"]) {
+    assert.equal(inspectLicenseKey(key, true).kind, "invalid", key);
+    assert.equal(hasLicenseKey(key, true), false, key);
+  }
 });
 
 test("recognizes missing and placeholder keys", () => {
   assert.equal(DEFAULT_LICENSE_KEY, "0000-0000-000-0000");
-  assert.equal(inspectLicenseKey(null).kind, "missing");
-  assert.equal(inspectLicenseKey("").kind, "missing");
-  assert.equal(inspectLicenseKey(DEFAULT_LICENSE_KEY).kind, "placeholder");
-  assert.equal(hasLicenseKey(null), false);
-  assert.equal(hasLicenseKey(DEFAULT_LICENSE_KEY), false);
+  assert.equal(inspectLicenseKey(null, true).kind, "missing");
+  assert.equal(inspectLicenseKey("", true).kind, "missing");
+  assert.equal(inspectLicenseKey(DEFAULT_LICENSE_KEY, true).kind, "placeholder");
+  assert.equal(hasLicenseKey(null, true), false);
+  assert.equal(hasLicenseKey(DEFAULT_LICENSE_KEY, true), false);
+});
+
+test("keeps the historical GPL release mode unchanged", () => {
+  assert.deepEqual(inspectLicenseKey("historical-project-key", false), {
+    valid: true,
+    kind: "provided",
+    key: "historical-project-key",
+  });
 });
 
 test("classifies public and development browser locations", () => {
@@ -61,33 +65,40 @@ test("classifies public and development browser locations", () => {
   assert.equal(inspectRuntime(undefined).kind, "unknown");
 });
 
-test("commercial presentation appears only for public use without a key", () => {
+test("commercial presentation appears only for public use without a GLO key", () => {
   const production = new URL("https://customer.example");
   const development = new URL("http://localhost:5173");
   const missing = getLicensePresentation(null, production, true);
   assert.equal(missing.notice?.text, "CanvasGlobe: Purchase a license");
   assert.equal(missing.notice?.url, LICENSE_PAGE_URL);
-  assert.equal(getLicensePresentation("unactivated-checkout-key", production, true).notice?.url, LICENSE_PAGE_URL);
+  assert.equal(getLicensePresentation("wrong-prefix", production, true).notice?.url, LICENSE_PAGE_URL);
+  assert.equal(getLicensePresentation("GLO-PAID-KEY", production, true).notice, null);
   assert.equal(getLicensePresentation(null, development, true).notice, null);
   assert.equal(getLicensePresentation(null, production, false).notice, null);
 });
 
-test("verifies signed offline activation tokens", async () => {
-  assert.equal(inspectLicenseKey(SIGNED_TEST_LICENSE, true).kind, "checking");
-  const valid = await verifyLicenseKey(SIGNED_TEST_LICENSE, true);
-  assert.equal(valid.valid, true);
-  assert.equal(valid.kind, "licensed");
-  assert.equal(valid.plan, "solo");
-  assert.equal(inspectLicenseKey(SIGNED_TEST_LICENSE, true).valid, true);
-
-  const [payload, signature] = SIGNED_TEST_LICENSE.split(".");
-  const tampered = `${payload}.${signature[0] === "A" ? "B" : "A"}${signature.slice(1)}`;
-  const invalid = await verifyLicenseKey(tampered, true);
-  assert.equal(invalid.valid, false);
-  assert.equal(invalid.kind, "invalid");
+test("verifies the key locally without making a network request", async () => {
+  const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");
+  let fetchCalls = 0;
+  Object.defineProperty(globalThis, "fetch", {
+    configurable: true,
+    writable: true,
+    value: () => {
+      fetchCalls += 1;
+      throw new Error("license checks must not call fetch");
+    },
+  });
+  try {
+    assert.equal((await verifyLicenseKey("GLO-PAID-KEY", true)).valid, true);
+    assert.equal((await verifyLicenseKey("wrong-prefix", true)).valid, false);
+    assert.equal(fetchCalls, 0);
+  } finally {
+    if (fetchDescriptor) Object.defineProperty(globalThis, "fetch", fetchDescriptor);
+    else delete globalThis.fetch;
+  }
 });
 
-test("reports license problems without making runtime network calls", () => {
+test("reports local license problems without making runtime network calls", () => {
   const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, "location");
   const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");
   const originalWarn = console.warn;
@@ -112,25 +123,18 @@ test("reports license problems without making runtime network calls", () => {
   console.error = (...args) => errors.push(args.join(" "));
 
   try {
-    assert.doesNotThrow(() => reportLicenseStatus("gpl-project-issued-key"));
-    assert.equal(warnings.length, 0);
-    assert.equal(errors.length, 0);
-
-    assert.doesNotThrow(() => reportLicenseStatus("commercial-order-key"));
+    assert.doesNotThrow(() => reportLicenseStatus("historical-key"));
     assert.equal(warnings.length, 0);
     assert.equal(errors.length, 0);
 
     assert.doesNotThrow(() => reportLicenseStatus(null));
     assert.doesNotThrow(() => reportLicenseStatus(DEFAULT_LICENSE_KEY));
-    assert.doesNotThrow(() => reportLicenseStatus(null));
-    assert.doesNotThrow(() => reportLicenseStatus(DEFAULT_LICENSE_KEY));
-    assert.equal(warnings.length, 2);
-    assert.equal(errors.length, 2);
-    assert.match(warnings[0], /not valid for production use/);
-    assert.match(errors[0], /provide a valid license key/);
+    assert.equal(warnings.length, 1);
+    assert.equal(errors.length, 1);
 
-    assert.doesNotThrow(() => reportLicenseStatus("raw-checkout-key", true));
-    assert.match(errors.at(-1), /activate the checkout key/);
+    assert.doesNotThrow(() => reportLicenseStatus("wrong-prefix", true));
+    assert.match(errors.at(-1), /GLO license key/);
+    assert.doesNotThrow(() => reportLicenseStatus("GLO-PAID-KEY", true));
     assert.equal(fetchCalls, 0);
   } finally {
     console.warn = originalWarn;

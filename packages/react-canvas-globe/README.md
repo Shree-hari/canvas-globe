@@ -22,7 +22,7 @@ export default function AudienceGlobe() {
 ```
 
 Purchase a [production license](https://canvasglobe.swiftools.com/pricing),
-then follow the [activation guide](https://canvasglobe.swiftools.com/activate).
+then pass the supplied `GLO` key through the `licenseKey` option.
 
 Documentation: https://canvasglobe.swiftools.com/react-globe
 

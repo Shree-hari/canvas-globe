@@ -1313,36 +1313,19 @@ function drawFitted(ctx, media, box) {
   return true;
 }
 
-// This file is replaced inside node_modules by the CanvasGlobe licensing CLI.
-// It must never contain a checkout license key or another customer secret.
-const ACTIVATED_LICENSE_TOKEN = null;
-
-// Generated public verification key. The matching private key is never published.
-const LICENSE_PUBLIC_KEY = Object.freeze({
-  "key_ops": [
-    "verify"
-  ],
-  "ext": true,
-  "kty": "EC",
-  "x": "h67vBAlHYDw_K2XuthsJ_8clmhvMwTpc-kL_nQWV-b4",
-  "y": "onMKhSnaHduPSFJjFvU07HwZi76GWpqNV7eQ4Yqk7Xk",
-  "crv": "P-256"
-});
-
 // Keep in sync with package.json. Release checks enforce this value.
 const CANVAS_GLOBE_VERSION = "0.1.6";
 
-/** License-key configuration and production-use presentation helpers. */
-
-
+/** Local license-key checks and production-use presentation helpers. */
 
 const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
+const LICENSE_KEY_PREFIX = "GLO";
 const LICENSE_PAGE_URL =
   "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
 
 // This remains false while the latest published line is GPLv3. The commercial
-// release checklist requires an intentional switch after the EULA, activation
-// service and website copy have all been approved and deployed.
+// release checklist requires an intentional switch after the agreement and
+// website copy have been approved and deployed.
 const COMMERCIAL_LICENSE_MODE = false;
 
 const PRIVATE_HOST_PATTERNS = [
@@ -1356,92 +1339,9 @@ const PRIVATE_HOST_PATTERNS = [
   /^172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}$/,
   /^::1$/,
 ];
-const verificationCache = new Map();
 
-const resolveLicenseValue = (value) => {
-  const supplied = typeof value === "string" ? value.trim() : "";
-  const activated = typeof ACTIVATED_LICENSE_TOKEN === "string" ? ACTIVATED_LICENSE_TOKEN.trim() : "";
-  return { key: supplied || activated, supplied: Boolean(supplied) };
-};
-
-const base64UrlBytes = (value) => {
-  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
-  const binary = atob(padded);
-  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
-};
-
-const decodeActivation = (token) => {
-  const parts = token.split(".");
-  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
-  try {
-    const payloadBytes = base64UrlBytes(parts[0]);
-    const payload = JSON.parse(new TextDecoder().decode(payloadBytes));
-    return { payload, payloadBytes, signature: base64UrlBytes(parts[1]) };
-  } catch {
-    return null;
-  }
-};
-
-const versionParts = (value) => {
-  const [core, prerelease = ""] = String(value || "").split("-", 2);
-  const numbers = core.split(".").map((part) => Number(part));
-  if (numbers.length !== 3 || numbers.some((part) => !Number.isInteger(part) || part < 0)) return null;
-  return { numbers, prerelease: prerelease ? prerelease.split(".") : [] };
-};
-
-const comparePrerelease = (left, right) => {
-  if (!left.length && !right.length) return 0;
-  if (!left.length) return 1;
-  if (!right.length) return -1;
-  const length = Math.max(left.length, right.length);
-  for (let index = 0; index < length; index += 1) {
-    if (left[index] === undefined) return -1;
-    if (right[index] === undefined) return 1;
-    const aNumber = /^\d+$/.test(left[index]);
-    const bNumber = /^\d+$/.test(right[index]);
-    if (aNumber && bNumber) {
-      const difference = Number(left[index]) - Number(right[index]);
-      if (difference) return difference;
-    } else if (aNumber !== bNumber) {
-      return aNumber ? -1 : 1;
-    } else if (left[index] !== right[index]) {
-      return left[index] < right[index] ? -1 : 1;
-    }
-  }
-  return 0;
-};
-
-const versionAtMost = (current, maximum) => {
-  const a = versionParts(current);
-  const b = versionParts(maximum);
-  if (!a || !b) return false;
-  for (let index = 0; index < 3; index += 1) {
-    if (a.numbers[index] < b.numbers[index]) return true;
-    if (a.numbers[index] > b.numbers[index]) return false;
-  }
-  return comparePrerelease(a.prerelease, b.prerelease) <= 0;
-};
-
-const activationStatus = (payload, key) => {
-  if (payload?.v !== 1 || payload?.product !== "canvas-globe" || !payload?.licenseId) {
-    return { valid: false, kind: "invalid", key: "" };
-  }
-  const expires = payload.expiresAt ? Date.parse(payload.expiresAt) : null;
-  if (expires !== null && (!Number.isFinite(expires) || expires <= Date.now())) {
-    return { valid: false, kind: "expired", key: "", plan: payload.plan || "" };
-  }
-  if (!payload.maxVersion || !versionAtMost(CANVAS_GLOBE_VERSION, payload.maxVersion)) {
-    return { valid: false, kind: "update-required", key: "", plan: payload.plan || "" };
-  }
-  return {
-    valid: true,
-    kind: "licensed",
-    key,
-    plan: payload.plan || "",
-    expiresAt: payload.expiresAt || null,
-  };
-};
+const normalizeLicenseKey = (value) =>
+  typeof value === "string" ? value.trim() : "";
 
 /** Returns development, production or unknown for a browser location. */
 function inspectRuntime(locationValue = globalThis.location) {
@@ -1455,61 +1355,26 @@ function inspectRuntime(locationValue = globalThis.location) {
   return { kind: local ? "development" : "production", hostname, public: !local };
 }
 
-/** Returns the configured license-key status. */
+/** Checks a license key locally. Commercial keys begin with GLO. */
 function inspectLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
-  const { key, supplied } = resolveLicenseValue(value);
+  const key = normalizeLicenseKey(value);
   if (!key) return { valid: false, kind: "missing", key: "" };
   if (key === DEFAULT_LICENSE_KEY) return { valid: false, kind: "placeholder", key };
-  if (!mode) return { valid: true, kind: supplied ? "provided" : "activated", key };
-  const cached = verificationCache.get(key);
-  if (cached && !(cached instanceof Promise)) return cached;
-  if (decodeActivation(key)) return { valid: false, kind: "checking", key: "" };
-  return { valid: false, kind: "unactivated", key: "" };
-}
-
-/** Cryptographically verifies an offline activation token. */
-async function verifyLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
-  const { key } = resolveLicenseValue(value);
-  const initial = inspectLicenseKey(value, mode);
-  if (!mode || initial.valid || initial.kind === "missing" || initial.kind === "placeholder" || initial.kind === "unactivated") {
-    return initial;
+  if (!mode) return { valid: true, kind: "provided", key };
+  if (key.startsWith(LICENSE_KEY_PREFIX) && key.length > LICENSE_KEY_PREFIX.length) {
+    return { valid: true, kind: "licensed", key };
   }
-  const existing = verificationCache.get(key);
-  if (existing) return existing instanceof Promise ? existing : existing;
-
-  const verification = (async () => {
-    const activation = decodeActivation(key);
-    if (!activation || !globalThis.crypto?.subtle) return { valid: false, kind: "invalid", key: "" };
-    try {
-      const publicKey = await globalThis.crypto.subtle.importKey(
-        "jwk",
-        LICENSE_PUBLIC_KEY,
-        { name: "ECDSA", namedCurve: "P-256" },
-        false,
-        ["verify"],
-      );
-      const validSignature = await globalThis.crypto.subtle.verify(
-        { name: "ECDSA", hash: "SHA-256" },
-        publicKey,
-        activation.signature,
-        activation.payloadBytes,
-      );
-      return validSignature
-        ? activationStatus(activation.payload, key)
-        : { valid: false, kind: "invalid", key: "" };
-    } catch {
-      return { valid: false, kind: "invalid", key: "" };
-    }
-  })();
-  verificationCache.set(key, verification);
-  const result = await verification;
-  verificationCache.set(key, result);
-  return result;
+  return { valid: false, kind: "invalid", key: "" };
 }
 
-/** Returns whether a configured or activated license key is available. */
-function hasLicenseKey(value) {
-  return inspectLicenseKey(value).valid;
+/** Resolves the same local result for callers that already use this helper. */
+async function verifyLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  return inspectLicenseKey(value, mode);
+}
+
+/** Returns whether a valid local license key is available. */
+function hasLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  return inspectLicenseKey(value, mode).valid;
 }
 
 /**
@@ -1524,7 +1389,7 @@ function getLicensePresentation(
 ) {
   const status = inspectLicenseKey(value, mode);
   const runtime = inspectRuntime(locationValue);
-  if (!mode || status.valid || status.kind === "checking" || !runtime.public) {
+  if (!mode || status.valid || !runtime.public) {
     return { status, runtime, notice: null };
   }
   return {
@@ -1538,7 +1403,7 @@ function getLicensePresentation(
   };
 }
 
-/** Reports missing or placeholder keys in the browser console. */
+/** Reports local license-key problems in the browser console. */
 function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
   const presentation = getLicensePresentation(value, globalThis.location, mode);
   const { status } = presentation;
@@ -1552,17 +1417,11 @@ function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
   } else if (status.kind === "placeholder") {
     console.warn(
       mode
-        ? `canvas-globe: the evaluation placeholder is not a production license. ${LICENSE_PAGE_URL}`
+        ? `canvas-globe: the placeholder is not a production license. ${LICENSE_PAGE_URL}`
         : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
-  } else if (mode && status.kind === "unactivated") {
-    console.error(`canvas-globe: activate the checkout key before a production build. ${LICENSE_PAGE_URL}`);
   } else if (mode && status.kind === "invalid") {
-    console.error(`canvas-globe: the activation token is invalid. ${LICENSE_PAGE_URL}`);
-  } else if (mode && status.kind === "expired") {
-    console.error(`canvas-globe: the license activation has expired. ${LICENSE_PAGE_URL}`);
-  } else if (mode && status.kind === "update-required") {
-    console.error(`canvas-globe: this package version is outside the license update period. ${LICENSE_PAGE_URL}`);
+    console.error(`canvas-globe: enter the GLO license key supplied after purchase. ${LICENSE_PAGE_URL}`);
   }
   return status;
 }
@@ -1671,7 +1530,6 @@ class GeoGlobe {
     this.o = { ...DEFAULTS, ...(presets[presetName] || null), ...scene, ...options };
     this.o.center = { ...DEFAULTS.center, ...(options.center || {}) };
     reportLicenseStatus(this.o.licenseKey);
-    this._verifyLicense(this.o.licenseKey);
 
     this.lon = this.o.center.lon;
     this.lat = this.o.center.lat;
@@ -1739,7 +1597,6 @@ class GeoGlobe {
     Object.assign(this.o, patch);
     if ("licenseKey" in patch) {
       reportLicenseStatus(patch.licenseKey);
-      this._verifyLicense(patch.licenseKey);
     }
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
@@ -2708,16 +2565,6 @@ class GeoGlobe {
       if (Math.hypot(m.x - x, m.y - y) <= m.r + 3) return m;
     }
     return null;
-  }
-
-  async _verifyLicense(value) {
-    if (!COMMERCIAL_LICENSE_MODE) return;
-    if (inspectLicenseKey(value, true).kind !== "checking") return;
-    const expected = value;
-    const status = await verifyLicenseKey(value, true);
-    if (this._destroyed || this.o.licenseKey !== expected) return;
-    if (!status.valid) reportLicenseStatus(value, true);
-    this.invalidate();
   }
 
   _licenseHitAt(x, y) {
@@ -4643,5 +4490,5 @@ function defineGeoGlobe(tag = "geo-globe") {
 defineGeoGlobe();
 
 const CanvasGlobe = GeoGlobe; const createCanvasGlobe = createGlobe;
-return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, LICENSE_PAGE_URL, inspectRuntime, inspectLicenseKey, verifyLicenseKey, hasLicenseKey, default: createGlobe };
+return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, LICENSE_KEY_PREFIX, LICENSE_PAGE_URL, inspectRuntime, inspectLicenseKey, verifyLicenseKey, hasLicenseKey, default: createGlobe };
 });

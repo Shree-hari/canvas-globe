@@ -51,7 +51,7 @@ lock.packages[""].version = version;
 lock.packages[""].license = "SEE LICENSE IN LICENSE.md";
 writeJson("package-lock.json", lock);
 
-for (const directory of ["canvas-globe-licensing", "react-canvas-globe", "create-canvas-globe"]) {
+for (const directory of ["react-canvas-globe", "create-canvas-globe"]) {
   const packagePath = `packages/${directory}/package.json`;
   updatePackage(packagePath, (pkg) => {
     pkg.version = version;
@@ -69,8 +69,6 @@ for (const collection of ["starters", "packages/create-canvas-globe/templates"])
     const path = `${collection}/${name}/package.json`;
     updatePackage(path, (pkg) => {
       pkg.dependencies["canvas-globe"] = releaseSpec;
-      pkg.devDependencies ||= {};
-      pkg.devDependencies["canvas-globe-licensing"] = releaseSpec;
     });
   }
 }

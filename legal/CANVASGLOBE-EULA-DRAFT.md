@@ -55,8 +55,8 @@ Renewal of updates and support is optional unless the Order is a subscription.
 
 ### 2.2 Plan limits
 
-The number of Licensed Developers, Applications, clients, affiliates,
-activations and other usage limits are those stated in the Order. Licensee must
+The number of Licensed Developers, Applications, clients, affiliates and other
+usage limits are those stated in the Order. Licensee must
 purchase additional coverage before exceeding them. Automated build and test
 systems do not count as Licensed Developers when they perform no development or
 customization work.
@@ -82,9 +82,9 @@ the Software.
 
 Except where applicable law does not permit a restriction, Licensee must not:
 
-1. share a license key or activation artifact outside the licensed team;
+1. share a license key outside the licensed team;
 2. use one developer seat concurrently for more than one individual;
-3. remove or bypass licensing notices, activation checks or technical limits;
+3. remove or bypass licensing notices, license checks or technical limits;
 4. publish the Software's source code or substantial portions of it;
 5. sell, sublicense, rent, lease or transfer the Software except as embedded in
    an Application as expressly permitted above;
@@ -94,20 +94,16 @@ Except where applicable law does not permit a restriction, Licensee must not:
 
 Licensee may make reasonable backup copies for permitted use.
 
-## 5. License keys and activation
+## 5. License keys
 
 A valid commercial license key is required for the applicable use.
-License validation may occur during installation, activation, build or update.
-The activation service may process the license key, plan, activation instance,
-project label, timestamps and technical information needed to prevent abuse and
-enforce activation limits. It is not used to monitor visitors to Licensee's
-Application.
+The Software checks the key locally and does not contact a license server.
 
-Without a valid activation, the Software may display watermarks, licensing
+Without a valid key, the Software may display watermarks, licensing
 notices and console warnings, and future versions may limit functionality.
 Licensee must keep keys confidential and notify Licensor promptly if a key is
-lost, disclosed or misused. Licensor may deactivate keys that are fraudulent,
-refunded, charged back, shared, revoked or used beyond the applicable Order.
+lost, disclosed or misused. Keys associated with fraudulent, refunded, charged
+back, shared, revoked or out-of-scope Orders are not licensed for use.
 
 ## 6. Ownership
 
@@ -205,7 +201,7 @@ automatically if Licensee materially breaches it and does not cure the breach
 within 10 days after notice, or immediately for deliberate key sharing,
 circumvention, unauthorized redistribution, fraud or infringement. On
 termination, Licensee must stop using and distributing the Software and delete
-all copies, keys and activation artifacts. Sections intended by their nature to
+all copies and keys. Sections intended by their nature to
 survive will survive, including ownership, restrictions, disclaimers,
 limitations, indemnity and general terms.
 

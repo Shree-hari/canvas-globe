@@ -119,8 +119,6 @@ if (existsSync(join(root, "jsr.json"))) {
   assert(!jsr.publish?.include?.includes("types"), "JSR must not include npm-only global declarations");
   assert(!jsr.publish?.include?.includes("src/react.js"), "JSR must not include the npm-only React entry point");
   assert(jsr.publish?.include?.includes("types/jsr-element.d.ts"), "JSR element declarations are missing");
-  assert(jsr.publish?.include?.includes("src/license-data.js"), "JSR license data module is missing");
-  assert(jsr.publish?.include?.includes("src/license-public-key.js"), "JSR license public key is missing");
   assert(jsr.publish?.include?.includes("src/version.js"), "JSR version module is missing");
 }
 if (commercialRelease) {

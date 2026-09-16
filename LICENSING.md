@@ -13,24 +13,20 @@ Standard one-time licenses include perpetual use of eligible versions and 12
 months of updates and support. OEM, builder, SDK, white-label, and other
 redistribution uses require separately scoped terms.
 
-## Activation
+Add the license key supplied after purchase to your CanvasGlobe options:
 
-Activate during developer setup or CI before the application build:
-
-```bash
-npm install canvas-globe
-npm install --save-dev canvas-globe-licensing
-npx canvas-globe-license activate
+```js
+createGlobe(canvas, {
+  licenseKey: "GLO-your-license-key",
+});
 ```
 
-The activation command exchanges the checkout key for a signed offline
-token. The checkout key is not included in the browser bundle. CanvasGlobe does
-not send visitor analytics or make runtime license-server requests from customer
-websites. See https://canvasglobe.swiftools.com/activate.
+CanvasGlobe checks the key locally. A valid commercial key begins with `GLO`.
+The package makes no license-server request and sends no visitor analytics.
 
-Public production use without a valid activation displays a small in-canvas
-licensing notice and a browser-console warning. Local development remains fully
-functional so a missing setup step does not interrupt development.
+Public production use without a valid key displays a small in-canvas licensing
+notice and a browser-console warning. Local development remains functional so
+a missing setup step does not interrupt development.
 
 ## Earlier GPL releases
 
@@ -43,5 +39,5 @@ CanvasGlobe 1.0 or later. See https://canvasglobe.swiftools.com/gpl-history.
 Copyright (C) 2026 Harsh Jhunjhunuwala. CanvasGlobe is published under Swiftools,
 an operating brand, not a separate legal entity.
 
-Email globe@swiftools.com for purchasing, activation, licensing, and
-support questions. Do not include confidential information in a public issue.
+Email globe@swiftools.com for purchasing, licensing, and support questions. Do
+not include confidential information in a public issue.

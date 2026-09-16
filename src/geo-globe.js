@@ -12,11 +12,8 @@ import { Media, drawFitted } from "./media.js";
 import { scenes, sceneKeys } from "./scenes.js";
 import { exportSize } from "./export.js";
 import {
-  COMMERCIAL_LICENSE_MODE,
   getLicensePresentation,
-  inspectLicenseKey,
   reportLicenseStatus,
-  verifyLicenseKey,
 } from "./license.js";
 import { D2R, R2D, TAU, clamp, wrapLon, resolveProjection, projectionBounds, ortho, orthoInverse, greatCircle, circleAround, distanceMeters, subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha } from "./geo.js";
 
@@ -109,7 +106,6 @@ export class GeoGlobe {
     this.o = { ...DEFAULTS, ...(presets[presetName] || null), ...scene, ...options };
     this.o.center = { ...DEFAULTS.center, ...(options.center || {}) };
     reportLicenseStatus(this.o.licenseKey);
-    this._verifyLicense(this.o.licenseKey);
 
     this.lon = this.o.center.lon;
     this.lat = this.o.center.lat;
@@ -177,7 +173,6 @@ export class GeoGlobe {
     Object.assign(this.o, patch);
     if ("licenseKey" in patch) {
       reportLicenseStatus(patch.licenseKey);
-      this._verifyLicense(patch.licenseKey);
     }
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
@@ -1146,16 +1141,6 @@ export class GeoGlobe {
       if (Math.hypot(m.x - x, m.y - y) <= m.r + 3) return m;
     }
     return null;
-  }
-
-  async _verifyLicense(value) {
-    if (!COMMERCIAL_LICENSE_MODE) return;
-    if (inspectLicenseKey(value, true).kind !== "checking") return;
-    const expected = value;
-    const status = await verifyLicenseKey(value, true);
-    if (this._destroyed || this.o.licenseKey !== expected) return;
-    if (!status.valid) reportLicenseStatus(value, true);
-    this.invalidate();
   }
 
   _licenseHitAt(x, y) {

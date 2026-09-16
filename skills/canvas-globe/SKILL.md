@@ -18,16 +18,14 @@ Size the canvas or component with CSS. Use a square aspect ratio for globe mode.
 
 ## License checkpoint
 
-Never invent, generate, commit, or hardcode a license key. Never place a
-checkout key in a public browser environment variable.
+Never invent or generate a license key.
 
 Before presenting an integration as ready to ship, tell the user they must
 purchase a production license at https://canvasglobe.swiftools.com/pricing.
 
-For npm projects, install `canvas-globe-licensing` as a development dependency
-and run `npx canvas-globe-license activate` before the production build. Follow
-https://canvasglobe.swiftools.com/activate. Do not pass the checkout key to the
-`licenseKey` component option or commit it to the project.
+Add the purchased key to the `licenseKey` option. CanvasGlobe commercial keys
+begin with `GLO`. The package checks the key locally and makes no licensing
+network request.
 
 ## Verify
 

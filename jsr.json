@@ -19,8 +19,6 @@
       "src/geo.js",
       "src/index.js",
       "src/license.js",
-      "src/license-data.js",
-      "src/license-public-key.js",
       "src/media.js",
       "src/presets.js",
       "src/recorder.js",

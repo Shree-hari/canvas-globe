@@ -11,6 +11,6 @@ Runnable starter projects for the supported integration paths.
 | `sveltekit` | `npm install && npm run dev` |
 | `web-component-vite` | `npm install && npm run dev` |
 
-Local development works without activation. Before a production build,
-purchase a license at https://canvasglobe.swiftools.com/pricing, then follow
-https://canvasglobe.swiftools.com/activate.
+Local development works without a key. Before a production build, purchase a
+license at https://canvasglobe.swiftools.com/pricing and add the supplied `GLO`
+key to the `licenseKey` option.

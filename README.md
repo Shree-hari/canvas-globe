@@ -69,15 +69,14 @@ CanvasGlobe 1.0 and later are proprietary commercial software. Purchase a
 [Solo, Team, Business, or OEM license](https://canvasglobe.swiftools.com/pricing)
 before production use or redistribution.
 
-Activate locally or in CI before building. The checkout key is never placed in
-application code, and websites using CanvasGlobe make no runtime license-server
-or analytics requests to Swiftools:
+Add the license key supplied after purchase to the CanvasGlobe options. Valid
+commercial keys begin with `GLO`. The check runs locally, and websites using
+CanvasGlobe make no license-server or analytics requests to Swiftools:
 
-```bash
-npm install canvas-globe
-npm install --save-dev canvas-globe-licensing
-npx canvas-globe-license activate
-npm run build
+```js
+createGlobe(canvas, {
+  licenseKey: "GLO-your-license-key",
+});
 ```
 
 Versions through 0.1.6 remain available under GPL-3.0-only under the terms
@@ -250,13 +249,13 @@ Install the repository's CanvasGlobe skill for compatible coding agents:
 npx skills add https://github.com/Shree-hari/canvas-globe --skill canvas-globe
 ```
 
-Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require the user to purchase a production license before shipping. They also run the local activation step without exposing the checkout key.
+Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require the user to purchase a production license before shipping.
 
 ## Options
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `licenseKey` | `null` | Optional signed activation token for direct CDN use; npm projects should use `canvas-globe-licensing` |
+| `licenseKey` | `null` | Commercial license key supplied after purchase; valid keys begin with `GLO` |
 | `mode` | `"globe"` | `"globe"` (orthographic, spinnable) or `"map"` (flat) |
 | `projection` | `"equirectangular"` | Flat-map projection: also `"mercator"`, `"naturalEarth"` |
 | `preset` | Not set | Named bundle of theme + render style, applied under your options |

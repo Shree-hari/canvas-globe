@@ -13,7 +13,7 @@ and cleanup. The CLI does not install dependencies or overwrite a non-empty
 directory.
 
 Before production use, purchase a license at
-https://canvasglobe.swiftools.com/pricing, then follow
-https://canvasglobe.swiftools.com/activate.
+https://canvasglobe.swiftools.com/pricing and add the supplied `GLO` key to the
+`licenseKey` option.
 
 Support: globe@swiftools.com

@@ -8,7 +8,6 @@ on:
         required: true
         type: choice
         options:
-          - canvas-globe-licensing
           - react-canvas-globe
           - create-canvas-globe
       npm_tag:

@@ -18,6 +18,7 @@ export { SphereTexture } from "./texture.js";
 export { Media, drawFitted } from "./media.js";
 export {
   DEFAULT_LICENSE_KEY,
+  LICENSE_KEY_PREFIX,
   LICENSE_PAGE_URL,
   inspectRuntime,
   inspectLicenseKey,

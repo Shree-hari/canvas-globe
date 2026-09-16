@@ -105,7 +105,7 @@ async function main() {
     console.log(`\n  cd ${name}\n  npm install\n  npm run dev`);
     console.log("\nBefore shipping, purchase a CanvasGlobe license:");
     console.log("  Pricing: https://canvasglobe.swiftools.com/pricing");
-    console.log("  Activation: https://canvasglobe.swiftools.com/activate");
+    console.log("  Add the supplied GLO key to the licenseKey option.");
   } finally {
     rl.close();
   }
