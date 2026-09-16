@@ -11,11 +11,14 @@ import { SphereTexture } from "./texture.js";
 import { Media, drawFitted } from "./media.js";
 import { scenes, sceneKeys } from "./scenes.js";
 import { exportSize } from "./export.js";
-import { DEFAULT_LICENSE_KEY, reportLicenseStatus } from "./license.js";
+import {
+  getLicensePresentation,
+  reportLicenseStatus,
+} from "./license.js";
 import { D2R, R2D, TAU, clamp, wrapLon, resolveProjection, projectionBounds, ortho, orthoInverse, greatCircle, circleAround, distanceMeters, subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha } from "./geo.js";
 
 const DEFAULTS = {
-  licenseKey: DEFAULT_LICENSE_KEY,
+  licenseKey: null,
   mode: "globe",
   projection: "equirectangular",
   theme: "atlas",
@@ -135,6 +138,8 @@ export class GeoGlobe {
     this._media = new Map();
     this._markerMedia = new Map();
     this._counterShown = null;
+    this._licenseHit = null;
+    this._licenseHovered = false;
 
     this._applyWorld();
     this._applyMarkers(this.o.markers);
@@ -166,7 +171,9 @@ export class GeoGlobe {
   setOptions(patch = {}) {
     patch = this._expandLooks(patch);
     Object.assign(this.o, patch);
-    if ("licenseKey" in patch) reportLicenseStatus(patch.licenseKey);
+    if ("licenseKey" in patch) {
+      reportLicenseStatus(patch.licenseKey);
+    }
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
     if ("zoom" in patch) this._zoom = clamp(patch.zoom, this.o.minZoom, this.o.maxZoom);
@@ -707,6 +714,7 @@ export class GeoGlobe {
     this.hits = this.o.mode === "map" ? this._paintMap(w, h) : this._paintGlobe(w, h);
     this._dirty = false;
     this.o.onRender?.(this);
+    this._paintLicenseNotice(w, h);
     return this;
   }
 
@@ -739,6 +747,7 @@ export class GeoGlobe {
     this._markerMedia.clear();
     this._tip = null;
     this._live = null;
+    this._licenseHit = null;
     return this;
   }
 
@@ -1118,7 +1127,7 @@ export class GeoGlobe {
       c.style.cursor = "default";
       return;
     }
-    c.style.cursor = this._hovered || this._hoveredCountry ? "pointer" : this._drag ? "grabbing" : "grab";
+    c.style.cursor = this._licenseHovered || this._hovered || this._hoveredCountry ? "pointer" : this._drag ? "grabbing" : "grab";
   }
 
   _local(e) {
@@ -1132,6 +1141,11 @@ export class GeoGlobe {
       if (Math.hypot(m.x - x, m.y - y) <= m.r + 3) return m;
     }
     return null;
+  }
+
+  _licenseHitAt(x, y) {
+    const hit = this._licenseHit;
+    return Boolean(hit && x >= hit.x && x <= hit.x + hit.w && y >= hit.y && y <= hit.y + hit.h);
   }
 
   _bind() {
@@ -1157,6 +1171,11 @@ export class GeoGlobe {
     this._onMove = (e) => {
       const [x, y] = this._local(e);
       this._pointer = { x: e.clientX, y: e.clientY };
+      const licenseHovered = this._licenseHitAt(x, y);
+      if (licenseHovered !== this._licenseHovered) {
+        this._licenseHovered = licenseHovered;
+        this._cursor();
+      }
       if (this._pointers.has(e.pointerId)) this._pointers.set(e.pointerId, [x, y]);
 
       if (this._pinch && this._pointers.size === 2) {
@@ -1222,6 +1241,7 @@ export class GeoGlobe {
     this._onLeave = (e) => {
       this._onUp(e);
       this._pointer = null;
+      this._licenseHovered = false;
       if (this._hovered || this._hoveredCountry) {
         if (this._hovered) this.o.onHover?.(null, null);
         if (this._hoveredCountry) this.o.onCountryHover?.(null, null);
@@ -1236,6 +1256,11 @@ export class GeoGlobe {
     this._onClick = (e) => {
       if (this._dragMoved) return;
       const [x, y] = this._local(e);
+      if (this._licenseHitAt(x, y)) {
+        const opened = globalThis.open?.(this._licenseHit.url, "_blank", "noopener,noreferrer");
+        if (opened) opened.opener = null;
+        return;
+      }
       const hit = this._hitAt(x, y);
       if (hit) {
         this.o.onClick?.(hit.marker, { x: hit.x, y: hit.y });
@@ -1986,6 +2011,49 @@ export class GeoGlobe {
       ctx.fillText(spec.text, x, y + size + offset);
     }
     ctx.restore();
+  }
+
+  /** Licensing notice for public production use of the commercial edition. */
+  _paintLicenseNotice(w, h) {
+    const presentation = getLicensePresentation(this.o.licenseKey);
+    const notice = presentation.notice;
+    this._licenseHit = null;
+    this.canvas.removeAttribute?.("data-canvas-globe-license-notice");
+    if (!notice) return;
+
+    const { ctx } = this;
+    const fontSize = Math.max(10, Math.min(13, Math.round(Math.min(w, h) * 0.03)));
+    const horizontal = 10;
+    const vertical = 7;
+    const margin = Math.max(8, Math.round(Math.min(w, h) * 0.025));
+
+    ctx.save();
+    ctx.font = `600 ${fontSize}px Inter,system-ui,sans-serif`;
+    const textWidth = ctx.measureText(notice.text).width;
+    const boxWidth = Math.min(w - margin * 2, textWidth + horizontal * 2);
+    const boxHeight = fontSize + vertical * 2;
+    const x = Math.max(margin, w - boxWidth - margin);
+    const y = Math.max(margin, h - boxHeight - margin);
+
+    ctx.globalAlpha = 0.94;
+    ctx.fillStyle = "rgba(9, 18, 35, 0.92)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, boxWidth, boxHeight, 6);
+    else ctx.rect(x, y, boxWidth, boxHeight);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(notice.text, x + boxWidth / 2, y + boxHeight / 2, boxWidth - horizontal * 2);
+    ctx.restore();
+
+    this._licenseHit = { x, y, w: boxWidth, h: boxHeight, url: notice.url };
+    this.canvas.setAttribute?.("data-canvas-globe-license-notice", "visible");
   }
 
   _paintCountries(t, trace, textured) {

@@ -9,7 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8").replace(/\r\n?/g, "\n");
 
 // Modules that make up the bundle, in dependency order.
-const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/license.js", "src/geo-globe.js", "src/element.js"];
+const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/version.js", "src/license.js", "src/geo-globe.js", "src/element.js"];
 const EXPORTS = [
   "GeoGlobe", "CanvasGlobe", "createGlobe", "createCanvasGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "scenes",
   "countryPalette", "exportPresets", "exportSize",
@@ -18,7 +18,7 @@ const EXPORTS = [
   "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
   "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
   "geometryBounds", "projections", "world",
-  "DEFAULT_LICENSE_KEY", "inspectLicenseKey", "hasLicenseKey",
+  "DEFAULT_LICENSE_KEY", "LICENSE_KEY_PREFIX", "LICENSE_PAGE_URL", "inspectRuntime", "inspectLicenseKey", "verifyLicenseKey", "hasLicenseKey",
 ];
 const SIZE_BUDGET_KB = Number(process.env.CANVAS_GLOBE_SIZE_BUDGET_KB || 125);
 
@@ -46,7 +46,7 @@ const parts = [
   `return { ${EXPORTS.join(", ")}, default: createGlobe };`,
 ];
 
-const umd = `/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | GPL-3.0-only OR commercial | https://github.com/Shree-hari/canvas-globe */
+const umd = `/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | Proprietary commercial software | https://github.com/Shree-hari/canvas-globe */
 (function (root, factory) {
   if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
   else if (typeof define === "function" && define.amd) define(factory);

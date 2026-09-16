@@ -8,6 +8,5 @@ const markers = [
   { name: "New York", lat: 40.71, lon: -74.01, count: 6 },
 ];
 
-globe.setAttribute("license-key", import.meta.env.VITE_CANVAS_GLOBE_LICENSE_KEY);
 globe.markers = markers;
 globe.arcs = markers.slice(1).map((city) => ({ from: markers[0], to: city }));

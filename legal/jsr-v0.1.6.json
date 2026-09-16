@@ -26,6 +26,7 @@
       "src/texture.js",
       "src/themes.js",
       "src/viewer.js",
+      "src/version.js",
       "jsr",
       "types/index.d.ts",
       "types/jsr-element.d.ts",

@@ -43,7 +43,7 @@ perform, sublicense, distribute, and otherwise exploit your contribution and
 derivative works of it.
 
 This grant includes permission to distribute your contribution as part of
-CanvasGlobe under GNU GPLv3, commercial licenses, and future versions or
+CanvasGlobe under proprietary, commercial, open-source, and future versions or
 successor licenses selected for CanvasGlobe.
 
 ## 4. Patent license

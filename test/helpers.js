@@ -44,6 +44,7 @@ export function makeCanvas(w = 400, h = 400) {
     addEventListener() {},
     removeEventListener() {},
     setAttribute: (k, v) => attrs.set(k, v),
+    removeAttribute: (k) => attrs.delete(k),
     getAttribute: (k) => attrs.get(k),
     hasAttribute: (k) => attrs.has(k),
     setPointerCapture() {},

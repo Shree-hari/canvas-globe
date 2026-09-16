@@ -1,83 +1,43 @@
 # CanvasGlobe licensing
 
-CanvasGlobe is available under a dual-license model. You choose one of these
-licenses:
+CanvasGlobe 1.0 and later are proprietary software distributed under the
+CanvasGlobe Software License Agreement. Public availability on npm or GitHub
+does not grant open-source rights for these versions.
 
-1. **GNU GPL v3, version 3 only (`GPL-3.0-only`)**: no license fee. This
-   option is intended for projects that can comply with the GPL's terms.
-2. **CanvasGlobe Commercial License**: paid permission for proprietary use
-   under the terms shown on the applicable order form and commercial license
-   agreement.
+## Production use
 
-Copyright (C) 2026 Harsh Jhunjhunuwala. Harsh Jhunjhunuwala is the licensor and
-publishes CanvasGlobe under Swiftools, an operating brand rather than a
-separate legal entity.
+Purchase the plan that covers the developers and products using CanvasGlobe:
+https://canvasglobe.swiftools.com/pricing.
 
-The complete GPLv3 text is in [LICENSE](LICENSE). Commercial rights exist only
-under commercial terms supplied by the licensor and accepted for the relevant
-order. Public pricing and documentation pages are summaries, not a commercial
-license grant.
+Standard one-time licenses include perpetual use of eligible versions and 12
+months of updates and support. OEM, builder, SDK, white-label, and other
+redistribution uses require separately scoped terms.
 
-## Important distinction
-
-The GPL permits commercial activity. A company does not automatically need a
-commercial license merely because it earns money. The practical question is
-whether the way CanvasGlobe is copied, modified, combined, and distributed can
-comply with GPLv3.
-
-Many proprietary applications choose the commercial license because they do
-not want to accept the GPL obligations that may apply when distributing a
-combined work. The legal treatment of browser JavaScript bundles and
-application boundaries can be fact-specific. This page is a product summary,
-not legal advice; ask qualified counsel about your situation.
-
-## Commercial plan shape
-
-The launch pricing proposed in this repository is:
-
-| Plan | Price | Intended scope |
-| --- | ---: | --- |
-| Open Source | $0 | GPL-compatible projects |
-| Solo Commercial | $79 | 1 developer, 1 proprietary product |
-| Team Commercial | $249 | Up to 5 developers and 5 products |
-| Business Commercial | $599 | Up to 20 developers; unlimited internal products |
-| OEM / Builder | From $1,500 per product/year | Redistribution, white-label, builders, SDKs, and generated copies |
-| Enterprise | Custom | Larger teams, affiliates, procurement, or negotiated terms |
-
-The proposed perpetual plans grant perpetual use of the purchased version and
-include 12 months of updates and support. Continued access to updates and
-support after that period is an optional renewal. OEM and Enterprise terms may
-be annual or negotiated.
-
-These prices and descriptions are launch policy, not a substitute for the
-signed commercial agreement. Commercial sales must not begin until the final
-agreement and checkout terms are approved.
-
-## License keys
-
-Pass the license key supplied with a commercial order:
+Add the license key supplied after purchase to your CanvasGlobe options:
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "your_license_key",
+  licenseKey: "GLO-your-license-key",
 });
 ```
 
-Projects using CanvasGlobe under GPLv3 can request a complimentary key through
-the licensing page. Eligibility depends on complying with GPLv3. The key is a
-compliance reminder and does not replace or modify the license terms.
+CanvasGlobe checks the key locally. A valid commercial key begins with `GLO`.
+The package makes no license-server request and sends no visitor analytics.
 
-CanvasGlobe uses `0000-0000-000-0000` as its default evaluation placeholder.
-In a browser, a missing key logs an error and the placeholder logs a production
-warning.
+Public production use without a valid key displays a small in-canvas licensing
+notice and a browser-console warning. Local development remains functional so
+a missing setup step does not interrupt development.
 
-## Third-party material
+## Earlier GPL releases
 
-Bundled geographic data has its own provenance and license status. See
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Versions through 0.1.6 remain licensed under GNU GPLv3 under the terms supplied
+with those versions. Those existing rights are not revoked. They do not apply to
+CanvasGlobe 1.0 or later. See https://canvasglobe.swiftools.com/gpl-history.
 
-## Questions
+## Licensor and support
 
-Email [globe@swiftools.com](mailto:globe@swiftools.com) for complimentary GPLv3
-keys, purchasing, licensing questions, and support. Do not include confidential
-information in a public GitHub issue.
+Copyright (C) 2026 Harsh Jhunjhunuwala. CanvasGlobe is published under Swiftools,
+an operating brand, not a separate legal entity.
+
+Email globe@swiftools.com for purchasing, licensing, and support questions. Do
+not include confidential information in a public issue.

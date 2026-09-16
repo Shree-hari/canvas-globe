@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+const commercialRelease = /^1\./.test(pkg.version);
 const failures = [];
 const assert = (condition, message) => {
   if (!condition) failures.push(message);
@@ -15,22 +16,32 @@ const requiredFiles = [
   "README.md",
   "CHANGELOG.md",
   "COPYRIGHT",
-  "LICENSE",
+  commercialRelease ? "LICENSE.md" : "LICENSE",
   "LICENSING.md",
   "THIRD_PARTY_NOTICES.md",
   "codemeta.json",
   "custom-elements.json",
-  "jsr.json",
   "dist/canvas-globe.umd.js",
   "dist/package.json",
   "types/index.d.ts",
   "types/data/world.d.ts",
 ];
 
+if (existsSync(join(root, "src/version.js"))) {
+  const versionSource = readFileSync(join(root, "src/version.js"), "utf8");
+  assert(
+    versionSource.includes(`CANVAS_GLOBE_VERSION = "${pkg.version}"`),
+    "src/version.js does not match package.json",
+  );
+}
+
 assert(pkg.name === "canvas-globe", "unexpected package name");
 assert(pkg.author?.name === "Harsh Jhunjhunuwala", "unexpected package author");
 assert(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(pkg.version), "version is not valid semver");
-assert(pkg.license === "GPL-3.0-only", "package license must be GPL-3.0-only");
+assert(
+  pkg.license === (commercialRelease ? "SEE LICENSE IN LICENSE.md" : "GPL-3.0-only"),
+  `package license is incorrect for the ${commercialRelease ? "commercial" : "GPL"} release line`,
+);
 assert(pkg.private !== true, "package is marked private");
 assert(pkg.publishConfig?.access === "public", "package must publish with public access");
 assert(pkg.sideEffects?.includes("./src/element.js"), "custom-element registration must be marked as a side effect");
@@ -48,7 +59,7 @@ assert(pkg.files?.includes("codemeta.json"), "codemeta.json is not in package fi
 assert(pkg.files?.includes("custom-elements.json"), "custom-elements.json is not in package files");
 for (const file of requiredFiles) assert(existsSync(join(root, file)), `missing required file: ${file}`);
 
-if (existsSync(join(root, "LICENSE"))) {
+if (!commercialRelease && existsSync(join(root, "LICENSE"))) {
   const license = readFileSync(join(root, "LICENSE"), "utf8");
   assert(license.includes("GNU GENERAL PUBLIC LICENSE"), "LICENSE does not contain GPLv3");
   assert(license.includes("Version 3, 29 June 2007"), "LICENSE is not the canonical GPLv3 version");
@@ -63,7 +74,10 @@ if (existsSync(join(root, "COPYRIGHT"))) {
 if (existsSync(join(root, "dist/canvas-globe.umd.js"))) {
   const bundle = readFileSync(join(root, "dist/canvas-globe.umd.js"), "utf8");
   assert(bundle.includes("Copyright (C) 2026 Harsh Jhunjhunuwala"), "UMD banner has stale ownership text");
-  assert(bundle.includes("GPL-3.0-only OR commercial"), "UMD banner has stale license text");
+  assert(
+    bundle.includes(commercialRelease ? "Proprietary commercial software" : "GPL-3.0-only OR commercial"),
+    "UMD banner has stale license text",
+  );
 
   const trackedBundle = spawnSync(
     "git",
@@ -85,6 +99,12 @@ if (existsSync(join(root, "codemeta.json"))) {
   const codemeta = JSON.parse(readFileSync(join(root, "codemeta.json"), "utf8"));
   assert(codemeta.identifier === pkg.name, "codemeta package identifier is stale");
   assert(codemeta.version === pkg.version, "codemeta version is stale");
+  assert(
+    codemeta.license === (commercialRelease
+      ? "https://canvasglobe.swiftools.com/commercial-license"
+      : "https://spdx.org/licenses/GPL-3.0-only.html"),
+    "codemeta license is stale",
+  );
 }
 
 if (existsSync(join(root, "jsr.json"))) {
@@ -99,6 +119,13 @@ if (existsSync(join(root, "jsr.json"))) {
   assert(!jsr.publish?.include?.includes("types"), "JSR must not include npm-only global declarations");
   assert(!jsr.publish?.include?.includes("src/react.js"), "JSR must not include the npm-only React entry point");
   assert(jsr.publish?.include?.includes("types/jsr-element.d.ts"), "JSR element declarations are missing");
+  assert(jsr.publish?.include?.includes("src/version.js"), "JSR version module is missing");
+}
+if (commercialRelease) {
+  assert(!existsSync(join(root, "LICENSE")), "commercial releases must not pack the former root GPL LICENSE file");
+  assert(!existsSync(join(root, "jsr.json")), "commercial npm releases must pause JSR publishing until proprietary terms are accepted");
+  assert(pkg.files?.includes("LICENSE.md"), "commercial package files must include LICENSE.md");
+  assert(!pkg.files?.includes("LICENSE"), "commercial package files still include the former GPL LICENSE");
 }
 
 if (existsSync(join(root, "custom-elements.json"))) {
@@ -107,6 +134,18 @@ if (existsSync(join(root, "custom-elements.json"))) {
   const element = declarations.find((declaration) => declaration.tagName === "geo-globe");
   assert(manifest.schemaVersion === "2.1.0", "custom element manifest schema is stale");
   assert(element?.customElement === true, "custom element manifest is missing geo-globe");
+}
+
+if (commercialRelease) {
+  const commercialGate = spawnSync(
+    process.execPath,
+    [join(root, "scripts", "commercial-release-check.mjs")],
+    { cwd: root, encoding: "utf8" },
+  );
+  assert(
+    commercialGate.status === 0,
+    `commercial release gate failed:\n${commercialGate.stderr || commercialGate.stdout}`,
+  );
 }
 
 const npm = process.platform === "win32" ? (process.env.ComSpec || "cmd.exe") : "npm";
@@ -133,7 +172,7 @@ if (packed.status === 0) {
       /^(?:test|website|legal|node_modules|\.github)(?:\/|$)/.test(path),
     );
     assert(forbidden.length === 0, `package contains forbidden paths: ${forbidden.join(", ")}`);
-    for (const file of ["LICENSE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "codemeta.json", "custom-elements.json"]) {
+    for (const file of [commercialRelease ? "LICENSE.md" : "LICENSE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "codemeta.json", "custom-elements.json"]) {
       assert(paths.includes(file), `packed artifact is missing ${file}`);
     }
     assert(info.unpackedSize < 1_500_000, `unpacked package is unexpectedly large: ${info.unpackedSize} bytes`);

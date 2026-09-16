@@ -14,7 +14,6 @@ export default function App() {
       <section><p>CanvasGlobe for React</p><h1>An interactive globe in one component</h1></section>
       <Globe
         ref={globe}
-        licenseKey={import.meta.env.VITE_CANVAS_GLOBE_LICENSE_KEY}
         preset="neon"
         markers={markers}
         arcs={markers.slice(1).map((city) => ({ from: markers[0], to: city }))}

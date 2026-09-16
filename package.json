@@ -1,8 +1,8 @@
 {
   "name": "canvas-globe",
-  "version": "0.1.6",
+  "version": "1.0.0-beta.1",
   "description": "Build interactive 3D globes and flat world maps in JavaScript or React with Canvas 2D, without WebGL, map tiles, API keys, or runtime network calls.",
-  "license": "GPL-3.0-only",
+  "license": "SEE LICENSE IN LICENSE.md",
   "author": {
     "name": "Harsh Jhunjhunuwala"
   },
@@ -75,7 +75,7 @@
     "README.md",
     "CHANGELOG.md",
     "COPYRIGHT",
-    "LICENSE",
+    "LICENSE.md",
     "LICENSING.md",
     "THIRD_PARTY_NOTICES.md",
     "codemeta.json",
@@ -101,6 +101,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:ecosystem": "tsc --noEmit -p tsconfig.ecosystem.json",
     "smoke:package": "node scripts/package-smoke.mjs",
+    "commercial:check": "node scripts/commercial-release-check.mjs",
+    "commercial:prepare": "node scripts/prepare-commercial-release.mjs",
     "release:check": "npm run test && npm run typecheck && npm run typecheck:ecosystem && npm run test:ecosystem && npm run build && node scripts/release-check.mjs && npm run smoke:package",
     "prepublishOnly": "npm run test && npm run typecheck && npm run build && node scripts/release-check.mjs"
   },

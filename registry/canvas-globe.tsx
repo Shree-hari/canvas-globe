@@ -4,13 +4,7 @@ import { forwardRef } from "react";
 import type { GeoGlobe } from "canvas-globe";
 import { Globe, type GlobeProps } from "canvas-globe/react";
 
-export interface CanvasGlobeProps extends Omit<GlobeProps, "licenseKey"> {
-  /**
-   * Your CanvasGlobe license key. Proprietary projects need a commercial
-   * license from https://canvasglobe.swiftools.com/pricing.
-   */
-  licenseKey: string;
-}
+export type CanvasGlobeProps = GlobeProps;
 
 /** Responsive CanvasGlobe component installed through the shadcn CLI. */
 export const CanvasGlobe = forwardRef<GeoGlobe, CanvasGlobeProps>(

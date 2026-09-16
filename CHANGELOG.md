@@ -6,6 +6,14 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] - 2026-09-16
+
+- Prepared an opt-in proprietary 1.x licensing model with a local `GLO`
+  license-key check and an in-component purchase notice for unlicensed
+  production use.
+- Added commercial release safeguards and coordinated migration tools without
+  introducing license-server or visitor-analytics requests.
+
 ## [0.1.6] - 2026-09-15
 
 - Improved the package description and discovery metadata used by npm,

@@ -11,4 +11,6 @@ Runnable starter projects for the supported integration paths.
 | `sveltekit` | `npm install && npm run dev` |
 | `web-component-vite` | `npm install && npm run dev` |
 
-Copy `.env.example` to `.env` before running a starter. Proprietary projects must purchase a commercial license at https://canvasglobe.swiftools.com/pricing. GPLv3-compatible projects can follow https://canvasglobe.swiftools.com/licensing.
+Local development works without a key. Before a production build, purchase a
+license at https://canvasglobe.swiftools.com/pricing and add the supplied `GLO`
+key to the `licenseKey` option.

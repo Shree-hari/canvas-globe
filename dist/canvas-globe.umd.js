@@ -1,4 +1,4 @@
-/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | GPL-3.0-only OR commercial | https://github.com/Shree-hari/canvas-globe */
+/*! canvas-globe | Copyright (C) 2026 Harsh Jhunjhunuwala | Proprietary commercial software | https://github.com/Shree-hari/canvas-globe */
 (function (root, factory) {
   if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
   else if (typeof define === "function" && define.amd) define(factory);
@@ -1313,39 +1313,115 @@ function drawFitted(ctx, media, box) {
   return true;
 }
 
-/** License-key configuration helpers. */
+// Keep in sync with package.json. Release checks enforce this value.
+const CANVAS_GLOBE_VERSION = "1.0.0-beta.1";
+
+/** Local license-key checks and production-use presentation helpers. */
+
 const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
+const LICENSE_KEY_PREFIX = "GLO";
+const LICENSE_PAGE_URL =
+  "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
 
-/** Returns the configured license-key status. */
-function inspectLicenseKey(value) {
-  const key = typeof value === "string" ? value : "";
-  if (!key) return { valid: false, kind: "missing", key: "" };
-  if (key === DEFAULT_LICENSE_KEY) {
-    return { valid: false, kind: "placeholder", key };
+// This remains false while the latest published line is GPLv3. The commercial
+// release checklist requires an intentional switch after the agreement and
+// website copy have been approved and deployed.
+const COMMERCIAL_LICENSE_MODE = true;
+
+const PRIVATE_HOST_PATTERNS = [
+  /^localhost$/,
+  /\.localhost$/,
+  /\.local$/,
+  /\.test$/,
+  /^127(?:\.\d{1,3}){3}$/,
+  /^10(?:\.\d{1,3}){3}$/,
+  /^192\.168(?:\.\d{1,3}){2}$/,
+  /^172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}$/,
+  /^::1$/,
+];
+
+const normalizeLicenseKey = (value) =>
+  typeof value === "string" ? value.trim() : "";
+
+/** Returns development, production or unknown for a browser location. */
+function inspectRuntime(locationValue = globalThis.location) {
+  if (!locationValue) return { kind: "unknown", hostname: "", public: false };
+  const protocol = String(locationValue.protocol || "").toLowerCase();
+  const hostname = String(locationValue.hostname || "").toLowerCase().replace(/^\[|\]$/g, "");
+  if (!hostname || (protocol && protocol !== "http:" && protocol !== "https:")) {
+    return { kind: "unknown", hostname, public: false };
   }
-  return { valid: true, kind: "provided", key };
+  const local = PRIVATE_HOST_PATTERNS.some((pattern) => pattern.test(hostname));
+  return { kind: local ? "development" : "production", hostname, public: !local };
 }
 
-/** Returns whether a configured license key is available. */
-function hasLicenseKey(value) {
-  return inspectLicenseKey(value).valid;
+/** Checks a license key locally. Commercial keys begin with GLO. */
+function inspectLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  const key = normalizeLicenseKey(value);
+  if (!key) return { valid: false, kind: "missing", key: "" };
+  if (key === DEFAULT_LICENSE_KEY) return { valid: false, kind: "placeholder", key };
+  if (!mode) return { valid: true, kind: "provided", key };
+  if (key.startsWith(LICENSE_KEY_PREFIX) && key.length > LICENSE_KEY_PREFIX.length) {
+    return { valid: true, kind: "licensed", key };
+  }
+  return { valid: false, kind: "invalid", key: "" };
 }
 
-/** Reports missing or placeholder keys in the browser console. */
-function reportLicenseStatus(value) {
-  const status = inspectLicenseKey(value);
-  // CanvasGlobe can be constructed in non-browser test and rendering
-  // environments. Console messaging applies when it is used in a browser.
+/** Resolves the same local result for callers that already use this helper. */
+async function verifyLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  return inspectLicenseKey(value, mode);
+}
+
+/** Returns whether a valid local license key is available. */
+function hasLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
+  return inspectLicenseKey(value, mode).valid;
+}
+
+/**
+ * Returns the notice that the commercial release displays for public use.
+ * The mode argument exists for release tooling and tests, not as a public
+ * option that applications can use to suppress licensing UI.
+ */
+function getLicensePresentation(
+  value,
+  locationValue = globalThis.location,
+  mode = COMMERCIAL_LICENSE_MODE,
+) {
+  const status = inspectLicenseKey(value, mode);
+  const runtime = inspectRuntime(locationValue);
+  if (!mode || status.valid || !runtime.public) {
+    return { status, runtime, notice: null };
+  }
+  return {
+    status,
+    runtime,
+    notice: {
+      text: "CanvasGlobe: Purchase a license",
+      ariaLabel: "CanvasGlobe requires a license for production use. Open licensing options.",
+      url: LICENSE_PAGE_URL,
+    },
+  };
+}
+
+/** Reports local license-key problems in the browser console. */
+function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
+  const presentation = getLicensePresentation(value, globalThis.location, mode);
+  const { status } = presentation;
   if (typeof location === "undefined") return status;
   if (status.kind === "missing") {
     console.error(
-      "canvas-globe: please provide a valid license key. For help, email globe@swiftools.com",
+      mode
+        ? `canvas-globe: a license is required for production use. ${LICENSE_PAGE_URL}`
+        : "canvas-globe: please provide a valid license key. For help, email globe@swiftools.com",
     );
   } else if (status.kind === "placeholder") {
     console.warn(
-      `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. ` +
-        "For help, email globe@swiftools.com",
+      mode
+        ? `canvas-globe: the placeholder is not a production license. ${LICENSE_PAGE_URL}`
+        : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
+  } else if (mode && status.kind === "invalid") {
+    console.error(`canvas-globe: enter the GLO license key supplied after purchase. ${LICENSE_PAGE_URL}`);
   }
   return status;
 }
@@ -1366,7 +1442,7 @@ function reportLicenseStatus(value) {
 
 
 const DEFAULTS = {
-  licenseKey: DEFAULT_LICENSE_KEY,
+  licenseKey: null,
   mode: "globe",
   projection: "equirectangular",
   theme: "atlas",
@@ -1486,6 +1562,8 @@ class GeoGlobe {
     this._media = new Map();
     this._markerMedia = new Map();
     this._counterShown = null;
+    this._licenseHit = null;
+    this._licenseHovered = false;
 
     this._applyWorld();
     this._applyMarkers(this.o.markers);
@@ -1517,7 +1595,9 @@ class GeoGlobe {
   setOptions(patch = {}) {
     patch = this._expandLooks(patch);
     Object.assign(this.o, patch);
-    if ("licenseKey" in patch) reportLicenseStatus(patch.licenseKey);
+    if ("licenseKey" in patch) {
+      reportLicenseStatus(patch.licenseKey);
+    }
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
     if ("zoom" in patch) this._zoom = clamp(patch.zoom, this.o.minZoom, this.o.maxZoom);
@@ -2058,6 +2138,7 @@ class GeoGlobe {
     this.hits = this.o.mode === "map" ? this._paintMap(w, h) : this._paintGlobe(w, h);
     this._dirty = false;
     this.o.onRender?.(this);
+    this._paintLicenseNotice(w, h);
     return this;
   }
 
@@ -2090,6 +2171,7 @@ class GeoGlobe {
     this._markerMedia.clear();
     this._tip = null;
     this._live = null;
+    this._licenseHit = null;
     return this;
   }
 
@@ -2469,7 +2551,7 @@ class GeoGlobe {
       c.style.cursor = "default";
       return;
     }
-    c.style.cursor = this._hovered || this._hoveredCountry ? "pointer" : this._drag ? "grabbing" : "grab";
+    c.style.cursor = this._licenseHovered || this._hovered || this._hoveredCountry ? "pointer" : this._drag ? "grabbing" : "grab";
   }
 
   _local(e) {
@@ -2483,6 +2565,11 @@ class GeoGlobe {
       if (Math.hypot(m.x - x, m.y - y) <= m.r + 3) return m;
     }
     return null;
+  }
+
+  _licenseHitAt(x, y) {
+    const hit = this._licenseHit;
+    return Boolean(hit && x >= hit.x && x <= hit.x + hit.w && y >= hit.y && y <= hit.y + hit.h);
   }
 
   _bind() {
@@ -2508,6 +2595,11 @@ class GeoGlobe {
     this._onMove = (e) => {
       const [x, y] = this._local(e);
       this._pointer = { x: e.clientX, y: e.clientY };
+      const licenseHovered = this._licenseHitAt(x, y);
+      if (licenseHovered !== this._licenseHovered) {
+        this._licenseHovered = licenseHovered;
+        this._cursor();
+      }
       if (this._pointers.has(e.pointerId)) this._pointers.set(e.pointerId, [x, y]);
 
       if (this._pinch && this._pointers.size === 2) {
@@ -2573,6 +2665,7 @@ class GeoGlobe {
     this._onLeave = (e) => {
       this._onUp(e);
       this._pointer = null;
+      this._licenseHovered = false;
       if (this._hovered || this._hoveredCountry) {
         if (this._hovered) this.o.onHover?.(null, null);
         if (this._hoveredCountry) this.o.onCountryHover?.(null, null);
@@ -2587,6 +2680,11 @@ class GeoGlobe {
     this._onClick = (e) => {
       if (this._dragMoved) return;
       const [x, y] = this._local(e);
+      if (this._licenseHitAt(x, y)) {
+        const opened = globalThis.open?.(this._licenseHit.url, "_blank", "noopener,noreferrer");
+        if (opened) opened.opener = null;
+        return;
+      }
       const hit = this._hitAt(x, y);
       if (hit) {
         this.o.onClick?.(hit.marker, { x: hit.x, y: hit.y });
@@ -3337,6 +3435,49 @@ class GeoGlobe {
       ctx.fillText(spec.text, x, y + size + offset);
     }
     ctx.restore();
+  }
+
+  /** Licensing notice for public production use of the commercial edition. */
+  _paintLicenseNotice(w, h) {
+    const presentation = getLicensePresentation(this.o.licenseKey);
+    const notice = presentation.notice;
+    this._licenseHit = null;
+    this.canvas.removeAttribute?.("data-canvas-globe-license-notice");
+    if (!notice) return;
+
+    const { ctx } = this;
+    const fontSize = Math.max(10, Math.min(13, Math.round(Math.min(w, h) * 0.03)));
+    const horizontal = 10;
+    const vertical = 7;
+    const margin = Math.max(8, Math.round(Math.min(w, h) * 0.025));
+
+    ctx.save();
+    ctx.font = `600 ${fontSize}px Inter,system-ui,sans-serif`;
+    const textWidth = ctx.measureText(notice.text).width;
+    const boxWidth = Math.min(w - margin * 2, textWidth + horizontal * 2);
+    const boxHeight = fontSize + vertical * 2;
+    const x = Math.max(margin, w - boxWidth - margin);
+    const y = Math.max(margin, h - boxHeight - margin);
+
+    ctx.globalAlpha = 0.94;
+    ctx.fillStyle = "rgba(9, 18, 35, 0.92)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, boxWidth, boxHeight, 6);
+    else ctx.rect(x, y, boxWidth, boxHeight);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(notice.text, x + boxWidth / 2, y + boxHeight / 2, boxWidth - horizontal * 2);
+    ctx.restore();
+
+    this._licenseHit = { x, y, w: boxWidth, h: boxHeight, url: notice.url };
+    this.canvas.setAttribute?.("data-canvas-globe-license-notice", "visible");
   }
 
   _paintCountries(t, trace, textured) {
@@ -4349,5 +4490,5 @@ function defineGeoGlobe(tag = "geo-globe") {
 defineGeoGlobe();
 
 const CanvasGlobe = GeoGlobe; const createCanvasGlobe = createGlobe;
-return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, inspectLicenseKey, hasLicenseKey, default: createGlobe };
+return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, LICENSE_KEY_PREFIX, LICENSE_PAGE_URL, inspectRuntime, inspectLicenseKey, verifyLicenseKey, hasLicenseKey, default: createGlobe };
 });

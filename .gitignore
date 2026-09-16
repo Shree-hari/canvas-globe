@@ -3,6 +3,9 @@ storybook-static/
 .registry-build/
 .npm-cache-starters/
 .npm-cache/
+.license-secrets/
+.canvas-globe/
+canvas-globe-license.txt
 website/
 example/preview-*.png
 *.log

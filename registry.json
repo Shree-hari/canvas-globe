@@ -9,7 +9,9 @@
       "title": "CanvasGlobe",
       "description": "A responsive, interactive Canvas 2D globe for React with markers, animated routes, themes, keyboard controls, and no WebGL requirement.",
       "author": "Harsh Jhunjhunuwala",
-      "dependencies": ["canvas-globe@^0.1.6"],
+      "dependencies": [
+        "canvas-globe@1.0.0-beta.1"
+      ],
       "files": [
         {
           "path": "registry/canvas-globe.tsx",
@@ -17,7 +19,7 @@
           "target": "@ui/canvas-globe.tsx"
         }
       ],
-      "docs": "Pass a real licenseKey. Proprietary projects must purchase a commercial license at https://canvasglobe.swiftools.com/pricing. GPLv3-compatible projects can follow https://canvasglobe.swiftools.com/licensing."
+      "docs": "Purchase a production license at https://canvasglobe.swiftools.com/pricing, then add the supplied GLO key to the licenseKey option."
     }
   ]
 }
