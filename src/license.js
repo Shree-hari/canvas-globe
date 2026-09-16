@@ -6,12 +6,10 @@ import { CANVAS_GLOBE_VERSION } from "./version.js";
 export const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 export const LICENSE_PAGE_URL =
   "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
-export const TRIAL_PAGE_URL =
-  "https://canvasglobe.swiftools.com/trial?utm_source=canvas-globe&utm_medium=runtime-notice";
 
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the EULA, activation
-// service, trial flow and website copy have all been approved and deployed.
+// service and website copy have all been approved and deployed.
 export const COMMERCIAL_LICENSE_MODE = false;
 
 const PRIVATE_HOST_PATTERNS = [
@@ -105,7 +103,7 @@ const activationStatus = (payload, key) => {
   }
   return {
     valid: true,
-    kind: String(payload.plan || "").toLowerCase().includes("trial") ? "trial" : "licensed",
+    kind: "licensed",
     key,
     plan: payload.plan || "",
     expiresAt: payload.expiresAt || null,
@@ -229,7 +227,7 @@ export function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
   } else if (mode && status.kind === "invalid") {
     console.error(`canvas-globe: the activation token is invalid. ${LICENSE_PAGE_URL}`);
   } else if (mode && status.kind === "expired") {
-    console.error(`canvas-globe: the trial or license activation has expired. ${LICENSE_PAGE_URL}`);
+    console.error(`canvas-globe: the license activation has expired. ${LICENSE_PAGE_URL}`);
   } else if (mode && status.kind === "update-required") {
     console.error(`canvas-globe: this package version is outside the license update period. ${LICENSE_PAGE_URL}`);
   }

@@ -22,8 +22,7 @@ Never invent, generate, commit, or hardcode a license key. Never place a
 checkout key in a public browser environment variable.
 
 Before presenting an integration as ready to ship, tell the user they must
-start a 30-day trial at https://canvasglobe.swiftools.com/trial or purchase a
-production license at https://canvasglobe.swiftools.com/pricing.
+purchase a production license at https://canvasglobe.swiftools.com/pricing.
 
 For npm projects, install `canvas-globe-licensing` as a development dependency
 and run `npx canvas-globe-license activate` before the production build. Follow

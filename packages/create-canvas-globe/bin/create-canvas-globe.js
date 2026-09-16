@@ -103,8 +103,7 @@ async function main() {
 
     console.log(`\nCreated ${name} with the ${template} starter.`);
     console.log(`\n  cd ${name}\n  npm install\n  npm run dev`);
-    console.log("\nBefore shipping, start a trial or purchase a CanvasGlobe license:");
-    console.log("  Trial: https://canvasglobe.swiftools.com/trial");
+    console.log("\nBefore shipping, purchase a CanvasGlobe license:");
     console.log("  Pricing: https://canvasglobe.swiftools.com/pricing");
     console.log("  Activation: https://canvasglobe.swiftools.com/activate");
   } finally {

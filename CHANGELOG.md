@@ -6,8 +6,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
-- Prepared an opt-in proprietary 1.x licensing model with a 30-day trial,
-  local activation, CI-safe activation tokens, and an in-component purchase
+- Prepared an opt-in proprietary 1.x licensing model with local activation,
+  CI-safe activation tokens, and an in-component purchase
   notice for unlicensed production use.
 - Added a Cloudflare activation service template, Kelviq entitlement checks,
   paid update eligibility, release safeguards, and coordinated migration tools.

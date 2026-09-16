@@ -4,12 +4,6 @@ CanvasGlobe 1.0 and later are proprietary software distributed under the
 CanvasGlobe Software License Agreement. Public availability on npm or GitHub
 does not grant open-source rights for these versions.
 
-## Evaluate before purchasing
-
-A free 30-day trial includes every feature for internal evaluation and testing.
-It does not permit production use or redistribution. Start at
-https://canvasglobe.swiftools.com/trial.
-
 ## Production use
 
 Purchase the plan that covers the developers and products using CanvasGlobe:
@@ -29,7 +23,7 @@ npm install --save-dev canvas-globe-licensing
 npx canvas-globe-license activate
 ```
 
-The activation command exchanges the trial or checkout key for a signed offline
+The activation command exchanges the checkout key for a signed offline
 token. The checkout key is not included in the browser bundle. CanvasGlobe does
 not send visitor analytics or make runtime license-server requests from customer
 websites. See https://canvasglobe.swiftools.com/activate.
@@ -49,5 +43,5 @@ CanvasGlobe 1.0 or later. See https://canvasglobe.swiftools.com/gpl-history.
 Copyright (C) 2026 Harsh Jhunjhunuwala. CanvasGlobe is published under Swiftools,
 an operating brand, not a separate legal entity.
 
-Email globe@swiftools.com for trial, purchasing, activation, licensing, and
+Email globe@swiftools.com for purchasing, activation, licensing, and
 support questions. Do not include confidential information in a public issue.

@@ -1,6 +1,6 @@
 # CanvasGlobe licensing CLI
 
-This package activates a CanvasGlobe trial or commercial license during local
+This package activates a CanvasGlobe commercial license during local
 development or CI. It is intentionally marked private until the commercial
 license, activation endpoint and npm ownership are ready.
 

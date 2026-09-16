@@ -21,8 +21,7 @@ export default function AudienceGlobe() {
 }
 ```
 
-Start a [30-day trial](https://canvasglobe.swiftools.com/trial) or
-[purchase a production license](https://canvasglobe.swiftools.com/pricing),
+Purchase a [production license](https://canvasglobe.swiftools.com/pricing),
 then follow the [activation guide](https://canvasglobe.swiftools.com/activate).
 
 Documentation: https://canvasglobe.swiftools.com/react-globe

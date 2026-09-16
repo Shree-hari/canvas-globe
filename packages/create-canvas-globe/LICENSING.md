@@ -3,7 +3,6 @@
 `create-canvas-globe` and its CanvasGlobe starter templates follow the current
 CanvasGlobe proprietary license.
 
-- Start a 30-day trial at https://canvasglobe.swiftools.com/trial.
 - Purchase a production license at https://canvasglobe.swiftools.com/pricing.
 - Activate before a production build using https://canvasglobe.swiftools.com/activate.
 

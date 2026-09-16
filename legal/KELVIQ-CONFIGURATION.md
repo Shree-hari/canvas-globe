@@ -3,17 +3,6 @@
 Configure these items in the existing CanvasGlobe product. Do not change the
 live paid checkout descriptions until the approved EULA is linked.
 
-## Trial plan
-
-- Name: CanvasGlobe 30-Day Trial
-- Identifier: `trial`
-- Price: Free
-- License key: enabled
-- License duration: 30 days
-- Activation limit: 1
-- Purpose: internal evaluation only, no production or redistribution
-- Deliverable: setup link to `https://canvasglobe.swiftools.com/activate`
-
 ## Paid plans
 
 Keep the current Solo, Team and Business prices unless a separate pricing

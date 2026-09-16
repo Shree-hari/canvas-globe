@@ -37,16 +37,7 @@ use new Software versions and receive the support included with the plan.
 
 ## 2. License types
 
-### 2.1 Trial license
-
-Licensor grants Licensee a limited, non-exclusive, non-transferable,
-non-sublicensable license to evaluate the Software for 30 days. A trial may be
-used for internal evaluation and testing only. It may not be used in a live
-production service, customer project, commercial product, training service or
-other productive activity. It may not be redistributed. One trial is available
-per person or organization unless Licensor agrees otherwise in writing.
-
-### 2.2 Developer license
+### 2.1 Developer license
 
 After payment of the applicable fees, Licensor grants Licensee a limited,
 non-exclusive, non-transferable license for the number of Licensed Developers
@@ -62,7 +53,7 @@ perpetual use of Software versions first made available during the Update
 Period. It does not include versions first made available after that period.
 Renewal of updates and support is optional unless the Order is a subscription.
 
-### 2.3 Plan limits
+### 2.2 Plan limits
 
 The number of Licensed Developers, Applications, clients, affiliates,
 activations and other usage limits are those stated in the Order. Licensee must
@@ -70,7 +61,7 @@ purchase additional coverage before exceeding them. Automated build and test
 systems do not count as Licensed Developers when they perform no development or
 customization work.
 
-### 2.4 OEM, builder and redistributable products
+### 2.3 OEM, builder and redistributable products
 
 The standard Developer License does not permit use in a website builder,
 low-code or no-code platform, SDK, component library, template marketplace,
@@ -105,7 +96,7 @@ Licensee may make reasonable backup copies for permitted use.
 
 ## 5. License keys and activation
 
-A valid trial or commercial license key is required for the applicable use.
+A valid commercial license key is required for the applicable use.
 License validation may occur during installation, activation, build or update.
 The activation service may process the license key, plan, activation instance,
 project label, timestamps and technical information needed to prevent abuse and
@@ -150,8 +141,9 @@ authorized merchant of record may process payments, invoices, taxes, fraud,
 chargebacks and legally required refunds under its applicable buyer terms.
 
 Except where required by applicable law or approved by the merchant of record,
-all sales are final and fees are non-refundable. A trial is provided so that
-Licensee can evaluate suitability before purchasing. A refund, chargeback or
+all sales are final and fees are non-refundable. Licensee is responsible for
+reviewing the public demonstrations, documentation, compatibility requirements,
+plan limits and this Agreement before purchasing. A refund, chargeback or
 reversal terminates the related commercial license unless Licensor confirms
 otherwise in writing.
 
@@ -173,7 +165,7 @@ when legally required after giving notice where permitted.
 
 ## 12. Disclaimer of warranties
 
-TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE, TRIAL, DOCUMENTATION,
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE, DOCUMENTATION,
 SUPPORT AND UPDATES ARE PROVIDED "AS IS" AND "AS AVAILABLE." LICENSOR DISCLAIMS
 ALL EXPRESS, IMPLIED AND STATUTORY WARRANTIES, INCLUDING MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY,
@@ -192,8 +184,7 @@ TO THE SOFTWARE OR THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY.
 
 LICENSOR'S TOTAL AGGREGATE LIABILITY ARISING FROM OR RELATED TO THE SOFTWARE OR
 THIS AGREEMENT WILL NOT EXCEED THE FEES PAID BY LICENSEE FOR THE RELEVANT LICENSE
-DURING THE 12 MONTHS BEFORE THE EVENT GIVING RISE TO LIABILITY. FOR A FREE TRIAL,
-THAT AMOUNT IS ZERO.
+DURING THE 12 MONTHS BEFORE THE EVENT GIVING RISE TO LIABILITY.
 
 The limitations do not apply where prohibited by law or to liability that
 cannot lawfully be limited.

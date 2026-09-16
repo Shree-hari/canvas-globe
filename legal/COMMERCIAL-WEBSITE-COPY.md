@@ -8,28 +8,13 @@ legal review. It is not live copy while the current npm release remains GPLv3.
 # Use CanvasGlobe in production
 
 CanvasGlobe is commercial software for building interactive globes and world
-maps. Try every feature for 30 days, then choose the license that fits your
-team and products.
+maps. Explore the public demos and documentation, then choose the license that
+fits your team and products.
 
-- Start a free 30-day trial
 - Buy a commercial license
 
 No visitor analytics are added to websites using CanvasGlobe. License
 activation happens during developer setup or the application build.
-
-## Trial card
-
-### Free trial
-
-Evaluate every CanvasGlobe feature for 30 days before purchasing.
-
-- Full feature access
-- One developer activation
-- Internal evaluation and testing
-- No production use or redistribution
-- No payment required
-
-Button: Start free trial
 
 ## Paid plan note
 
@@ -44,11 +29,9 @@ updates and support.
 
 This website is using CanvasGlobe without an activated production license.
 
-If you are the developer or website owner, start a 30-day trial or purchase a
-commercial license to remove this notice. Website visitors do not need to take
-any action.
+If you are the developer or website owner, purchase and activate a commercial
+license to remove this notice. Website visitors do not need to take any action.
 
-- Start free trial
 - View pricing
 - Activate an existing license
 
@@ -88,8 +71,8 @@ or CI.
 ### What happens without an activated license?
 
 CanvasGlobe remains available for evaluation, but public production use shows
-a licensing notice and browser-console warning. A valid trial or commercial
-activation controls the applicable presentation.
+a licensing notice and browser-console warning. A valid commercial activation
+removes the notice.
 
 ### Does a one-time license expire?
 
@@ -105,9 +88,9 @@ license. Email globe@swiftools.com.
 
 ### Are purchases refundable?
 
-A free trial is available to evaluate the product. Purchases are final except
-where a refund is required by law or approved by the merchant of record. Review
-the license agreement and plan limits before purchasing.
+Purchases are final except where a refund is required by law or approved by the
+merchant of record. Review the public demos, documentation, license agreement,
+compatibility requirements and plan limits before purchasing.
 
 ### What happened to the GPL version?
 

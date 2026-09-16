@@ -65,9 +65,8 @@ cameras, custom shaders, or thousands of independent 3D objects. See the
 
 ## Licensing
 
-CanvasGlobe 1.0 and later are proprietary commercial software. Start with the
-[full-featured 30-day trial](https://canvasglobe.swiftools.com/trial), then
-purchase a [Solo, Team, Business, or OEM license](https://canvasglobe.swiftools.com/pricing)
+CanvasGlobe 1.0 and later are proprietary commercial software. Purchase a
+[Solo, Team, Business, or OEM license](https://canvasglobe.swiftools.com/pricing)
 before production use or redistribution.
 
 Activate locally or in CI before building. The checkout key is never placed in
@@ -251,7 +250,7 @@ Install the repository's CanvasGlobe skill for compatible coding agents:
 npx skills add https://github.com/Shree-hari/canvas-globe --skill canvas-globe
 ```
 
-Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require the user to start a trial or purchase a production license before shipping. They also run the local activation step without exposing the checkout key.
+Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require the user to purchase a production license before shipping. They also run the local activation step without exposing the checkout key.
 
 ## Options
 

@@ -9,9 +9,6 @@ const addUtcMonths = (value, months) => {
 };
 
 export function checkVersionEntitlement(activation, packageVersion, env) {
-  const plan = String(activation?.license?.plan?.identifier || "").toLowerCase();
-  if (plan.includes("trial")) return { allowed: true };
-
   let releases;
   try {
     releases = JSON.parse(env.CANVAS_GLOBE_RELEASES || "{}");

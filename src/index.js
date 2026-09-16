@@ -19,7 +19,6 @@ export { Media, drawFitted } from "./media.js";
 export {
   DEFAULT_LICENSE_KEY,
   LICENSE_PAGE_URL,
-  TRIAL_PAGE_URL,
   inspectRuntime,
   inspectLicenseKey,
   verifyLicenseKey,

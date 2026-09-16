@@ -34,12 +34,3 @@ test("unknown releases fail closed", () => {
   assert.equal(result.allowed, false);
   assert.equal(result.status, 409);
 });
-
-test("trial plans rely on the Kelviq license expiry", () => {
-  const result = checkVersionEntitlement(
-    { license: { plan: { identifier: "trial" } } },
-    "9.9.9",
-    {},
-  );
-  assert.deepEqual(result, { allowed: true });
-});

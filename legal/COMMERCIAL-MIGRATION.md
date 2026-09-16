@@ -11,8 +11,8 @@ preserving the immutable GPLv3 rights attached to versions already released.
 - Tag the final GPL source as `gpl-v0.1.6` if that alias does not already exist.
 - Start the proprietary line as `1.0.0-beta.1`.
 - Publish the beta under the npm `next` tag, never `latest`.
-- Promote a verified `1.0.0` to `latest` only after the trial, paid purchase,
-  activation, watermark and upgrade flows pass end-to-end tests.
+- Promote a verified `1.0.0` to `latest` only after the paid purchase,
+  activation, licensing-notice and upgrade flows pass end-to-end tests.
 
 Existing GPL recipients may continue using, modifying and redistributing those
 GPL versions. Website and README copy must never claim otherwise.
@@ -24,14 +24,13 @@ GPL versions. Website and README copy must never claim otherwise.
 | Local development, no key | Globe works; console setup reminder |
 | Public production, no key | Globe works; in-canvas licensing notice and console warning |
 | Raw checkout key in browser | Treated as unactivated; checkout key is not bundled |
-| Valid 30-day trial activation | Globe works; evaluation notice may be shown near trial expiry |
 | Expired or invalid activation | Globe works initially; in-canvas notice and console warning |
 | Valid commercial activation | Globe works without licensing notices |
 | Version newer than update entitlement | Globe works; update-license notice |
 
 The commercial release may later limit selected premium functionality for
-invalid licenses, but the first release should prioritize a low-friction trial
-and a clear purchase path.
+invalid licenses, but the first release should prioritize a clear purchase and
+activation path.
 
 ## Customer setup
 

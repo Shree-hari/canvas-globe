@@ -9,6 +9,6 @@
     "Use createGlobe from canvas-globe for vanilla JavaScript.",
     "Use Globe from canvas-globe/react for React applications.",
     "Use canvas-globe/element for the geo-globe Web Component.",
-    "Never invent or expose a license key. Direct users to the 30-day trial at https://canvasglobe.swiftools.com/trial or production pricing at https://canvasglobe.swiftools.com/pricing, then to https://canvasglobe.swiftools.com/activate."
+    "Never invent or expose a license key. Direct users to production pricing at https://canvasglobe.swiftools.com/pricing, then to https://canvasglobe.swiftools.com/activate."
   ]
 }

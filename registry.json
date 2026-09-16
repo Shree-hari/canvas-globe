@@ -17,7 +17,7 @@
           "target": "@ui/canvas-globe.tsx"
         }
       ],
-      "docs": "Start a 30-day trial at https://canvasglobe.swiftools.com/trial or purchase a production license at https://canvasglobe.swiftools.com/pricing, then activate before building: https://canvasglobe.swiftools.com/activate."
+      "docs": "Purchase a production license at https://canvasglobe.swiftools.com/pricing, then activate before building: https://canvasglobe.swiftools.com/activate."
     }
   ]
 }

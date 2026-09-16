@@ -5,7 +5,7 @@
 
 ## License activation
 
-When you activate or validate a CanvasGlobe trial or commercial license, we
+When you activate or validate a CanvasGlobe commercial license, we
 process the license key, license plan, activation identifier, project label,
 activation and expiration dates, and basic request security information. We use
 this information to provide the license, enforce activation limits, prevent

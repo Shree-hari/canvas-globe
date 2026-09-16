@@ -15,7 +15,7 @@ Before deployment:
    `CANVAS_GLOBE_RELEASES` before publishing it.
 6. Deploy the Worker route at `/api/license/*`.
 7. Configure a Cloudflare rate-limit rule for `POST /api/license/activate`.
-8. Test a sandbox trial key, paid key, expired key, activation-limit error,
+8. Test Solo, Team and Business keys, an expired key, activation-limit error,
    eligible old version and update-period renewal error.
 
 The service does not log license keys in application code. Cloudflare account

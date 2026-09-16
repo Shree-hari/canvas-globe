@@ -17,7 +17,7 @@ Usage:
   canvas-globe-license help
 
 Environment:
-  CANVAS_GLOBE_LICENSE_KEY       Trial or commercial key from CanvasGlobe
+  CANVAS_GLOBE_LICENSE_KEY       Commercial key from CanvasGlobe
   CANVAS_GLOBE_ACTIVATION_TOKEN  Existing offline token, recommended for CI
   CANVAS_GLOBE_LICENSE_ENDPOINT  Activation endpoint override
   CANVAS_GLOBE_PROJECT           Optional project label shown in the license portal`);

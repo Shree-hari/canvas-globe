@@ -18,7 +18,7 @@ const EXPORTS = [
   "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
   "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
   "geometryBounds", "projections", "world",
-  "DEFAULT_LICENSE_KEY", "LICENSE_PAGE_URL", "TRIAL_PAGE_URL", "inspectRuntime", "inspectLicenseKey", "verifyLicenseKey", "hasLicenseKey",
+  "DEFAULT_LICENSE_KEY", "LICENSE_PAGE_URL", "inspectRuntime", "inspectLicenseKey", "verifyLicenseKey", "hasLicenseKey",
 ];
 const SIZE_BUDGET_KB = Number(process.env.CANVAS_GLOBE_SIZE_BUDGET_KB || 125);
 

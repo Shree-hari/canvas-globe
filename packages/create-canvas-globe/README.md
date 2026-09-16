@@ -12,8 +12,8 @@ The generated project includes a responsive globe, sample markers and routes,
 and cleanup. The CLI does not install dependencies or overwrite a non-empty
 directory.
 
-Before production use, start a trial at https://canvasglobe.swiftools.com/trial
-or purchase a license at https://canvasglobe.swiftools.com/pricing, then follow
+Before production use, purchase a license at
+https://canvasglobe.swiftools.com/pricing, then follow
 https://canvasglobe.swiftools.com/activate.
 
 Support: globe@swiftools.com
