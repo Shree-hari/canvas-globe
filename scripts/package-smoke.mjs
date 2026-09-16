@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -75,7 +75,7 @@ try {
 
   for (const file of [
     "types/index.d.ts",
-    "LICENSE",
+    "LICENSE.md",
     "LICENSING.md",
     "THIRD_PARTY_NOTICES.md",
     "codemeta.json",
@@ -83,6 +83,14 @@ try {
     if (!existsSync(join(scratch, "node_modules/canvas-globe", file))) {
       throw new Error(`installed package is missing ${file}`);
     }
+  }
+
+  const agreement = readFileSync(
+    join(scratch, "node_modules/canvas-globe/LICENSE.md"),
+    "utf8",
+  );
+  if (!agreement.includes("CanvasGlobe Software License Agreement")) {
+    throw new Error("installed package does not contain the commercial license agreement");
   }
 
   console.log(
