@@ -6,6 +6,15 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0-beta.3] - 2026-09-17
+
+- Replaced the small production license badge with a professional in-canvas
+  license panel containing purchase, preview and existing-key actions.
+- Added a persistent unlicensed watermark and purchase ribbon after the panel
+  is dismissed, while keeping the globe interactive.
+- Simplified customer-facing runtime copy to refer to the license key without
+  exposing its technical prefix convention.
+
 ## [1.0.0-beta.2] - 2026-09-17
 
 - Corrected the project-creator help and README so beta users install the

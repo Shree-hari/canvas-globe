@@ -4,6 +4,7 @@ import {
   DEFAULT_LICENSE_KEY,
   LICENSE_KEY_PREFIX,
   LICENSE_PAGE_URL,
+  LICENSE_SETUP_URL,
   createGlobe,
   inspectLicenseKey,
   inspectRuntime,
@@ -75,6 +76,7 @@ test("commercial presentation appears only for public use without a GLO key", ()
   const missing = getLicensePresentation(null, production, true);
   assert.equal(missing.notice?.text, "CanvasGlobe: Purchase a license");
   assert.equal(missing.notice?.url, LICENSE_PAGE_URL);
+  assert.equal(missing.notice?.setupUrl, LICENSE_SETUP_URL);
   assert.equal(getLicensePresentation("wrong-prefix", production, true).notice?.url, LICENSE_PAGE_URL);
   assert.equal(getLicensePresentation("GLO-PAID-KEY", production, true).notice, null);
   assert.equal(getLicensePresentation(null, development, true).notice, null);
@@ -95,9 +97,26 @@ test("the rendered production notice clears after adding a GLO key", () => {
     const globe = createGlobe(canvas, { autoRotate: false });
     globe.render();
     assert.equal(canvas.getAttribute("data-canvas-globe-license-notice"), "visible");
+    assert.equal(canvas.getAttribute("data-canvas-globe-license-view"), "dialog");
+    assert.equal(canvas.getAttribute("data-canvas-globe-license-state"), "missing");
+    assert.deepEqual(
+      globe._licenseHits.map((hit) => hit.action),
+      ["consume", "purchase", "dismiss", "setup"],
+    );
+
+    const dismiss = globe._licenseHits.find((hit) => hit.action === "dismiss");
+    globe._onClick({ clientX: dismiss.x + dismiss.w / 2, clientY: dismiss.y + dismiss.h / 2 });
+    assert.equal(canvas.getAttribute("data-canvas-globe-license-view"), "watermark");
+    assert.deepEqual(
+      globe._licenseHits.map((hit) => hit.action),
+      ["consume", "purchase"],
+    );
 
     globe.setOptions({ licenseKey: "GLO-PAID-KEY" }).render();
     assert.equal(canvas.hasAttribute("data-canvas-globe-license-notice"), false);
+    assert.equal(canvas.hasAttribute("data-canvas-globe-license-view"), false);
+    assert.equal(canvas.hasAttribute("data-canvas-globe-license-state"), false);
+    assert.equal(globe._licenseHits.length, 0);
     globe.destroy();
   } finally {
     console.error = originalError;
@@ -162,7 +181,8 @@ test("reports local license problems without making runtime network calls", () =
     assert.equal(errors.length, 1);
 
     assert.doesNotThrow(() => reportLicenseStatus("wrong-prefix", true));
-    assert.match(errors.at(-1), /GLO license key/);
+    assert.match(errors.at(-1), /license key supplied after purchase/);
+    assert.doesNotMatch(errors.at(-1), /GLO/);
     assert.doesNotThrow(() => reportLicenseStatus("GLO-PAID-KEY", true));
     assert.equal(fetchCalls, 0);
   } finally {

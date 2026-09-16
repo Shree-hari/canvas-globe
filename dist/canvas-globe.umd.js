@@ -1314,7 +1314,7 @@ function drawFitted(ctx, media, box) {
 }
 
 // Keep in sync with package.json. Release checks enforce this value.
-const CANVAS_GLOBE_VERSION = "1.0.0-beta.2";
+const CANVAS_GLOBE_VERSION = "1.0.0-beta.3";
 
 /** Local license-key checks and production-use presentation helpers. */
 
@@ -1322,6 +1322,8 @@ const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 const LICENSE_KEY_PREFIX = "GLO";
 const LICENSE_PAGE_URL =
   "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
+const LICENSE_SETUP_URL =
+  "https://canvasglobe.swiftools.com/license-key?utm_source=canvas-globe&utm_medium=runtime-notice";
 
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the agreement and
@@ -1397,8 +1399,9 @@ function getLicensePresentation(
     runtime,
     notice: {
       text: "CanvasGlobe: Purchase a license",
-      ariaLabel: "CanvasGlobe requires a license for production use. Open licensing options.",
+      ariaLabel: "CanvasGlobe requires a commercial license for production use.",
       url: LICENSE_PAGE_URL,
+      setupUrl: LICENSE_SETUP_URL,
     },
   };
 }
@@ -1421,7 +1424,7 @@ function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
         : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
   } else if (mode && status.kind === "invalid") {
-    console.error(`canvas-globe: enter the GLO license key supplied after purchase. ${LICENSE_PAGE_URL}`);
+    console.error(`canvas-globe: enter the license key supplied after purchase. ${LICENSE_PAGE_URL}`);
   }
   return status;
 }
@@ -1562,7 +1565,8 @@ class GeoGlobe {
     this._media = new Map();
     this._markerMedia = new Map();
     this._counterShown = null;
-    this._licenseHit = null;
+    this._licenseHits = [];
+    this._licenseDismissed = false;
     this._licenseHovered = false;
 
     this._applyWorld();
@@ -1597,6 +1601,8 @@ class GeoGlobe {
     Object.assign(this.o, patch);
     if ("licenseKey" in patch) {
       reportLicenseStatus(patch.licenseKey);
+      this._licenseDismissed = false;
+      this._licenseHits = [];
     }
     if ("world" in patch) this._applyWorld();
     if ("markers" in patch) this._applyMarkers(patch.markers || []);
@@ -2171,7 +2177,7 @@ class GeoGlobe {
     this._markerMedia.clear();
     this._tip = null;
     this._live = null;
-    this._licenseHit = null;
+    this._licenseHits = [];
     return this;
   }
 
@@ -2567,9 +2573,17 @@ class GeoGlobe {
     return null;
   }
 
+  _licenseActionAt(x, y) {
+    for (let i = this._licenseHits.length - 1; i >= 0; i--) {
+      const hit = this._licenseHits[i];
+      if (x >= hit.x && x <= hit.x + hit.w && y >= hit.y && y <= hit.y + hit.h) return hit;
+    }
+    return null;
+  }
+
   _licenseHitAt(x, y) {
-    const hit = this._licenseHit;
-    return Boolean(hit && x >= hit.x && x <= hit.x + hit.w && y >= hit.y && y <= hit.y + hit.h);
+    const hit = this._licenseActionAt(x, y);
+    return Boolean(hit && hit.action !== "consume");
   }
 
   _bind() {
@@ -2577,6 +2591,12 @@ class GeoGlobe {
 
     this._onDown = (e) => {
       if (!this.o.interactive) return;
+      const [localX, localY] = this._local(e);
+      if (this._licenseActionAt(localX, localY)) {
+        this._drag = null;
+        this._dragMoved = false;
+        return;
+      }
       this._pointers.set(e.pointerId, this._local(e));
       c.setPointerCapture?.(e.pointerId);
       if (this._pointers.size === 2) {
@@ -2680,9 +2700,17 @@ class GeoGlobe {
     this._onClick = (e) => {
       if (this._dragMoved) return;
       const [x, y] = this._local(e);
-      if (this._licenseHitAt(x, y)) {
-        const opened = globalThis.open?.(this._licenseHit.url, "_blank", "noopener,noreferrer");
-        if (opened) opened.opener = null;
+      const licenseAction = this._licenseActionAt(x, y);
+      if (licenseAction) {
+        if (licenseAction.action === "dismiss") {
+          this._licenseDismissed = true;
+          this._licenseHovered = false;
+          this._dirty = true;
+          this.render();
+        } else if (licenseAction.url) {
+          const opened = globalThis.open?.(licenseAction.url, "_blank", "noopener,noreferrer");
+          if (opened) opened.opener = null;
+        }
         return;
       }
       const hit = this._hitAt(x, y);
@@ -3437,47 +3465,175 @@ class GeoGlobe {
     ctx.restore();
   }
 
+  _licenseRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, width, height, radius);
+    else ctx.rect(x, y, width, height);
+  }
+
   /** Licensing notice for public production use of the commercial edition. */
   _paintLicenseNotice(w, h) {
     const presentation = getLicensePresentation(this.o.licenseKey);
     const notice = presentation.notice;
-    this._licenseHit = null;
+    this._licenseHits = [];
     this.canvas.removeAttribute?.("data-canvas-globe-license-notice");
+    this.canvas.removeAttribute?.("data-canvas-globe-license-view");
+    this.canvas.removeAttribute?.("data-canvas-globe-license-state");
     if (!notice) return;
 
+    this.canvas.setAttribute?.("data-canvas-globe-license-notice", "visible");
+    this.canvas.setAttribute?.("data-canvas-globe-license-state", presentation.status.kind);
+    if (!this._licenseDismissed && w >= 240 && h >= 220) {
+      this._paintLicenseDialog(w, h, notice);
+    } else {
+      this._paintLicenseWatermark(w, h, notice);
+    }
+  }
+
+  _paintLicenseDialog(w, h, notice) {
     const { ctx } = this;
-    const fontSize = Math.max(10, Math.min(13, Math.round(Math.min(w, h) * 0.03)));
-    const horizontal = 10;
-    const vertical = 7;
-    const margin = Math.max(8, Math.round(Math.min(w, h) * 0.025));
+    const scale = Math.min(1, (w - 20) / 392, (h - 20) / 258);
+    const width = 392 * scale;
+    const height = 258 * scale;
+    const x = (w - width) / 2;
+    const y = (h - height) / 2;
+    const headerHeight = 42 * scale;
+    const inset = 24 * scale;
+    const contentWidth = width - inset * 2;
+    const radius = 10 * scale;
 
     ctx.save();
-    ctx.font = `600 ${fontSize}px Inter,system-ui,sans-serif`;
-    const textWidth = ctx.measureText(notice.text).width;
-    const boxWidth = Math.min(w - margin * 2, textWidth + horizontal * 2);
-    const boxHeight = fontSize + vertical * 2;
-    const x = Math.max(margin, w - boxWidth - margin);
-    const y = Math.max(margin, h - boxHeight - margin);
-
-    ctx.globalAlpha = 0.94;
-    ctx.fillStyle = "rgba(9, 18, 35, 0.92)";
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, boxWidth, boxHeight, 6);
-    else ctx.rect(x, y, boxWidth, boxHeight);
+    ctx.fillStyle = "rgba(14, 19, 29, 0.98)";
+    ctx.strokeStyle = "rgba(83, 98, 122, 0.92)";
+    ctx.lineWidth = Math.max(1, scale);
+    this._licenseRect(ctx, x, y, width, height, radius);
     ctx.fill();
     ctx.stroke();
 
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
+    ctx.strokeStyle = "rgba(63, 75, 96, 0.8)";
+    ctx.beginPath();
+    ctx.moveTo(x, y + headerHeight);
+    ctx.lineTo(x + width, y + headerHeight);
+    ctx.stroke();
+
+    ctx.fillStyle = "#70d4ec";
+    ctx.beginPath();
+    ctx.arc(x + 18 * scale, y + headerHeight / 2, 3.5 * scale, 0, TAU);
+    ctx.fill();
+
     ctx.textBaseline = "middle";
-    ctx.fillText(notice.text, x + boxWidth / 2, y + boxHeight / 2, boxWidth - horizontal * 2);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#d5dbe5";
+    ctx.font = `700 ${12 * scale}px Inter,system-ui,sans-serif`;
+    ctx.fillText("CanvasGlobe", x + 29 * scale, y + headerHeight / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#8994a8";
+    ctx.font = `500 ${10.5 * scale}px Inter,system-ui,sans-serif`;
+    ctx.fillText("License notice", x + width - 17 * scale, y + headerHeight / 2);
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#f2f4f8";
+    ctx.font = `700 ${18 * scale}px Inter,system-ui,sans-serif`;
+    ctx.fillText("Commercial use requires a license", x + inset, y + 76 * scale, contentWidth);
+    ctx.fillStyle = "#aeb7c8";
+    ctx.font = `400 ${12.5 * scale}px Inter,system-ui,sans-serif`;
+    ctx.fillText("No valid license key was found for this installation.", x + inset, y + 102 * scale, contentWidth);
+
+    const primary = { x: x + inset, y: y + 117 * scale, w: contentWidth, h: 38 * scale };
+    ctx.fillStyle = "#75d8ef";
+    this._licenseRect(ctx, primary.x, primary.y, primary.w, primary.h, 7 * scale);
+    ctx.fill();
+    ctx.fillStyle = "#061118";
+    ctx.textAlign = "center";
+    ctx.font = `750 ${12.5 * scale}px Inter,system-ui,sans-serif`;
+    ctx.fillText("Purchase license", primary.x + primary.w / 2, primary.y + primary.h / 2);
+
+    const dismiss = { x: x + inset, y: y + 163 * scale, w: contentWidth, h: 38 * scale };
+    ctx.fillStyle = "rgba(0, 0, 0, 0)";
+    ctx.strokeStyle = "#38445a";
+    this._licenseRect(ctx, dismiss.x, dismiss.y, dismiss.w, dismiss.h, 7 * scale);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#c1c8d5";
+    ctx.fillText("Continue to preview", dismiss.x + dismiss.w / 2, dismiss.y + dismiss.h / 2);
+
+    const setup = { x: x + inset, y: y + 213 * scale, w: contentWidth, h: 25 * scale };
+    ctx.fillStyle = "#8e99ad";
+    ctx.font = `500 ${10.5 * scale}px Inter,system-ui,sans-serif`;
+    ctx.fillText("Already purchased? Add your license key", setup.x + setup.w / 2, setup.y + setup.h / 2);
     ctx.restore();
 
-    this._licenseHit = { x, y, w: boxWidth, h: boxHeight, url: notice.url };
-    this.canvas.setAttribute?.("data-canvas-globe-license-notice", "visible");
+    this._licenseHits.push(
+      { action: "consume", x, y, w: width, h: height },
+      { action: "purchase", ...primary, url: notice.url },
+      { action: "dismiss", ...dismiss },
+      { action: "setup", ...setup, url: notice.setupUrl },
+    );
+    this.canvas.setAttribute?.("data-canvas-globe-license-view", "dialog");
+  }
+
+  _paintLicenseWatermark(w, h, notice) {
+    const { ctx } = this;
+    const shortest = Math.min(w, h);
+    const mainSize = clamp(shortest * 0.12, 27, 68);
+    const ribbonMargin = clamp(shortest * 0.025, 8, 14);
+    const ribbonHeight = clamp(h * 0.14, 42, 56);
+    const ribbon = {
+      x: ribbonMargin,
+      y: h - ribbonHeight - ribbonMargin,
+      w: w - ribbonMargin * 2,
+      h: ribbonHeight,
+    };
+
+    ctx.save();
+    ctx.translate(w / 2, h * 0.47);
+    ctx.rotate(-Math.PI / 15);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+    ctx.font = `900 ${mainSize}px Inter,system-ui,sans-serif`;
+    ctx.fillText("UNLICENSED", 0, -mainSize * 0.18, w * 0.88);
+    ctx.font = `800 ${mainSize * 0.4}px Inter,system-ui,sans-serif`;
+    ctx.fillText("CANVASGLOBE", 0, mainSize * 0.55, w * 0.78);
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = "rgba(12, 17, 28, 0.97)";
+    ctx.strokeStyle = "rgba(73, 88, 113, 0.95)";
+    ctx.lineWidth = 1;
+    this._licenseRect(ctx, ribbon.x, ribbon.y, ribbon.w, ribbon.h, 9);
+    ctx.fill();
+    ctx.stroke();
+
+    const buttonWidth = clamp(ribbon.w * 0.29, 90, 136);
+    const buttonHeight = Math.min(38, ribbon.h - 12);
+    const purchase = {
+      x: ribbon.x + ribbon.w - buttonWidth - 7,
+      y: ribbon.y + (ribbon.h - buttonHeight) / 2,
+      w: buttonWidth,
+      h: buttonHeight,
+    };
+    ctx.fillStyle = "#75d8ef";
+    this._licenseRect(ctx, purchase.x, purchase.y, purchase.w, purchase.h, 7);
+    ctx.fill();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#061118";
+    ctx.font = `750 ${clamp(buttonHeight * 0.32, 10, 12.5)}px Inter,system-ui,sans-serif`;
+    ctx.fillText("Purchase license", purchase.x + purchase.w / 2, purchase.y + purchase.h / 2, purchase.w - 10);
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#d6dce6";
+    ctx.font = `600 ${clamp(ribbonHeight * 0.24, 10, 13)}px Inter,system-ui,sans-serif`;
+    const label = ribbon.w < 330 ? "License required" : "Unlicensed CanvasGlobe installation";
+    ctx.fillText(label, ribbon.x + 14, ribbon.y + ribbon.h / 2, ribbon.w - buttonWidth - 35);
+    ctx.restore();
+
+    this._licenseHits.push(
+      { action: "consume", ...ribbon },
+      { action: "purchase", ...purchase, url: notice.url },
+    );
+    this.canvas.setAttribute?.("data-canvas-globe-license-view", "watermark");
   }
 
   _paintCountries(t, trace, textured) {
