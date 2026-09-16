@@ -3,7 +3,7 @@
 Scaffold a working CanvasGlobe project with one command.
 
 ```bash
-npm create canvas-globe@latest my-globe -- --template react
+npm create canvas-globe@next my-globe -- --template react
 ```
 
 Templates: `vanilla`, `react`, `nextjs`, `vue`, `sveltekit`, and `web-component`.

@@ -6,6 +6,13 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] - 2026-09-17
+
+- Corrected the project-creator help and README so beta users install the
+  current `next` channel instead of the older `latest` release.
+- Added a CLI help regression test and kept all coordinated packages and
+  starter templates on the same beta version.
+
 ## [1.0.0-beta.1] - 2026-09-16
 
 - Prepared an opt-in proprietary 1.x licensing model with a local `GLO`

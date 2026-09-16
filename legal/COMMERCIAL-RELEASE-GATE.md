@@ -32,7 +32,7 @@ checked.
 - [x] Add local `GLO` key checks with no server request.
 - [x] Add render tests for visible and cleared notices.
 - [x] Run the complete release check and inspect `npm pack` contents.
-- [ ] Publish beta with `npm publish --tag next --access public`.
+- [x] Publish beta with `npm publish --tag next --access public`.
 - [ ] Do not move `latest` until the beta is tested in each starter.
 
 ## Website and communication
