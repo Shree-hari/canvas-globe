@@ -4,6 +4,8 @@ export const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
 export const LICENSE_KEY_PREFIX = "GLO";
 export const LICENSE_PAGE_URL =
   "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
+export const LICENSE_SETUP_URL =
+  "https://canvasglobe.swiftools.com/license-key?utm_source=canvas-globe&utm_medium=runtime-notice";
 
 // This remains false while the latest published line is GPLv3. The commercial
 // release checklist requires an intentional switch after the agreement and
@@ -79,8 +81,9 @@ export function getLicensePresentation(
     runtime,
     notice: {
       text: "CanvasGlobe: Purchase a license",
-      ariaLabel: "CanvasGlobe requires a license for production use. Open licensing options.",
+      ariaLabel: "CanvasGlobe requires a commercial license for production use.",
       url: LICENSE_PAGE_URL,
+      setupUrl: LICENSE_SETUP_URL,
     },
   };
 }
@@ -103,7 +106,7 @@ export function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
         : `canvas-globe: ${DEFAULT_LICENSE_KEY} license key is not valid for production use. For help, email globe@swiftools.com`,
     );
   } else if (mode && status.kind === "invalid") {
-    console.error(`canvas-globe: enter the GLO license key supplied after purchase. ${LICENSE_PAGE_URL}`);
+    console.error(`canvas-globe: enter the license key supplied after purchase. ${LICENSE_PAGE_URL}`);
   }
   return status;
 }

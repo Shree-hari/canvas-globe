@@ -610,6 +610,7 @@ export declare const DEFAULT_LICENSE_KEY: "0000-0000-000-0000";
 export declare const LICENSE_KEY_PREFIX: "GLO";
 /** Canonical licensing page used by CanvasGlobe notices. */
 export declare const LICENSE_PAGE_URL: string;
+export declare const LICENSE_SETUP_URL: string;
 /** Classifies a browser location without making a network request. */
 export declare function inspectRuntime(locationValue?: {
   protocol?: string;
