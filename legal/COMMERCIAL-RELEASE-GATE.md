@@ -27,13 +27,16 @@ checked.
 
 - [x] Change `COMMERCIAL_LICENSE_MODE` to `true`.
 - [x] Replace GPL package metadata and files with the approved EULA.
-- [x] Bump all coordinated packages to `1.0.0-beta.1`.
+- [x] Bump all coordinated packages to `1.0.0-beta.2`.
 - [x] Prepare UMD, npm, React, custom-element, starters and skill instructions.
 - [x] Add local `GLO` key checks with no server request.
 - [x] Add render tests for visible and cleared notices.
 - [x] Run the complete release check and inspect `npm pack` contents.
 - [x] Publish beta with `npm publish --tag next --access public`.
-- [ ] Do not move `latest` until the beta is tested in each starter.
+- [x] Test the published beta in every starter. Vanilla, React, Next.js, Vue,
+      SvelteKit and Web Component production builds passed on 2026-09-17.
+- [x] Keep `latest` on the earlier GPL releases until an explicit stable
+      promotion decision is made.
 
 ## Website and communication
 
