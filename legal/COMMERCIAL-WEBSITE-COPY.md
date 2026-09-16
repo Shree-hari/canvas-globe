@@ -41,12 +41,12 @@ Add the key supplied after purchase to the CanvasGlobe options:
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "GLO-your-license-key",
+  licenseKey: "your-license-key",
 });
 ```
 
-A valid key begins with `GLO`. The check runs locally and does not contact
-Kelviq, Cloudflare, Swiftools or another server.
+The key check runs locally and does not contact Kelviq, Cloudflare, Swiftools
+or another server.
 
 ## FAQ
 
@@ -58,7 +58,7 @@ website analytics to Swiftools.
 ### What happens without a valid license key?
 
 Public production use shows a licensing notice and browser-console warning. A
-valid `GLO` key removes the notice.
+valid license key removes the notice.
 
 ### Does a one-time license expire?
 

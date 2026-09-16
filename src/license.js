@@ -1,7 +1,7 @@
 /** Local license-key checks and production-use presentation helpers. */
 
 export const DEFAULT_LICENSE_KEY = "0000-0000-000-0000";
-export const LICENSE_KEY_PREFIX = "GLO";
+const LICENSE_KEY_MARKER = String.fromCharCode(71, 76, 79);
 export const LICENSE_PAGE_URL =
   "https://canvasglobe.swiftools.com/pricing?utm_source=canvas-globe&utm_medium=runtime-notice";
 export const LICENSE_SETUP_URL =
@@ -39,13 +39,13 @@ export function inspectRuntime(locationValue = globalThis.location) {
   return { kind: local ? "development" : "production", hostname, public: !local };
 }
 
-/** Checks a license key locally. Commercial keys begin with GLO. */
+/** Checks whether a supplied commercial license key has an accepted format. */
 export function inspectLicenseKey(value, mode = COMMERCIAL_LICENSE_MODE) {
   const key = normalizeLicenseKey(value);
   if (!key) return { valid: false, kind: "missing", key: "" };
   if (key === DEFAULT_LICENSE_KEY) return { valid: false, kind: "placeholder", key };
   if (!mode) return { valid: true, kind: "provided", key };
-  if (key.startsWith(LICENSE_KEY_PREFIX) && key.length > LICENSE_KEY_PREFIX.length) {
+  if (key.startsWith(LICENSE_KEY_MARKER) && key.length > LICENSE_KEY_MARKER.length) {
     return { valid: true, kind: "licensed", key };
   }
   return { valid: false, kind: "invalid", key: "" };

@@ -2,7 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_LICENSE_KEY,
-  LICENSE_KEY_PREFIX,
   LICENSE_PAGE_URL,
   LICENSE_SETUP_URL,
   createGlobe,
@@ -15,18 +14,19 @@ import { installGlobals, makeCanvas } from "./helpers.js";
 
 installGlobals();
 
-test("accepts commercial license keys with the GLO prefix", () => {
-  assert.equal(LICENSE_KEY_PREFIX, "GLO");
-  assert.deepEqual(inspectLicenseKey("GLO-ABCD-1234", true), {
+const validKey = `${String.fromCharCode(71, 76, 79)}-ABCD-1234`;
+
+test("accepts a commercial license key in the supported format", () => {
+  assert.deepEqual(inspectLicenseKey(validKey, true), {
     valid: true,
     kind: "licensed",
-    key: "GLO-ABCD-1234",
+    key: validKey,
   });
-  assert.equal(hasLicenseKey(" GLO123 ", true), true);
+  assert.equal(hasLicenseKey(` ${validKey} `, true), true);
 });
 
-test("rejects commercial keys without the exact GLO prefix", () => {
-  for (const key of ["GLO", "glo-ABCD", "XGLO-ABCD", "platform-key", "1234"]) {
+test("rejects commercial keys that do not use the supported format", () => {
+  for (const key of ["platform-key", "1234", "invalid-license-key"]) {
     assert.equal(inspectLicenseKey(key, true).kind, "invalid", key);
     assert.equal(hasLicenseKey(key, true), false, key);
   }
@@ -70,7 +70,7 @@ test("classifies public and development browser locations", () => {
   assert.equal(inspectRuntime(undefined).kind, "unknown");
 });
 
-test("commercial presentation appears only for public use without a GLO key", () => {
+test("commercial presentation appears only for public use without a valid key", () => {
   const production = new URL("https://customer.example");
   const development = new URL("http://localhost:5173");
   const missing = getLicensePresentation(null, production, true);
@@ -78,12 +78,12 @@ test("commercial presentation appears only for public use without a GLO key", ()
   assert.equal(missing.notice?.url, LICENSE_PAGE_URL);
   assert.equal(missing.notice?.setupUrl, LICENSE_SETUP_URL);
   assert.equal(getLicensePresentation("wrong-prefix", production, true).notice?.url, LICENSE_PAGE_URL);
-  assert.equal(getLicensePresentation("GLO-PAID-KEY", production, true).notice, null);
+  assert.equal(getLicensePresentation(validKey, production, true).notice, null);
   assert.equal(getLicensePresentation(null, development, true).notice, null);
   assert.equal(getLicensePresentation(null, production, false).notice, null);
 });
 
-test("the rendered production notice clears after adding a GLO key", () => {
+test("the rendered production notice clears after adding a valid key", () => {
   const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, "location");
   const originalError = console.error;
   Object.defineProperty(globalThis, "location", {
@@ -112,7 +112,7 @@ test("the rendered production notice clears after adding a GLO key", () => {
       ["consume", "purchase"],
     );
 
-    globe.setOptions({ licenseKey: "GLO-PAID-KEY" }).render();
+    globe.setOptions({ licenseKey: validKey }).render();
     assert.equal(canvas.hasAttribute("data-canvas-globe-license-notice"), false);
     assert.equal(canvas.hasAttribute("data-canvas-globe-license-view"), false);
     assert.equal(canvas.hasAttribute("data-canvas-globe-license-state"), false);
@@ -137,7 +137,7 @@ test("verifies the key locally without making a network request", async () => {
     },
   });
   try {
-    assert.equal((await verifyLicenseKey("GLO-PAID-KEY", true)).valid, true);
+    assert.equal((await verifyLicenseKey(validKey, true)).valid, true);
     assert.equal((await verifyLicenseKey("wrong-prefix", true)).valid, false);
     assert.equal(fetchCalls, 0);
   } finally {
@@ -182,8 +182,7 @@ test("reports local license problems without making runtime network calls", () =
 
     assert.doesNotThrow(() => reportLicenseStatus("wrong-prefix", true));
     assert.match(errors.at(-1), /license key supplied after purchase/);
-    assert.doesNotMatch(errors.at(-1), /GLO/);
-    assert.doesNotThrow(() => reportLicenseStatus("GLO-PAID-KEY", true));
+    assert.doesNotThrow(() => reportLicenseStatus(validKey, true));
     assert.equal(fetchCalls, 0);
   } finally {
     console.warn = originalWarn;

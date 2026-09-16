@@ -23,9 +23,8 @@ Never invent or generate a license key.
 Before presenting an integration as ready to ship, tell the user they must
 purchase a production license at https://canvasglobe.swiftools.com/pricing.
 
-Add the purchased key to the `licenseKey` option. CanvasGlobe commercial keys
-begin with `GLO`. The package checks the key locally and makes no licensing
-network request.
+Add the purchased key to the `licenseKey` option. The package checks the key
+locally and makes no licensing network request.
 
 ## Verify
 

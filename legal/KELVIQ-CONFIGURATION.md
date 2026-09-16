@@ -8,9 +8,9 @@ live paid checkout descriptions until the approved agreement is linked.
 Keep the current Solo, Team and Business prices unless a separate pricing
 decision is made. Enable generated license-key delivery for every paid plan.
 
-Every generated CanvasGlobe key must begin with the exact uppercase prefix
-`GLO`. The package checks only this prefix and does not call the Kelviq API.
-Activation limits and license expiry are not required for this release.
+Every generated CanvasGlobe key must use the format expected by the package.
+The package checks the key locally and does not call the Kelviq API. Activation
+limits and license expiry are not required for this release.
 
 ## Checkout disclosures
 

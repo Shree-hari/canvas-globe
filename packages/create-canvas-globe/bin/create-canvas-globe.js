@@ -28,8 +28,8 @@ function usage() {
   console.log(`Create a CanvasGlobe project
 
 Usage:
-  npm create canvas-globe@next my-globe -- --template react
-  npx create-canvas-globe@next my-globe --template vanilla
+  npm create canvas-globe my-globe -- --template react
+  npx create-canvas-globe my-globe --template vanilla
 
 Templates:
   vanilla, react, nextjs, vue, sveltekit, web-component
@@ -105,7 +105,7 @@ async function main() {
     console.log(`\n  cd ${name}\n  npm install\n  npm run dev`);
     console.log("\nBefore shipping, purchase a CanvasGlobe license:");
     console.log("  Pricing: https://canvasglobe.swiftools.com/pricing");
-    console.log("  Add the supplied GLO key to the licenseKey option.");
+    console.log("  Add the supplied license key to the licenseKey option.");
   } finally {
     rl.close();
   }

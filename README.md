@@ -69,13 +69,13 @@ CanvasGlobe 1.0 and later are proprietary commercial software. Purchase a
 [Solo, Team, Business, or OEM license](https://canvasglobe.swiftools.com/pricing)
 before production use or redistribution.
 
-Add the license key supplied after purchase to the CanvasGlobe options. Valid
-commercial keys begin with `GLO`. The check runs locally, and websites using
-CanvasGlobe make no license-server or analytics requests to Swiftools:
+Add the license key supplied after purchase to the CanvasGlobe options. The
+check runs locally, and websites using CanvasGlobe make no license-server or
+analytics requests to Swiftools:
 
 ```js
 createGlobe(canvas, {
-  licenseKey: "GLO-your-license-key",
+  licenseKey: "your-license-key",
 });
 ```
 
@@ -238,7 +238,7 @@ To scaffold a complete starter for React, Next.js, Vue, SvelteKit, Vanilla
 JavaScript, or Web Components, run:
 
 ```bash
-npm create canvas-globe@next my-globe
+npm create canvas-globe my-globe
 ```
 
 ### AI-assisted setup
@@ -255,7 +255,7 @@ Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasg
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `licenseKey` | `null` | Commercial license key supplied after purchase; valid keys begin with `GLO` |
+| `licenseKey` | `null` | Commercial license key supplied after purchase |
 | `mode` | `"globe"` | `"globe"` (orthographic, spinnable) or `"map"` (flat) |
 | `projection` | `"equirectangular"` | Flat-map projection: also `"mercator"`, `"naturalEarth"` |
 | `preset` | Not set | Named bundle of theme + render style, applied under your options |
