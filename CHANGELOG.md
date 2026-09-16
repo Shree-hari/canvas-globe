@@ -6,6 +6,11 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-17
+
+- Updated browser CDN and ESM examples to load the current commercial release
+  instead of the earlier GPL release.
+
 ## [1.0.0] - 2026-09-17
 
 - Released the first stable commercial version of CanvasGlobe.
