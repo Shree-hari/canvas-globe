@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "canvas-globe": "^1.1.0",
-    "canvas-globe-web-component": "^1.1.0"
+    "canvas-globe": "^1.1.1",
+    "canvas-globe-web-component": "^1.1.1"
   },
   "devDependencies": {
     "vite": "^7.1.5"
