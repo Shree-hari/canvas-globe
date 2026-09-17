@@ -1,0 +1,57 @@
+{
+  "name": "canvas-globe-svelte",
+  "version": "1.1.0",
+  "description": "Svelte component for interactive 3D globes and world maps rendered with Canvas 2D.",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": {
+    "name": "Harsh Jhunjhunuwala"
+  },
+  "homepage": "https://canvasglobe.swiftools.com/integrations/svelte",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git",
+    "directory": "packages/canvas-globe-svelte"
+  },
+  "bugs": {
+    "url": "https://github.com/Shree-hari/canvas-globe/issues"
+  },
+  "type": "module",
+  "svelte": "./CanvasGlobe.svelte",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "svelte": "./CanvasGlobe.svelte",
+      "import": "./CanvasGlobe.svelte",
+      "default": "./CanvasGlobe.svelte"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "CanvasGlobe.svelte",
+    "index.d.ts",
+    "README.md",
+    "LICENSE.md",
+    "LICENSING.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "canvas-globe": "^1.1.0"
+  },
+  "peerDependencies": {
+    "svelte": ">=4 <6"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "svelte-globe",
+    "svelte-3d-globe",
+    "svelte-world-map",
+    "canvas-globe",
+    "interactive-globe",
+    "sveltekit",
+    "no-webgl"
+  ],
+  "private": false
+}

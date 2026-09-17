@@ -1,0 +1,86 @@
+{
+  "name": "3d-globe-map",
+  "version": "1.1.0",
+  "description": "Official CanvasGlobe package entry for interactive 3D globe maps and flat world maps on Canvas 2D.",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": {
+    "name": "Harsh Jhunjhunuwala"
+  },
+  "homepage": "https://canvasglobe.swiftools.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git",
+    "directory": "packages/3d-globe-map"
+  },
+  "bugs": {
+    "url": "https://github.com/Shree-hari/canvas-globe/issues"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./element": {
+      "types": "./element.d.ts",
+      "import": "./element.js",
+      "default": "./element.js"
+    },
+    "./react": {
+      "types": "./react.d.ts",
+      "import": "./react.js",
+      "default": "./react.js"
+    },
+    "./data/world": {
+      "types": "./data/world.d.ts",
+      "import": "./data/world.js",
+      "default": "./data/world.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "element.js",
+    "element.d.ts",
+    "react.js",
+    "react.d.ts",
+    "data",
+    "README.md",
+    "LICENSE.md",
+    "LICENSING.md"
+  ],
+  "sideEffects": [
+    "./element.js"
+  ],
+  "dependencies": {
+    "canvas-globe": "^1.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "3d-globe-map",
+    "3d-globe",
+    "globe-map",
+    "interactive-globe",
+    "javascript-globe",
+    "world-map",
+    "canvas-globe",
+    "no-webgl",
+    "geospatial-visualization"
+  ],
+  "private": false
+}

@@ -1,7 +1,7 @@
 {
   "name": "canvas-globe",
-  "version": "1.0.2",
-  "description": "Build interactive 3D globes and flat world maps in JavaScript or React with Canvas 2D, without WebGL, map tiles, API keys, or runtime network calls.",
+  "version": "1.1.0",
+  "description": "Build interactive 3D globes and flat world maps in JavaScript, React, Vue, Angular, or Svelte with Canvas 2D and no WebGL.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
     "name": "Harsh Jhunjhunuwala"
@@ -24,6 +24,11 @@
     "map",
     "world-map",
     "react-globe",
+    "vue-globe",
+    "angular-globe",
+    "svelte-globe",
+    "web-component-globe",
+    "3d-globe-map",
     "react",
     "globe-visualization",
     "data-visualization",
@@ -97,7 +102,8 @@
     "build:registry": "shadcn build --output .registry-build",
     "capture:readme": "node scripts/capture-readme-demo.mjs",
     "test": "node --test",
-    "test:ecosystem": "npm run build:registry && node scripts/validate-ecosystem.mjs && npm --prefix packages/create-canvas-globe test",
+    "build:companions": "npm --prefix packages/canvas-globe-angular run build",
+    "test:ecosystem": "npm run build:companions && npm run build:registry && node scripts/validate-ecosystem.mjs && npm --prefix packages/create-canvas-globe test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:ecosystem": "tsc --noEmit -p tsconfig.ecosystem.json",
     "smoke:package": "node scripts/package-smoke.mjs",
@@ -115,18 +121,26 @@
     }
   },
   "devDependencies": {
+    "@angular/compiler": "^21.2.23",
+    "@angular/compiler-cli": "^21.2.23",
+    "@angular/core": "^21.2.23",
     "@storybook/addon-a11y": "^10.6.0",
     "@storybook/html-vite": "^10.6.0",
+    "@sveltejs/package": "^2.5.8",
     "@types/react": "^19.3.0",
     "chromatic": "^18.8.1",
     "gifenc": "^1.0.3",
     "playwright-core": "^1.63.0",
     "pngjs": "^7.0.0",
     "polygon-clipping": "^0.15.7",
+    "rxjs": "^7.8.2",
     "shadcn": "^4.21.0",
     "storybook": "^10.6.0",
+    "svelte": "^5.57.0",
     "topojson-client": "^3.1.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vue": "^3.5.43",
+    "zone.js": "^0.16.0"
   },
   "engines": {
     "node": ">=18"

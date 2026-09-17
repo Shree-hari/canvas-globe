@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Globe } from "canvas-globe/react";
+import { Globe } from "react-canvas-globe";
 
 const markers = [
   { name: "Ahmedabad", lat: 23.03, lon: 72.58, count: 12, live: true },
