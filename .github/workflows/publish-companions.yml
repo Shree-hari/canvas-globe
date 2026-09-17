@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - all
           - 3d-globe-map
           - canvas-globe-angular
           - canvas-globe-svelte
@@ -33,6 +34,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: npm
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(inputs.package == 'all' && '["3d-globe-map","canvas-globe-angular","canvas-globe-svelte","canvas-globe-vue","canvas-globe-web-component","react-canvas-globe","create-canvas-globe"]' || format('["{0}"]', inputs.package)) }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -43,11 +48,11 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Verify companion package
         env:
-          PACKAGE_NAME: ${{ inputs.package }}
+          PACKAGE_NAME: ${{ matrix.package }}
         run: |
           node -e "const fs=require('node:fs'); const root=require('./package.json'); const pkg=require('./packages/'+process.env.PACKAGE_NAME+'/package.json'); const expected=root.version.includes('-')?root.version:'^'+root.version; if(pkg.private) throw new Error('Package is private'); if(pkg.name!==process.env.PACKAGE_NAME) throw new Error('Package name mismatch'); if(pkg.version!==root.version) throw new Error('Package version mismatch'); if(pkg.license!=='SEE LICENSE IN LICENSE.md') throw new Error('Commercial license metadata is missing'); if(!fs.existsSync('./packages/'+process.env.PACKAGE_NAME+'/LICENSE.md')) throw new Error('Packaged LICENSE.md is missing'); if(pkg.dependencies?.['canvas-globe'] && pkg.dependencies['canvas-globe']!==expected) throw new Error('canvas-globe dependency is stale');"
           npm --prefix "packages/${PACKAGE_NAME}" test --if-present
           npm --prefix "packages/${PACKAGE_NAME}" pack --dry-run
       - name: Publish with provenance
-        working-directory: packages/${{ inputs.package }}
+        working-directory: packages/${{ matrix.package }}
         run: npm publish --access public --provenance --tag "${{ inputs.npm_tag }}"
