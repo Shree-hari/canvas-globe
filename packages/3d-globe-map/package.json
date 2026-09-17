@@ -1,6 +1,6 @@
 {
   "name": "3d-globe-map",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Official CanvasGlobe package entry for interactive 3D globe maps and flat world maps on Canvas 2D.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
@@ -58,7 +58,7 @@
     "./element.js"
   ],
   "dependencies": {
-    "canvas-globe": "^1.1.0"
+    "canvas-globe": "^1.1.1"
   },
   "peerDependencies": {
     "react": ">=17"

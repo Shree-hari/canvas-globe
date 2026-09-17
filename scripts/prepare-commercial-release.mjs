@@ -104,7 +104,7 @@ write("src/version.js", read("src/version.js").replace(
   `CANVAS_GLOBE_VERSION = "${version}"`,
 ));
 write("README.md", read("README.md").replace(
-  /canvas-globe@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g,
+  /(?<!@swiftools\/)canvas-globe@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g,
   `canvas-globe@${version}`,
 ));
 write("src/license.js", read("src/license.js").replace(

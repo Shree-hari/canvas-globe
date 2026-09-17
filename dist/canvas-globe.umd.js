@@ -1314,7 +1314,7 @@ function drawFitted(ctx, media, box) {
 }
 
 // Keep in sync with package.json. Release checks enforce this value.
-const CANVAS_GLOBE_VERSION = "1.1.0";
+const CANVAS_GLOBE_VERSION = "1.1.1";
 
 /** Local license-key checks and production-use presentation helpers. */
 
@@ -1342,8 +1342,17 @@ const PRIVATE_HOST_PATTERNS = [
   /^::1$/,
 ];
 
+const OFFICIAL_SITE_HOSTS = new Set([
+  "canvasglobe.swiftools.com",
+  "canvas-globe-website.pages.dev",
+]);
+const OFFICIAL_PREVIEW_SUFFIX = ".canvas-globe-website.pages.dev";
+
 const normalizeLicenseKey = (value) =>
   typeof value === "string" ? value.trim() : "";
+
+const isOfficialSiteHost = (hostname) =>
+  OFFICIAL_SITE_HOSTS.has(hostname) || hostname.endsWith(OFFICIAL_PREVIEW_SUFFIX);
 
 /** Returns development, production or unknown for a browser location. */
 function inspectRuntime(locationValue = globalThis.location) {
@@ -1391,7 +1400,7 @@ function getLicensePresentation(
 ) {
   const status = inspectLicenseKey(value, mode);
   const runtime = inspectRuntime(locationValue);
-  if (!mode || status.valid || !runtime.public) {
+  if (!mode || status.valid || !runtime.public || isOfficialSiteHost(runtime.hostname)) {
     return { status, runtime, notice: null };
   }
   return {
@@ -1411,6 +1420,7 @@ function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
   const presentation = getLicensePresentation(value, globalThis.location, mode);
   const { status } = presentation;
   if (typeof location === "undefined") return status;
+  if (!presentation.notice) return status;
   if (status.kind === "missing") {
     console.error(
       mode

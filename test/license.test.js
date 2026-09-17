@@ -83,6 +83,25 @@ test("commercial presentation appears only for public use without a valid key", 
   assert.equal(getLicensePresentation(null, production, false).notice, null);
 });
 
+test("official CanvasGlobe sites render public demos without a licensing notice", () => {
+  const officialUrls = [
+    "https://canvasglobe.swiftools.com/playground/",
+    "https://canvas-globe-website.pages.dev/playground/",
+    "https://release-preview.canvas-globe-website.pages.dev/playground/",
+  ];
+
+  for (const value of officialUrls) {
+    const presentation = getLicensePresentation(null, new URL(value), true);
+    assert.equal(presentation.notice, null, value);
+    assert.equal(presentation.runtime.public, true, value);
+  }
+
+  assert.notEqual(
+    getLicensePresentation(null, new URL("https://customer.example"), true).notice,
+    null,
+  );
+});
+
 test("the rendered production notice clears after adding a valid key", () => {
   const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, "location");
   const originalError = console.error;

@@ -6,6 +6,12 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-09-17
+
+- Prevented the production licensing presentation from covering live globes on
+  the official CanvasGlobe website and its Cloudflare preview deployments.
+- Kept the licensing presentation unchanged for customer production domains.
+
 ## [1.1.0] - 2026-09-17
 
 - Added official Vue, Angular, Svelte, and Web Component packages that keep
