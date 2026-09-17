@@ -6,9 +6,25 @@
 [![License](https://img.shields.io/badge/license-commercial-7c3aed.svg)](https://canvasglobe.swiftools.com/licensing)
 [![TypeScript declarations](https://img.shields.io/badge/types-included-3178c6.svg)](types/index.d.ts)
 [![zero runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-2ea44f.svg)](package.json)
-[![Agent skill](https://img.shields.io/badge/agent_skill-install-111827.svg)](https://skills.sh/Shree-hari/canvas-globe)
+[![Agent skill](https://img.shields.io/badge/agent_skill-install-111827.svg)](https://github.com/Shree-hari/canvas-globe/tree/main/skills/canvas-globe)
 
 [![Animated CanvasGlobe demo cycling through interactive globe themes, markers, and routes](https://raw.githubusercontent.com/Shree-hari/canvas-globe/main/assets/readme/canvas-globe-demo.gif)](https://canvasglobe.swiftools.com/playground)
+
+> **Important: a commercial license is required for production use**
+>
+> - CanvasGlobe is proprietary commercial software. Availability on npm or
+>   GitHub does not grant production or redistribution rights.
+> - Purchase a
+>   [Solo, Team, Business, or OEM license](https://canvasglobe.swiftools.com/pricing)
+>   before using CanvasGlobe in production.
+> - After purchase, configure the supplied license key in the `licenseKey`
+>   option. Public production use without a valid license key is restricted and
+>   displays a licensing notice.
+> - Downloading, installing, purchasing, or using CanvasGlobe indicates
+>   acceptance of the
+>   [CanvasGlobe Software License Agreement](https://canvasglobe.swiftools.com/licensing).
+> - For help related to purchasing or licensing, email
+>   [globe@swiftools.com](mailto:globe@swiftools.com).
 
 [**Open the live playground**](https://canvasglobe.swiftools.com/playground) ·
 [Examples](https://canvasglobe.swiftools.com/examples) ·
@@ -119,19 +135,19 @@ your existing application rather than installing a second React copy.
 For a plain `<script>` installation, use the versioned UMD build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.0.1/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.0.2/dist/canvas-globe.umd.js"></script>
 ```
 
 The same npm release is also available from UNPKG:
 
 ```html
-<script src="https://unpkg.com/canvas-globe@1.0.1/dist/canvas-globe.umd.js"></script>
+<script src="https://unpkg.com/canvas-globe@1.0.2/dist/canvas-globe.umd.js"></script>
 ```
 
 Modern browsers can import the package through an ESM CDN:
 
 ```js
-import { createGlobe } from "https://esm.sh/canvas-globe@1.0.1";
+import { createGlobe } from "https://esm.sh/canvas-globe@1.0.2";
 ```
 
 Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
@@ -151,7 +167,7 @@ import { createGlobe } from "canvas-globe";
 Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.0.1/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.0.2/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {

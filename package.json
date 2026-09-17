@@ -1,6 +1,6 @@
 {
   "name": "canvas-globe",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Build interactive 3D globes and flat world maps in JavaScript or React with Canvas 2D, without WebGL, map tiles, API keys, or runtime network calls.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
