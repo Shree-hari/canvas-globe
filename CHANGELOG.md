@@ -6,6 +6,13 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-09-17
+
+- Added a prominent commercial-license notice near the top of the npm README,
+  with direct links to pricing, the license agreement, and licensing support.
+- Kept the animated product demo above the notice and replaced the unavailable
+  Skills.sh badge destination with the installable skill source in GitHub.
+
 ## [1.0.1] - 2026-09-17
 
 - Updated browser CDN and ESM examples to load the current commercial release
