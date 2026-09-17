@@ -11,11 +11,19 @@
     "types": ["react"],
     "baseUrl": ".",
     "paths": {
+      "3d-globe-map": ["./packages/3d-globe-map/index.d.ts"],
+      "canvas-globe-svelte": ["./packages/canvas-globe-svelte/index.d.ts"],
+      "canvas-globe-vue": ["./packages/canvas-globe-vue/index.d.ts"],
+      "canvas-globe-web-component": ["./packages/canvas-globe-web-component/index.d.ts"],
       "react-canvas-globe": ["./packages/react-canvas-globe/index.d.ts"]
     }
   },
   "include": [
     "registry/**/*.tsx",
+    "packages/3d-globe-map/**/*.d.ts",
+    "packages/canvas-globe-svelte/**/*.d.ts",
+    "packages/canvas-globe-vue/**/*.d.ts",
+    "packages/canvas-globe-web-component/**/*.d.ts",
     "packages/react-canvas-globe/**/*.d.ts",
     "test/ecosystem-types.tsx"
   ]

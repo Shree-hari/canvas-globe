@@ -8,6 +8,11 @@ on:
         required: true
         type: choice
         options:
+          - 3d-globe-map
+          - canvas-globe-angular
+          - canvas-globe-svelte
+          - canvas-globe-vue
+          - canvas-globe-web-component
           - react-canvas-globe
           - create-canvas-globe
       npm_tag:

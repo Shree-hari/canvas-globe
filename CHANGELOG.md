@@ -6,6 +6,15 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-17
+
+- Added official Vue, Angular, Svelte, and Web Component packages that keep
+  framework lifecycle code separate while sharing the CanvasGlobe renderer.
+- Added `3d-globe-map` as an official discovery package that re-exports the
+  canonical `canvas-globe` implementation without duplicating source code.
+- Extended companion-package release checks and publishing automation so all
+  official package entry points stay version-aligned.
+
 ## [1.0.2] - 2026-09-17
 
 - Added a prominent commercial-license notice near the top of the npm README,

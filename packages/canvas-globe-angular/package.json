@@ -1,0 +1,60 @@
+{
+  "name": "canvas-globe-angular",
+  "version": "1.1.0",
+  "description": "Angular standalone component for interactive 3D globes and world maps rendered with Canvas 2D.",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": {
+    "name": "Harsh Jhunjhunuwala"
+  },
+  "homepage": "https://canvasglobe.swiftools.com/integrations/angular",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git",
+    "directory": "packages/canvas-globe-angular"
+  },
+  "bugs": {
+    "url": "https://github.com/Shree-hari/canvas-globe/issues"
+  },
+  "type": "module",
+  "main": "./dist/public-api.js",
+  "module": "./dist/public-api.js",
+  "types": "./dist/public-api.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/public-api.d.ts",
+      "import": "./dist/public-api.js",
+      "default": "./dist/public-api.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md",
+    "LICENSING.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "ngc -p tsconfig.lib.json",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "canvas-globe": "^1.1.0"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=21 <23"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "angular-globe",
+    "angular-3d-globe",
+    "angular-world-map",
+    "canvas-globe",
+    "interactive-globe",
+    "standalone-component",
+    "no-webgl"
+  ],
+  "private": false
+}

@@ -1,0 +1,55 @@
+{
+  "name": "canvas-globe-web-component",
+  "version": "1.1.0",
+  "description": "Web Component for interactive 3D globes and world maps rendered with Canvas 2D.",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": {
+    "name": "Harsh Jhunjhunuwala"
+  },
+  "homepage": "https://canvasglobe.swiftools.com/integrations/web-component",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shree-hari/canvas-globe.git",
+    "directory": "packages/canvas-globe-web-component"
+  },
+  "bugs": {
+    "url": "https://github.com/Shree-hari/canvas-globe/issues"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "customElements": "./custom-elements.json",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "custom-elements.json",
+    "README.md",
+    "LICENSE.md",
+    "LICENSING.md"
+  ],
+  "sideEffects": true,
+  "dependencies": {
+    "canvas-globe": "^1.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "web-component-globe",
+    "custom-element-globe",
+    "html-globe",
+    "canvas-globe",
+    "interactive-globe",
+    "world-map",
+    "no-webgl"
+  ],
+  "private": false
+}

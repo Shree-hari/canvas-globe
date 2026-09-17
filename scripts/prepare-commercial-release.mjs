@@ -51,7 +51,17 @@ lock.packages[""].version = version;
 lock.packages[""].license = "SEE LICENSE IN LICENSE.md";
 writeJson("package-lock.json", lock);
 
-for (const directory of ["react-canvas-globe", "create-canvas-globe"]) {
+const companionDirectories = [
+  "3d-globe-map",
+  "canvas-globe-angular",
+  "canvas-globe-svelte",
+  "canvas-globe-vue",
+  "canvas-globe-web-component",
+  "create-canvas-globe",
+  "react-canvas-globe",
+];
+
+for (const directory of companionDirectories) {
   const packagePath = `packages/${directory}/package.json`;
   updatePackage(packagePath, (pkg) => {
     pkg.version = version;
@@ -64,11 +74,18 @@ for (const directory of ["react-canvas-globe", "create-canvas-globe"]) {
   rmSync(join(root, "packages", directory, "LICENSE"), { force: true });
 }
 
+copyFileSync(
+  join(root, "custom-elements.json"),
+  join(root, "packages", "canvas-globe-web-component", "custom-elements.json"),
+);
+
 for (const collection of ["starters", "packages/create-canvas-globe/templates"]) {
   for (const name of ["vanilla-vite", "react-vite", "nextjs-app-router", "vue-vite", "sveltekit", "web-component-vite"]) {
     const path = `${collection}/${name}/package.json`;
     updatePackage(path, (pkg) => {
-      pkg.dependencies["canvas-globe"] = releaseSpec;
+      for (const dependency of ["canvas-globe", ...companionDirectories]) {
+        if (pkg.dependencies?.[dependency]) pkg.dependencies[dependency] = releaseSpec;
+      }
     });
   }
 }
@@ -85,6 +102,10 @@ writeJson("codemeta.json", codemeta);
 write("src/version.js", read("src/version.js").replace(
   /CANVAS_GLOBE_VERSION\s*=\s*"[^"]+"/,
   `CANVAS_GLOBE_VERSION = "${version}"`,
+));
+write("README.md", read("README.md").replace(
+  /canvas-globe@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g,
+  `canvas-globe@${version}`,
 ));
 write("src/license.js", read("src/license.js").replace(
   /COMMERCIAL_LICENSE_MODE\s*=\s*false/,

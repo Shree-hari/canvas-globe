@@ -1,6 +1,7 @@
 node_modules/
 storybook-static/
 .registry-build/
+packages/canvas-globe-angular/dist/
 .npm-cache-starters/
 .npm-cache/
 .license-secrets/

@@ -12,9 +12,29 @@ const requireCondition = (condition, message) => {
 
 const pkg = json("package.json");
 const licenseSource = read("src/license.js");
-const reactPackage = json("packages/react-canvas-globe/package.json");
-const createPackage = json("packages/create-canvas-globe/package.json");
-const currentDocs = ["README.md", "LICENSING.md", "codemeta.json", "jsr.json"]
+const companionDirectories = [
+  "3d-globe-map",
+  "canvas-globe-angular",
+  "canvas-globe-svelte",
+  "canvas-globe-vue",
+  "canvas-globe-web-component",
+  "create-canvas-globe",
+  "react-canvas-globe",
+];
+const companionPackages = companionDirectories.map((directory) => ({
+  directory,
+  pkg: json(`packages/${directory}/package.json`),
+}));
+const currentDocs = [
+  "README.md",
+  "LICENSING.md",
+  "codemeta.json",
+  "jsr.json",
+  ...companionDirectories.flatMap((directory) => [
+    `packages/${directory}/README.md`,
+    `packages/${directory}/LICENSING.md`,
+  ]),
+]
   .filter((path) => existsSync(join(root, path)))
   .map((path) => `${path}\n${read(path)}`)
   .join("\n");
@@ -38,19 +58,19 @@ requireCondition(
   /LICENSE_KEY_MARKER\s*=\s*String\.fromCharCode\(/.test(licenseSource),
   "the local license-key format check is missing",
 );
-requireCondition(
-  reactPackage.license === "SEE LICENSE IN LICENSE.md" && createPackage.license === "SEE LICENSE IN LICENSE.md",
-  "companion package metadata has not moved to the commercial license",
-);
-requireCondition(
-  reactPackage.version === pkg.version && createPackage.version === pkg.version,
-  "commercial package versions are not aligned",
-);
-requireCondition(
-  reactPackage.dependencies?.["canvas-globe"] === (pkg.version.includes("-") ? pkg.version : `^${pkg.version}`),
-  "react-canvas-globe does not depend on the matching commercial release",
-);
-for (const directory of ["react-canvas-globe", "create-canvas-globe"]) {
+const expectedDependency = pkg.version.includes("-") ? pkg.version : `^${pkg.version}`;
+for (const { directory, pkg: companion } of companionPackages) {
+  requireCondition(
+    companion.license === "SEE LICENSE IN LICENSE.md",
+    `${directory} has not moved to the commercial license`,
+  );
+  requireCondition(companion.version === pkg.version, `${directory} version is not aligned`);
+  if (directory !== "create-canvas-globe") {
+    requireCondition(
+      companion.dependencies?.["canvas-globe"] === expectedDependency,
+      `${directory} does not depend on the matching commercial release`,
+    );
+  }
   const path = join(root, "packages", directory, "LICENSE.md");
   requireCondition(existsSync(path), `${directory} is missing its packaged LICENSE.md`);
   if (existsSync(path) && existsSync(join(root, "LICENSE.md"))) {

@@ -1,4 +1,4 @@
-import "canvas-globe/element";
+import "canvas-globe-web-component";
 import "./style.css";
 
 const globe = document.querySelector("geo-globe");

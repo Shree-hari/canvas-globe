@@ -41,7 +41,7 @@
 
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
 **3D globe** and **flat world map** on Canvas 2D. It works with
-vanilla JavaScript, React, or a Web Component and requires no WebGL, map API
+vanilla JavaScript, React, Vue, Angular, Svelte, or a Web Component and requires no WebGL, map API
 key, tile service, or runtime network request.
 
 - **Zero dependencies:** no WebGL, D3, map tiles, or API keys
@@ -60,7 +60,7 @@ key, tile service, or runtime network request.
 - **Day and night:** calculate the solar terminator for a given time
 - **Four projections:** orthographic, equirectangular, Mercator, and Natural Earth
 - **Accessibility:** keyboard controls, a live region, and reduced-motion support
-- **Bindings:** vanilla JavaScript, a custom element, and React
+- **Bindings:** vanilla JavaScript, React, Vue, Angular, Svelte, and a custom element
 
 Common uses include audience dashboards, launch pages, status boards, and share graphics.
 
@@ -135,19 +135,19 @@ your existing application rather than installing a second React copy.
 For a plain `<script>` installation, use the versioned UMD build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.0.2/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.1.0/dist/canvas-globe.umd.js"></script>
 ```
 
 The same npm release is also available from UNPKG:
 
 ```html
-<script src="https://unpkg.com/canvas-globe@1.0.2/dist/canvas-globe.umd.js"></script>
+<script src="https://unpkg.com/canvas-globe@1.1.0/dist/canvas-globe.umd.js"></script>
 ```
 
 Modern browsers can import the package through an ESM CDN:
 
 ```js
-import { createGlobe } from "https://esm.sh/canvas-globe@1.0.2";
+import { createGlobe } from "https://esm.sh/canvas-globe@1.1.0";
 ```
 
 Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
@@ -167,7 +167,7 @@ import { createGlobe } from "canvas-globe";
 Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.0.2/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.1.0/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {
@@ -249,6 +249,23 @@ For a dedicated React package name, install the thin companion entry point:
 ```bash
 npm install react-canvas-globe
 ```
+
+### Framework and discovery packages
+
+Every official package uses the same CanvasGlobe renderer and commercial
+license. Framework packages add native lifecycle and event integration, while
+`3d-globe-map` is an alternate discovery entry for the canonical API.
+
+| Package | Use it for |
+| --- | --- |
+| [`canvas-globe`](https://www.npmjs.com/package/canvas-globe) | Canonical JavaScript and Canvas 2D API |
+| [`react-canvas-globe`](https://www.npmjs.com/package/react-canvas-globe) | React component |
+| [`canvas-globe-vue`](https://www.npmjs.com/package/canvas-globe-vue) | Vue 3 component |
+| [`canvas-globe-angular`](https://www.npmjs.com/package/canvas-globe-angular) | Angular standalone component |
+| [`canvas-globe-svelte`](https://www.npmjs.com/package/canvas-globe-svelte) | Svelte and SvelteKit component |
+| [`canvas-globe-web-component`](https://www.npmjs.com/package/canvas-globe-web-component) | Framework-independent custom element |
+| [`3d-globe-map`](https://www.npmjs.com/package/3d-globe-map) | Search-friendly alternate package entry |
+| [`create-canvas-globe`](https://www.npmjs.com/package/create-canvas-globe) | Project scaffolder and starter templates |
 
 To scaffold a complete starter for React, Next.js, Vue, SvelteKit, Vanilla
 JavaScript, or Web Components, run:
