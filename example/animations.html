@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>canvas-globe  -  animation catalogue</title>
+<style>
+  :root {
+    --bg: #07080d;
+    --panel: #0e1018;
+    --line: #1e2230;
+    --ink: #e8ecf5;
+    --dim: #8b93a7;
+    --accent: #8b5cf6;
+    --accent-soft: rgba(139, 92, 246, 0.16);
+    --ok: #22c55e;
+    --warn: #f59e0b;
+    --new: #38bdf8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    padding: 38px 28px 20px;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+  h1 { margin: 0 0 6px; font-size: 1.9rem; letter-spacing: -0.02em; }
+  .sub { color: var(--dim); max-width: 78ch; margin: 0 0 18px; }
+  .sub strong { color: var(--ink); font-weight: 600; }
+
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(7, 8, 13, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 28px;
+  }
+  .bar-inner { max-width: 1320px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .chipset { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    border: 1px solid var(--line); background: var(--panel); color: var(--dim);
+    border-radius: 999px; padding: 5px 12px; font-size: 0.78rem; cursor: pointer;
+    font-family: inherit; transition: 0.15s;
+  }
+  .chip:hover { color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .picked {
+    margin-left: auto; display: flex; gap: 10px; align-items: center;
+    font-size: 0.82rem; color: var(--dim);
+  }
+  .picked code { color: var(--ink); font-size: 0.85rem; }
+  .btn {
+    border: 1px solid var(--accent); background: var(--accent-soft); color: #fff;
+    border-radius: 8px; padding: 6px 14px; font: inherit; font-size: 0.8rem; cursor: pointer;
+  }
+  .btn:hover { background: var(--accent); }
+
+  .grid {
+    max-width: 1320px; margin: 0 auto; padding: 24px 28px 80px;
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column; transition: 0.18s;
+  }
+  .card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 18px 40px -26px var(--accent); }
+  .card.hide { display: none; }
+  .stage { position: relative; background: #05060a; border-bottom: 1px solid var(--line); }
+  .stage canvas { display: block; width: 100%; aspect-ratio: 1 / 1; }
+  .tag {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(7, 8, 13, 0.82); border: 1px solid var(--line);
+    display: grid; place-items: center; font-weight: 800; font-size: 0.85rem;
+    backdrop-filter: blur(6px);
+  }
+  .card.on .tag { background: var(--accent); border-color: var(--accent); }
+  .replay {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    border: 1px solid var(--line); background: rgba(7, 8, 13, 0.82); color: var(--dim);
+    border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-size: 0.9rem;
+    backdrop-filter: blur(6px);
+  }
+  .replay:hover { color: #fff; }
+  .body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .title { font-weight: 700; font-size: 0.98rem; display: flex; align-items: center; gap: 8px; }
+  .blurb { color: var(--dim); font-size: 0.83rem; margin: 0; }
+  .sells { font-size: 0.78rem; color: #b9a6f5; margin: 0; }
+  .meta { display: flex; gap: 6px; margin-top: auto; padding-top: 6px; flex-wrap: wrap; }
+  .pill { font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 700;
+          border-radius: 999px; padding: 3px 8px; border: 1px solid; }
+  .pill.cat { color: var(--dim); border-color: var(--line); }
+  .pill.built { color: var(--ok); border-color: rgba(34, 197, 94, 0.4); }
+  .pill.extend { color: var(--warn); border-color: rgba(245, 158, 11, 0.4); }
+  .pill.newwork { color: var(--new); border-color: rgba(56, 189, 248, 0.4); }
+  footer { max-width: 1320px; margin: 0 auto; padding: 0 28px 60px; color: var(--dim); font-size: 0.85rem; }
+  footer h2 { color: var(--ink); font-size: 1rem; margin: 26px 0 8px; }
+  footer li { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Animation catalogue</h1>
+  <p class="sub">
+    Every effect below is running live on <strong>canvas-globe</strong>  -  no WebGL, no video.
+    Each one is built to survive <code>record()</code> as a seamless loop, which is what a
+    Canva or Adobe Express add-on actually ships.
+    <strong>Click a card to pick it</strong>, then send me the letters.
+  </p>
+</header>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="chipset" id="filters"></div>
+    <div class="picked">
+      <span>Picked:</span>
+      <code id="pickList">none</code>
+      <button class="btn" id="copy">Copy</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <h2>Reading the badges</h2>
+  <ul>
+    <li><span class="pill built">built-in</span> already in the package  -  an add-on can ship it today.</li>
+    <li><span class="pill extend">extend</span> possible now through <code>onRender</code> / <code>renderMarker</code>, but should become a first-class option.</li>
+    <li><span class="pill newwork">engine</span> needs new rendering work inside the library.</li>
+  </ul>
+  <h2>Why these and not others</h2>
+  <p>
+    I left out anything that needs a GPU (volumetric clouds, real atmospheric scattering, depth-of-field)
+    and anything that cannot loop cleanly. Marketplace buyers judge a pack by its thumbnail loop, so an
+    effect that only looks right once is worth very little.
+  </p>
+</footer>
+
+<script type="module">
+import { createGlobe, world, projections } from "../src/index.js";
+
+/* ------------------------------------------------------------------ data - */
+
+const CITIES = [
+  { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 214 },
+  { city: "Bengaluru", lat: 12.97, lon: 77.59, count: 186 },
+  { city: "London", lat: 51.5, lon: -0.12, count: 164 },
+  { city: "New York", lat: 40.71, lon: -74.01, count: 152 },
+  { city: "San Francisco", lat: 37.77, lon: -122.42, count: 141 },
+  { city: "Berlin", lat: 52.52, lon: 13.4, count: 98 },
+  { city: "Toronto", lat: 43.65, lon: -79.38, count: 84 },
+  { city: "São Paulo", lat: -23.55, lon: -46.63, count: 76 },
+  { city: "Singapore", lat: 1.35, lon: 103.82, count: 71 },
+  { city: "Sydney", lat: -33.87, lon: 151.21, count: 63 },
+  { city: "Tokyo", lat: 35.68, lon: 139.69, count: 58 },
+  { city: "Dubai", lat: 25.2, lon: 55.27, count: 47 },
+  { city: "Nairobi", lat: -1.29, lon: 36.82, count: 31 },
+  { city: "Lagos", lat: 6.52, lon: 3.38, count: 28 },
+  { city: "Mexico City", lat: 19.43, lon: -99.13, count: 42 },
+];
+const HUB = { lat: 23.03, lon: 72.58 };
+const ISO = ["IN", "US", "GB", "DE", "CA", "BR", "AU", "JP", "SG", "FR", "NL", "AE", "ZA", "KE", "MX", "ES", "SE", "PL", "ID", "NG"];
+
+/* ----------------------------------------------------------------- utils - */
+
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const back = (t) => { const c = 1.70158 + 1; return 1 + c * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2); };
+const D2R = Math.PI / 180;
+
+/** rAF loop with a normalised 0→1 progress over `ms`, looping by default. */
+function loop(ms, onTick, { hold = 0 } = {}) {
+  let raf = 0;
+  let start = performance.now();
+  const step = (now) => {
+    const elapsed = now - start;
+    const t = Math.min(1, elapsed / ms);
+    onTick(t, elapsed);
+    if (elapsed >= ms + hold) start = now;
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
+
+/** Point `dist` degrees from (lon,lat) along `bearing`  -  for ripples and rings. */
+function destination(lon, lat, bearing, dist) {
+  const f1 = lat * D2R, l1 = lon * D2R, b = bearing * D2R, d = dist * D2R;
+  const f2 = Math.asin(Math.sin(f1) * Math.cos(d) + Math.cos(f1) * Math.sin(d) * Math.cos(b));
+  const l2 = l1 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(f1), Math.cos(d) - Math.sin(f1) * Math.sin(f2));
+  return [((l2 / D2R + 540) % 360) - 180, f2 / D2R];
+}
+
+const sized = (n) => CITIES.slice(0, n);
+
+/* --------------------------------------------------------------- effects - */
+/* Each: tag, title, cat, status, blurb, sells, options, run(globe) -> stop   */
+
+const EFFECTS = [
+
+/* ---------- entrances ---------- */
+{
+  tag: "A", title: "Particle assemble", cat: "Entrance", status: "engine",
+  blurb: "Dots scatter in from off-screen and settle into the landmasses.",
+  sells: "The single most reusable opener for any geo add-on.",
+  options: { preset: "hologram", landStyle: "none", autoRotate: false, stars: true, graticule: false },
+  run(globe) {
+    let pts = [];
+    try {
+      const flat = globe._dotPoints();
+      for (let i = 0; i < flat.length; i += 2) pts.push([flat[i], flat[i + 1]]);
+      pts = pts.filter((_, i) => i % 3 === 0);
+    } catch { pts = CITIES.map((c) => [c.lon, c.lat]); }
+    const seeds = pts.map(() => ({ a: Math.random() * Math.PI * 2, r: 0.7 + Math.random() * 0.9, d: Math.random() * 0.45 }));
+    let prog = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.fillStyle = "#67e8f9";
+      for (let i = 0; i < pts.length; i++) {
+        const p = g.project(pts[i][0], pts[i][1]);
+        if (!p) continue;
+        const s = seeds[i];
+        const t = Math.max(0, Math.min(1, (prog - s.d) / (1 - s.d)));
+        const e = easeOut(t);
+        const fx = w / 2 + Math.cos(s.a) * w * s.r, fy = h / 2 + Math.sin(s.a) * h * s.r;
+        ctx.globalAlpha = 0.25 + e * 0.75;
+        ctx.beginPath();
+        ctx.arc(fx + (p.x - fx) * e, fy + (p.y - fy) * e, 1.15, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.restore();
+    } });
+    return loop(2600, (t) => { prog = t; globe.invalidate(); }, { hold: 900 });
+  },
+},
+{
+  tag: "B", title: "Radar draw-on", cat: "Entrance", status: "extend",
+  blurb: "A sweep hand rotates once and leaves the map drawn behind it.",
+  sells: "Reads as 'scanning the world'  -  huge for coverage and status decks.",
+  options: { preset: "blueprint", landStyle: "outline", autoRotate: false, graticule: true, stars: false },
+  run(globe) {
+    let ang = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.52;
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-in";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + ang);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      const a = -Math.PI / 2 + ang;
+      const grad = ctx.createLinearGradient(cx, cy, cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      grad.addColorStop(0, "rgba(56,189,248,0)");
+      grad.addColorStop(1, "rgba(56,189,248,.9)");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      ctx.stroke();
+      ctx.restore();
+    } });
+    return loop(2800, (t) => { ang = t * Math.PI * 2; globe.invalidate(); }, { hold: 700 });
+  },
+},
+{
+  tag: "C", title: "Globe → map unfold", cat: "Entrance", status: "engine",
+  blurb: "The sphere peels open into a flat world map, vertex by vertex.",
+  sells: "Nobody else in this price bracket has this. Worth a pack on its own.",
+  custom: true,
+  run(canvas) {
+    const ctx = canvas.getContext("2d");
+    const shapes = world.filter((_, i) => i % 1 === 0);
+    let t = 0;
+    const paint = () => {
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      const k = easeInOut(t);
+      const R = Math.min(w, h) * 0.42;
+      ctx.fillStyle = "#0b1220";
+      ctx.fillRect(0, 0, w, h);
+      ctx.beginPath();
+      for (const s of shapes) {
+        const polys = s.geometry.type === "Polygon" ? [s.geometry.coordinates] : s.geometry.coordinates;
+        for (const poly of polys) for (const ring of poly) {
+          let open = false;
+          for (const [lon, lat] of ring) {
+            const [ox, oy, oc] = orth(lon, lat, R);
+            const fx = (lon / 180) * R * 1.35, fy = -(lat / 90) * R * 0.78;
+            if (oc < 0 && k < 0.5) { open = false; continue; }
+            const x = w / 2 + ox + (fx - ox) * k;
+            const y = h / 2 + oy + (fy - oy) * k;
+            open ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), (open = true));
+          }
+          if (open) ctx.closePath();
+        }
+      }
+      ctx.fillStyle = "#2dd4bf";
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = "#5eead4";
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    };
+    const orth = (lon, lat, R) => {
+      const l = lon * D2R, f = lat * D2R;
+      return [R * Math.cos(f) * Math.sin(l), -R * Math.sin(f), Math.cos(f) * Math.cos(l)];
+    };
+    return loop(3200, (p) => { t = p < 0.5 ? p * 2 : 1 - (p - 0.5) * 2; paint(); }, { hold: 500 });
+  },
+},
+{
+  tag: "D", title: "Drop from orbit", cat: "Entrance", status: "built-in",
+  blurb: "Punches in from a distant speck to a framed region.",
+  sells: "The standard 'zoom to your city' opener every local business wants.",
+  options: { preset: "atlas", autoRotate: false, zoomable: false, markers: sized(6) },
+  run(globe) {
+    return loop(3000, (t) => {
+      const e = easeInOut(t);
+      globe.setOptions({ zoom: 0.55 + e * 2.2 });
+      globe.setOptions({ center: { lon: 40 + e * 32, lat: 8 + e * 15 } });
+    }, { hold: 800 });
+  },
+},
+{
+  tag: "E", title: "Halftone materialise", cat: "Entrance", status: "extend",
+  blurb: "The dot matrix fades up in a band that sweeps pole to pole.",
+  sells: "Premium print-poster feel. Pairs with any brand colour.",
+  options: { preset: "hologram", landStyle: "dots", dotSpacing: 2.2, autoRotate: true, rotateSpeed: 0.05 },
+  run(globe) {
+    let edge = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const y = edge * h * 1.35 - h * 0.18;
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-in";
+      const grad = ctx.createLinearGradient(0, y - h * 0.3, 0, y);
+      grad.addColorStop(0, "rgba(0,0,0,1)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, y);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, w, Math.max(0, y - h * 0.3));
+      ctx.restore();
+    } });
+    return loop(2400, (t) => { edge = t; globe.invalidate(); }, { hold: 1100 });
+  },
+},
+
+/* ---------- ambient loops ---------- */
+{
+  tag: "F", title: "Breathing atmosphere", cat: "Ambient", status: "extend",
+  blurb: "The rim glow swells and settles on a slow four-second cycle.",
+  sells: "Makes a static hero feel alive without pulling focus.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.04, stars: true },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+      const pulse = 0.5 + 0.5 * Math.sin(k * Math.PI * 2);
+      const grad = ctx.createRadialGradient(cx, cy, r * 0.94, cx, cy, r * (1.14 + pulse * 0.1));
+      grad.addColorStop(0, "rgba(125,211,252,0)");
+      grad.addColorStop(0.45, `rgba(125,211,252,${0.1 + pulse * 0.16})`);
+      grad.addColorStop(1, "rgba(125,211,252,0)");
+      ctx.save();
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    } });
+    return loop(4000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "G", title: "Starfield parallax", cat: "Ambient", status: "extend",
+  blurb: "Three star layers drift at different speeds behind the globe.",
+  sells: "Depth for free. Turns a flat canvas into a scene.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.05, stars: false },
+  run(globe) {
+    const layers = [0, 1, 2].map((i) =>
+      Array.from({ length: 40 }, () => ({ x: Math.random(), y: Math.random(), s: 0.5 + i * 0.5, a: 0.25 + i * 0.25 })));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-over";
+      layers.forEach((stars, i) => {
+        ctx.fillStyle = `rgba(255,255,255,${0.2 + i * 0.22})`;
+        for (const s of stars) {
+          const x = ((s.x + k * (0.02 + i * 0.03)) % 1) * w;
+          ctx.beginPath();
+          ctx.arc(x, s.y * h, s.s * 0.8, 0, 6.283);
+          ctx.fill();
+        }
+      });
+      ctx.restore();
+    } });
+    return loop(9000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "H", title: "Hologram scanlines", cat: "Ambient", status: "extend",
+  blurb: "CRT lines plus a bright band that travels top to bottom.",
+  sells: "Instant sci-fi. The best-selling look in every motion marketplace.",
+  options: { preset: "hologram", autoRotate: true, rotateSpeed: 0.07, landStyle: "dots" },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      ctx.fillStyle = "rgba(103,232,249,.045)";
+      for (let y = 0; y < h; y += 3) ctx.fillRect(0, y, w, 1);
+      const y = k * h;
+      const grad = ctx.createLinearGradient(0, y - 40, 0, y + 40);
+      grad.addColorStop(0, "rgba(103,232,249,0)");
+      grad.addColorStop(0.5, "rgba(103,232,249,.22)");
+      grad.addColorStop(1, "rgba(103,232,249,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, y - 40, w, 80);
+      ctx.restore();
+    } });
+    return loop(3200, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "I", title: "Day / night sweep", cat: "Ambient", status: "built-in",
+  blurb: "A full twenty-four hours of terminator in six seconds.",
+  sells: "Sells 'always on' and 'global coverage' without a word of copy.",
+  options: { preset: "atlas", terminator: true, autoRotate: true, rotateSpeed: 0.03, markers: sized(8) },
+  run(globe) {
+    const base = Date.UTC(2024, 5, 21, 0);
+    return loop(6000, (t) => globe.setTime(base + t * 86400000));
+  },
+},
+{
+  tag: "J", title: "Satellite orbits", cat: "Ambient", status: "built-in",
+  blurb: "Great-circle rings that pass behind the sphere as it turns.",
+  sells: "Reads as network, infrastructure, coverage. Very reusable.",
+  options: { preset: "neon", orbits: 3, autoRotate: true, rotateSpeed: 0.08 },
+  run() { return () => {}; },
+},
+
+/* ---------- data reveals ---------- */
+{
+  tag: "K", title: "Marker cascade", cat: "Data", status: "extend",
+  blurb: "Pins land one after another with a slight overshoot.",
+  sells: "The 'look how many customers' beat. Works on any dataset.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.04, markerStyle: "bubble" },
+  run(globe) {
+    return loop(3400, (t) => {
+      const n = CITIES.length;
+      globe.setMarkers(CITIES.map((c, i) => {
+        const local = Math.max(0, Math.min(1, t * n * 1.3 - i));
+        return { ...c, size: 3.4 * back(local), count: c.count * (local > 0 ? 1 : 0) };
+      }).filter((m) => m.size > 0.01));
+    }, { hold: 900 });
+  },
+},
+{
+  tag: "L", title: "Arc launch sequence", cat: "Data", status: "extend",
+  blurb: "Routes fire outward from the hub one at a time, then hold.",
+  sells: "Expansion, distribution, 'we ship everywhere'.",
+  options: { preset: "hologram", autoRotate: true, rotateSpeed: 0.05, arcLift: 0.32, markers: [HUB] },
+  run(globe) {
+    const targets = sized(9);
+    return loop(3600, (t) => {
+      const n = targets.length;
+      globe.setArcs(targets.filter((_, i) => t * n * 1.25 > i)
+        .map((c, i) => ({ from: HUB, to: c, duration: 1800 + i * 120 })));
+    }, { hold: 1200 });
+  },
+},
+{
+  tag: "M", title: "Choropleth cascade", cat: "Data", status: "extend",
+  blurb: "Countries flood with colour in ranked order.",
+  sells: "Revenue, users, coverage  -  the core dashboard reveal.",
+  options: { mode: "map", preset: "mono", autoRotate: false, projection: "naturalEarth" },
+  run(globe) {
+    return loop(3200, (t) => {
+      const n = ISO.length;
+      const colors = {};
+      ISO.forEach((iso, i) => {
+        const local = Math.max(0, Math.min(1, t * n * 1.3 - i));
+        if (local <= 0) return;
+        const l = 72 - (1 - i / n) * 40;
+        colors[iso] = `hsl(258 85% ${l}% / ${local})`;
+      });
+      globe.setOptions({ countryColors: colors });
+    }, { hold: 1000 });
+  },
+},
+{
+  tag: "N", title: "Spikes rising", cat: "Data", status: "extend",
+  blurb: "Bars grow out of the surface and settle at their value.",
+  sells: "Volume without a legend. Extremely screenshot-friendly.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.05, spikes: true, markerStyle: "dot", markers: CITIES },
+  run(globe) {
+    return loop(2600, (t) => {
+      globe.setOptions({ spikes: { height: 0.34 * easeOut(t), width: 2.4 } });
+    }, { hold: 1100 });
+  },
+},
+{
+  tag: "O", title: "Counter roll-up", cat: "Data", status: "built-in",
+  blurb: "An odometer headline that eases to its final number.",
+  sells: "Milestone posts. Pairs with every other effect here.",
+  options: { preset: "neon", autoRotate: true, rotateSpeed: 0.05, markers: sized(10), markerStyle: "dot" },
+  run(globe) {
+    return loop(2600, (t) => {
+      globe.setOptions({ counter: { value: Math.round(easeOut(t) * 21947), label: "customers", size: 34 } });
+    }, { hold: 1400 });
+  },
+},
+{
+  tag: "P", title: "Growth over time", cat: "Data", status: "built-in",
+  blurb: "Markers appear as their date arrives across the range.",
+  sells: "Year-in-review and investor-update staple.",
+  options: { mode: "map", preset: "midnight", autoRotate: false, markerStyle: "bubble" },
+  run(globe) {
+    globe.setMarkers(CITIES.map((c, i) => ({ ...c, date: `2024-${String(1 + (i % 12)).padStart(2, "0")}-05` })));
+    globe.playTimeline({ duration: 4200, loop: true });
+    return () => globe.stopTimeline();
+  },
+},
+
+/* ---------- attention ---------- */
+{
+  tag: "Q", title: "Shockwave ripple", cat: "Attention", status: "engine",
+  blurb: "A true great-circle ring expands across the curved surface.",
+  sells: "Launches, announcements, 'it started here'.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.03, markers: [{ ...HUB, live: true }] },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      for (const [off, alpha] of [[0, 0.9], [-0.18, 0.45], [-0.36, 0.2]]) {
+        const p = k + off;
+        if (p <= 0 || p >= 1) continue;
+        const dist = p * 165;
+        ctx.strokeStyle = `rgba(167,139,250,${alpha * (1 - p)})`;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        let started = false;
+        for (let b = 0; b <= 360; b += 4) {
+          const [lo, la] = destination(HUB.lon, HUB.lat, b, dist);
+          const pt = g.project(lo, la);
+          if (!pt) { started = false; continue; }
+          started ? ctx.lineTo(pt.x, pt.y) : (ctx.moveTo(pt.x, pt.y), (started = true));
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    } });
+    return loop(2600, (t) => { k = t; globe.invalidate(); }, { hold: 400 });
+  },
+},
+{
+  tag: "R", title: "Celebration burst", cat: "Attention", status: "built-in",
+  blurb: "Particle spray with a label at a milestone location.",
+  sells: "The '10,000 users' post. Highest-shared format there is.",
+  options: { preset: "neon", autoRotate: true, rotateSpeed: 0.05, markers: sized(8), markerStyle: "dot" },
+  run(globe) {
+    const fire = () => globe.ping({ ...HUB, emoji: "🎉", label: "10,000 users", burst: 26, duration: 2600 });
+    fire();
+    const id = setInterval(fire, 3200);
+    return () => { clearInterval(id); globe.clearPings(); };
+  },
+},
+{
+  tag: "S", title: "Pin drop with squash", cat: "Attention", status: "extend",
+  blurb: "Markers fall from above, squash on impact, then settle.",
+  sells: "Playful and instantly readable. Great for store locators.",
+  options: { preset: "atlas", autoRotate: false, center: { lon: 30, lat: 25 }, zoom: 1.1 },
+  run(globe) {
+    const pins = sized(7);
+    let k = 0;
+    globe.setMarkers(pins);
+    globe.setOptions({ renderMarker: (ctx, m, { x, y, scale }) => {
+      const i = pins.indexOf(pins.find((p) => p.city === m.city));
+      const local = Math.max(0, Math.min(1, k * pins.length * 1.2 - i * 0.9));
+      if (local <= 0) return 0;
+      const drop = (1 - easeOut(Math.min(1, local * 1.6))) * -70;
+      const impact = Math.max(0, Math.min(1, (local - 0.62) / 0.38));
+      const squash = 1 + Math.sin(impact * Math.PI) * 0.5;
+      const r = 7 * scale;
+      ctx.save();
+      ctx.translate(x, y + drop);
+      ctx.scale(squash, 1 / squash);
+      ctx.fillStyle = "#f97316";
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.85)";
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.38, 0, 6.283);
+      ctx.fill();
+      ctx.restore();
+      return r;
+    } });
+    return loop(3000, (t) => { k = t; globe.invalidate(); }, { hold: 900 });
+  },
+},
+{
+  tag: "T", title: "Firework over a country", cat: "Attention", status: "engine",
+  blurb: "A shell launches from a capital and bursts into falling sparks.",
+  sells: "Launch day, national days, festive campaign packs.",
+  options: { preset: "noir", autoRotate: false, center: { lon: 78, lat: 22 }, zoom: 1.5, countryColors: { IN: "#f97316" } },
+  run(globe) {
+    let parts = [];
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      const origin = g.project(78, 22);
+      if (!origin) return;
+      ctx.save();
+      if (k < 0.34) {
+        const rise = easeOut(k / 0.34);
+        ctx.fillStyle = "#fde68a";
+        ctx.beginPath();
+        ctx.arc(origin.x, origin.y - rise * 90, 2.4, 0, 6.283);
+        ctx.fill();
+      } else {
+        const p = (k - 0.34) / 0.66;
+        for (const s of parts) {
+          const x = origin.x + Math.cos(s.a) * s.v * p * 90;
+          const y = origin.y - 90 + Math.sin(s.a) * s.v * p * 90 + p * p * 120;
+          ctx.globalAlpha = Math.max(0, 1 - p);
+          ctx.fillStyle = s.c;
+          ctx.beginPath();
+          ctx.arc(x, y, 1.9, 0, 6.283);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    } });
+    const seed = () => {
+      parts = Array.from({ length: 70 }, () => ({
+        a: Math.random() * 6.283, v: 0.4 + Math.random() * 0.8,
+        c: ["#fde68a", "#fb7185", "#a78bfa", "#67e8f9"][(Math.random() * 4) | 0],
+      }));
+    };
+    seed();
+    return loop(2800, (t) => { if (t < k) seed(); k = t; globe.invalidate(); }, { hold: 500 });
+  },
+},
+
+/* ---------- camera ---------- */
+{
+  tag: "U", title: "Orbit the subject", cat: "Camera", status: "extend",
+  blurb: "The camera circles a fixed point instead of spinning the globe.",
+  sells: "Cinematic product-shot feel for a single market.",
+  options: { preset: "aurora", autoRotate: false, zoom: 1.7, markers: [{ ...HUB, live: true }] },
+  run(globe) {
+    return loop(7000, (t) => {
+      const a = t * Math.PI * 2;
+      globe.setOptions({ center: { lon: HUB.lon + Math.sin(a) * 26, lat: HUB.lat + Math.cos(a) * 11 } });
+    });
+  },
+},
+{
+  tag: "V", title: "City-to-city tour", cat: "Camera", status: "built-in",
+  blurb: "Spring-eased hops between locations on a timer.",
+  sells: "Office tours, tour dates, delivery journeys.",
+  options: { preset: "atlas", autoRotate: false, zoom: 1.6, markers: sized(5), labels: "markers" },
+  run(globe) {
+    const h = globe.tour(sized(5).map((c) => ({ lon: c.lon, lat: c.lat })), { dwell: 2000, zoom: 1.9 });
+    return () => h.stop();
+  },
+},
+
+/* ---------- stylised ---------- */
+{
+  tag: "W", title: "Glitch pass", cat: "Stylised", status: "engine",
+  blurb: "RGB split plus sliced row offsets, firing in short bursts.",
+  sells: "Web3, gaming, cyber brands pay a premium for this look.",
+  options: { preset: "neon", autoRotate: true, rotateSpeed: 0.06, landStyle: "dots" },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      const w = c.clientWidth, h = c.clientHeight;
+      const burst = k > 0.72 && k < 0.88;
+      if (!burst) return;
+      const amp = (1 - Math.abs(k - 0.8) / 0.08) * 9;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(c, -amp, 0, w, h);
+      ctx.drawImage(c, amp, 0, w, h);
+      ctx.restore();
+      ctx.save();
+      for (let i = 0; i < 6; i++) {
+        const y = Math.random() * h, sh = 4 + Math.random() * 14;
+        ctx.drawImage(c, 0, y * (c.height / h), c.width, sh * (c.height / h),
+                      (Math.random() - 0.5) * amp * 3, y, w, sh);
+      }
+      ctx.restore();
+    } });
+    return loop(3400, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "X", title: "Long-exposure trails", cat: "Stylised", status: "engine",
+  blurb: "Arc heads smear into light trails that fade over a second.",
+  sells: "Premium 'network traffic' look used in every fintech deck.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.04, arcLift: 0.3,
+             arcs: sized(7).map((c, i) => ({ from: HUB, to: c, duration: 1500 + i * 180, width: 1.2 })) },
+  run(globe) {
+    let buf = null, bctx = null;
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      const w = c.clientWidth, h = c.clientHeight;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.globalCompositeOperation = "source-over";
+      bctx.fillStyle = "rgba(0,0,0,.26)";
+      bctx.fillRect(0, 0, buf.width, buf.height);
+      bctx.globalCompositeOperation = "lighter";
+      bctx.globalAlpha = 0.5;
+      bctx.drawImage(c, 0, 0);
+      bctx.globalAlpha = 1;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.32;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(buf, 0, 0);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+];
+
+/* ------------------------------------------------------------------- ui - */
+
+const grid = document.getElementById("grid");
+const picked = new Set();
+const live = new Map();
+
+const STATUS_CLASS = { "built-in": "built", extend: "extend", engine: "newwork" };
+const STATUS_LABEL = { "built-in": "built-in", extend: "extend", engine: "engine" };
+
+for (const fx of EFFECTS) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.cat = fx.cat;
+  card.dataset.status = fx.status;
+  card.innerHTML = `
+    <div class="stage">
+      <span class="tag">${fx.tag}</span>
+      <button class="replay" title="Replay">↻</button>
+      <canvas></canvas>
+    </div>
+    <div class="body">
+      <div class="title">${fx.title}</div>
+      <p class="blurb">${fx.blurb}</p>
+      <p class="sells">${fx.sells}</p>
+      <div class="meta">
+        <span class="pill cat">${fx.cat}</span>
+        <span class="pill ${STATUS_CLASS[fx.status]}">${STATUS_LABEL[fx.status]}</span>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+
+  const canvas = card.querySelector("canvas");
+
+  const start = () => {
+    stop();
+    if (fx.custom) {
+      live.set(fx.tag, { stop: fx.run(canvas) });
+      return;
+    }
+    const globe = createGlobe(canvas, {
+      interactive: false, keyboard: false, fps: 30, radiusRatio: 0.4,
+      center: { lon: 30, lat: 18 }, ...fx.options,
+    });
+    live.set(fx.tag, { globe, stop: fx.run(globe) || (() => {}) });
+  };
+  const stop = () => {
+    const rec = live.get(fx.tag);
+    if (!rec) return;
+    rec.stop?.();
+    rec.globe?.destroy();
+    live.delete(fx.tag);
+  };
+
+  card.querySelector(".replay").addEventListener("click", (e) => { e.stopPropagation(); start(); });
+  card.addEventListener("click", () => {
+    picked.has(fx.tag) ? picked.delete(fx.tag) : picked.add(fx.tag);
+    card.classList.toggle("on", picked.has(fx.tag));
+    renderPicked();
+  });
+
+  new IntersectionObserver((entries) => {
+    for (const en of entries) en.isIntersecting ? (live.has(fx.tag) || start()) : stop();
+  }, { rootMargin: "240px" }).observe(card);
+}
+
+function renderPicked() {
+  const list = [...picked].sort();
+  document.getElementById("pickList").textContent = list.length ? list.join(", ") : "none";
+}
+document.getElementById("copy").addEventListener("click", () => {
+  navigator.clipboard?.writeText([...picked].sort().join(", "));
+});
+document.getElementById("clear").addEventListener("click", () => {
+  picked.clear();
+  document.querySelectorAll(".card.on").forEach((c) => c.classList.remove("on"));
+  renderPicked();
+});
+
+const cats = ["All", ...new Set(EFFECTS.map((e) => e.cat))];
+const filters = document.getElementById("filters");
+cats.forEach((cat, i) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.textContent = cat;
+  b.setAttribute("aria-pressed", String(i === 0));
+  b.addEventListener("click", () => {
+    filters.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    document.querySelectorAll(".card").forEach((c) => {
+      c.classList.toggle("hide", cat !== "All" && c.dataset.cat !== cat);
+    });
+  });
+  filters.appendChild(b);
+});
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "name": "canvas-globe",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Build interactive 3D globes and flat world maps in JavaScript, React, Vue, Angular, or Svelte with Canvas 2D and no WebGL.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
@@ -66,6 +66,36 @@
       "import": "./src/react.js",
       "default": "./src/react.js"
     },
+    "./fx": {
+      "types": "./types/fx.d.ts",
+      "import": "./src/fx/index.js",
+      "default": "./src/fx/index.js"
+    },
+    "./fx/interaction": {
+      "types": "./types/fx-interaction.d.ts",
+      "import": "./src/fx/effects/interaction.js",
+      "default": "./src/fx/effects/interaction.js"
+    },
+    "./recipes": {
+      "types": "./types/recipes.d.ts",
+      "import": "./src/recipes.js",
+      "default": "./src/recipes.js"
+    },
+    "./charts": {
+      "types": "./types/charts.d.ts",
+      "import": "./src/charts.js",
+      "default": "./src/charts.js"
+    },
+    "./controls": {
+      "types": "./types/controls.d.ts",
+      "import": "./src/controls.js",
+      "default": "./src/controls.js"
+    },
+    "./places": {
+      "types": "./types/places.d.ts",
+      "import": "./src/places.js",
+      "default": "./src/places.js"
+    },
     "./data/world": {
       "types": "./types/data/world.d.ts",
       "import": "./src/data/world.js",
@@ -95,7 +125,9 @@
   "scripts": {
     "start": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
-    "data": "node scripts/generate-data.mjs && node scripts/generate-timezones.mjs",
+    "data": "node scripts/generate-data.mjs && node scripts/generate-timezones.mjs && node scripts/generate-places.mjs",
+    "places": "node scripts/generate-places.mjs",
+    "audit:docs": "node scripts/audit-docs.mjs",
     "example": "node scripts/serve.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",

@@ -6,6 +6,30 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-18
+
+### Added
+
+- Added an opt-in effect system with 54 composable effects, three paint stages,
+  deterministic timeline controls, pointer state, path tracing, and land-point
+  sampling through `canvas-globe/fx`.
+- Added nine chart layers in `canvas-globe/charts`, six reversible recipes in
+  `canvas-globe/recipes`, and four markup-independent DOM controls in
+  `canvas-globe/controls`.
+- Added `canvas-globe/places`, an optional offline search module containing
+  6,772 populated places from Natural Earth.
+- Added 26 effect-authoring helpers for easing, deterministic particles,
+  scratch buffers, spherical geometry, HUD elements, and pointer interaction.
+- Added five effect and interaction demo pages plus export, type, package, and
+  documentation coverage for all new public entry points.
+
+### Changed
+
+- Made auto-rotation, arcs, orbits, and marker pulses follow the seekable clock
+  during frame rendering.
+- Kept all add-on modules outside the core entry point, leaving the core bundle
+  at 125.0 KB gzipped.
+
 ## [1.1.1] - 2026-09-17
 
 - Prevented the production licensing presentation from covering live globes on

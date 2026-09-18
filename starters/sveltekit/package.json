@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "canvas-globe": "^1.1.1",
-    "canvas-globe-svelte": "^1.1.1"
+    "canvas-globe": "^1.2.0",
+    "canvas-globe-svelte": "^1.2.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^7.0.1",

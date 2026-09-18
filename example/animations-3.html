@@ -1,0 +1,1193 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>canvas-globe â€” animation catalogue, part three</title>
+<style>
+  :root {
+    --bg: #07080d; --panel: #0e1018; --line: #1e2230; --ink: #e8ecf5; --dim: #8b93a7;
+    --accent: #22d3ee; --accent-soft: rgba(34, 211, 238, .16);
+    --ok: #22c55e; --warn: #f59e0b; --new: #38bdf8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  header { padding: 38px 28px 20px; max-width: 1320px; margin: 0 auto; }
+  h1 { margin: 0 0 6px; font-size: 1.9rem; letter-spacing: -.02em; }
+  .sub { color: var(--dim); max-width: 82ch; margin: 0 0 14px; }
+  .sub strong { color: var(--ink); font-weight: 600; }
+  .links { display: flex; gap: 16px; font-size: .86rem; }
+  .links a { color: var(--accent); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+  .bar { position: sticky; top: 0; z-index: 20; background: rgba(7,8,13,.92);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 12px 28px; }
+  .bar-inner { max-width: 1320px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .chipset { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--dim);
+    border-radius: 999px; padding: 5px 12px; font-size: .78rem; cursor: pointer; font-family: inherit; transition: .15s; }
+  .chip:hover { color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .picked { margin-left: auto; display: flex; gap: 10px; align-items: center; font-size: .82rem; color: var(--dim); }
+  .picked code { color: var(--ink); font-size: .85rem; }
+  .btn { border: 1px solid var(--accent); background: var(--accent-soft); color: #fff;
+    border-radius: 8px; padding: 6px 14px; font: inherit; font-size: .8rem; cursor: pointer; }
+  .btn:hover { background: var(--accent); color: #05242a; }
+  .grid { max-width: 1320px; margin: 0 auto; padding: 24px 28px 80px;
+    display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column; transition: .18s; }
+  .card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 18px 40px -26px var(--accent); }
+  .card.hide { display: none; }
+  .stage { position: relative; background: #05060a; border-bottom: 1px solid var(--line); }
+  .stage canvas { display: block; width: 100%; aspect-ratio: 1 / 1; }
+  .tag { position: absolute; top: 10px; left: 10px; z-index: 2; min-width: 34px; height: 30px; padding: 0 8px;
+    border-radius: 8px; background: rgba(7,8,13,.82); border: 1px solid var(--line);
+    display: grid; place-items: center; font-weight: 800; font-size: .8rem; backdrop-filter: blur(6px); }
+  .card.on .tag { background: var(--accent); border-color: var(--accent); color: #05242a; }
+  .replay { position: absolute; top: 10px; right: 10px; z-index: 2; border: 1px solid var(--line);
+    background: rgba(7,8,13,.82); color: var(--dim); border-radius: 8px; width: 30px; height: 30px;
+    cursor: pointer; font-size: .9rem; backdrop-filter: blur(6px); }
+  .replay:hover { color: #fff; }
+  .body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .title { font-weight: 700; font-size: .98rem; }
+  .ref { font-size: .72rem; color: var(--accent); letter-spacing: .02em; }
+  .blurb { color: var(--dim); font-size: .83rem; margin: 0; }
+  .meta { display: flex; gap: 6px; margin-top: auto; padding-top: 6px; flex-wrap: wrap; }
+  .pill { font-size: .66rem; letter-spacing: .04em; text-transform: uppercase; font-weight: 700;
+    border-radius: 999px; padding: 3px 8px; border: 1px solid; }
+  .pill.cat { color: var(--dim); border-color: var(--line); }
+  .pill.built { color: var(--ok); border-color: rgba(34,197,94,.4); }
+  .pill.extend { color: var(--warn); border-color: rgba(245,158,11,.4); }
+  .pill.engine { color: var(--new); border-color: rgba(56,189,248,.4); }
+  footer { max-width: 1320px; margin: 0 auto; padding: 0 28px 60px; color: var(--dim); font-size: .85rem; }
+  footer h2 { color: var(--ink); font-size: 1rem; margin: 26px 0 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Animation catalogue â€” part three</h1>
+  <p class="sub">
+    Recreations of looks people can name on sight, plus the named chart types that data
+    journalists and analysts actually ask for. Tags run <strong>BA</strong> to
+    <strong>BX</strong>. The blue line under each title says what it is a replica of, so you can
+    judge whether the resemblance is close enough to sell.
+  </p>
+  <div class="links">
+    <a href="./animations.html">â† part one (Aâ€“X)</a>
+    <a href="./animations-2.html">â† part two (AAâ€“AX)</a>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="chipset" id="filters"></div>
+    <div class="picked">
+      <span>Picked:</span><code id="pickList">none</code>
+      <button class="btn" id="copy">Copy</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <h2>On the replicas</h2>
+  <p>
+    These imitate a <em>look</em> â€” palette, easing, layout, weight â€” not anyone's artwork or code.
+    That is how every motion template on the market works, and it is fine. What is not fine is
+    shipping a pack that uses a brand's name in the title, so these are described by technique in
+    anything customer-facing.
+  </p>
+</footer>
+
+<script type="module">
+import { createGlobe, world, greatCircle } from "../src/index.js";
+
+/* ------------------------------------------------------------------ data - */
+const CITIES = [
+  { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 214 },
+  { city: "Bengaluru", lat: 12.97, lon: 77.59, count: 186 },
+  { city: "London", lat: 51.5, lon: -0.12, count: 164 },
+  { city: "New York", lat: 40.71, lon: -74.01, count: 152 },
+  { city: "San Francisco", lat: 37.77, lon: -122.42, count: 141 },
+  { city: "Berlin", lat: 52.52, lon: 13.4, count: 98 },
+  { city: "Toronto", lat: 43.65, lon: -79.38, count: 84 },
+  { city: "SÃ£o Paulo", lat: -23.55, lon: -46.63, count: 76 },
+  { city: "Singapore", lat: 1.35, lon: 103.82, count: 71 },
+  { city: "Sydney", lat: -33.87, lon: 151.21, count: 63 },
+  { city: "Tokyo", lat: 35.68, lon: 139.69, count: 58 },
+  { city: "Dubai", lat: 25.2, lon: 55.27, count: 47 },
+  { city: "Nairobi", lat: -1.29, lon: 36.82, count: 31 },
+  { city: "Lagos", lat: 6.52, lon: 3.38, count: 28 },
+  { city: "Mexico City", lat: 19.43, lon: -99.13, count: 42 },
+];
+const HUB = { lat: 23.03, lon: 72.58 };
+const COUNTRIES = [
+  ["India", "IN", 412, 68], ["United States of America", "US", 388, 79],
+  ["United Kingdom", "GB", 214, 81], ["Germany", "DE", 168, 81],
+  ["Brazil", "BR", 84, 76], ["Japan", "JP", 66, 84],
+  ["Australia", "AU", 72, 83], ["Nigeria", "NG", 44, 55],
+  ["Canada", "CA", 96, 82], ["Indonesia", "ID", 58, 72],
+];
+/** A denser synthetic sample, clustered around the real cities. */
+const SWARM = [];
+for (const c of CITIES) {
+  const n = Math.round(c.count / 6);
+  for (let i = 0; i < n; i++) {
+    SWARM.push({
+      lon: c.lon + (Math.random() - .5) * 22,
+      lat: c.lat + (Math.random() - .5) * 16,
+      v: Math.random() * c.count,
+    });
+  }
+}
+
+/* ----------------------------------------------------------------- utils - */
+const D2R = Math.PI / 180, TAU = Math.PI * 2;
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOut = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const back = (t) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp01 = (t) => Math.max(0, Math.min(1, t));
+const pingPong = (t) => (t < .5 ? t * 2 : 1 - (t - .5) * 2);
+const noise = (x, y) => {
+  const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+  return s - Math.floor(s);
+};
+function loop(ms, onTick, { hold = 0 } = {}) {
+  let raf = 0, start = performance.now();
+  const step = (now) => {
+    const el = now - start;
+    onTick(Math.min(1, el / ms), el);
+    if (el >= ms + hold) start = now;
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
+const shapeOf = (n) => world.find((s) => s.name === n);
+const centroidOf = (shape) => {
+  let x = 0, y = 0, n = 0;
+  const polys = shape.geometry.type === "Polygon" ? [shape.geometry.coordinates] : shape.geometry.coordinates;
+  for (const p of polys) for (const r of p) for (const c of r) { x += c[0]; y += c[1]; n++; }
+  return [x / n, y / n];
+};
+function traceShape(g, shape, ctx) {
+  const polys = shape.geometry.type === "Polygon" ? [shape.geometry.coordinates] : shape.geometry.coordinates;
+  for (const poly of polys) for (const ring of poly) {
+    let open = false;
+    for (const c of ring) {
+      const p = g.project(c[0], c[1]);
+      if (!p) { open = false; continue; }
+      open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+    }
+    if (open) ctx.closePath();
+  }
+}
+/** Buffer helper â€” nearly every post-pass effect needs one. */
+function buffer(store, canvas) {
+  if (!store.buf) { store.buf = document.createElement("canvas"); store.bctx = store.buf.getContext("2d"); }
+  if (store.buf.width !== canvas.width) { store.buf.width = canvas.width; store.buf.height = canvas.height; }
+  return store;
+}
+
+/* --------------------------------------------------------------- effects - */
+const EFFECTS = [
+
+/* ================= signature looks ================= */
+{
+  tag: "BA", title: "Developer-platform globe", ref: "the GitHub home-page globe",
+  cat: "Signature", status: "extend",
+  blurb: "Near-black sphere, violet landmass dots, arcs that bloom as they land.",
+  options: { preset: "midnight", landStyle: "dots", dotSpacing: 2.1, dotSize: 1.05,
+    autoRotate: true, rotateSpeed: .055, stars: false, graticule: false,
+    theme: { ocean: ["#0d1117", "#05070c"], dot: "#a371f7", land: "#a371f7", arc: "#f778ba", marker: "#58a6ff" } },
+  run(globe) {
+    const arcs = CITIES.slice(0, 9).map((c, i) => ({ from: HUB, to: c, duration: 1500 + i * 190, width: 1.1 }));
+    globe.setArcs(arcs);
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      CITIES.slice(0, 9).forEach((c, i) => {
+        const p = g.project(c.lon, c.lat);
+        if (!p) return;
+        const phase = (k * 2 + i * .11) % 1;
+        const R = 3 + phase * 22;
+        ctx.globalAlpha = (1 - phase) * .6;
+        ctx.strokeStyle = "#f778ba";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, R, 0, TAU);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#58a6ff";
+        ctx.shadowColor = "#58a6ff";
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.2, 0, TAU);
+        ctx.fill();
+      });
+      ctx.restore();
+    } });
+    return loop(4000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "BB", title: "Keynote globe", ref: "the 'available in N countries' slide",
+  cat: "Signature", status: "extend",
+  blurb: "Glossy charcoal sphere, hairline arcs, one enormous number, nothing else.",
+  options: { preset: "noir", landStyle: "fill", autoRotate: true, rotateSpeed: .03, stars: false,
+    graticule: false, shade: true,
+    theme: { ocean: ["#1c1c1e", "#000"], land: "#3a3a3c", border: "#48484a", arc: "#ffffff", marker: "#fff" } },
+  run(globe) {
+    globe.setArcs(CITIES.slice(0, 7).map((c, i) => ({ from: HUB, to: c, width: .8, duration: 2600 + i * 200 })));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * .4;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.clip();
+      const gl = ctx.createLinearGradient(cx - r, cy - r, cx + r * .4, cy + r);
+      gl.addColorStop(0, "rgba(255,255,255,.16)");
+      gl.addColorStop(.42, "rgba(255,255,255,.02)");
+      gl.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gl; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+      const n = Math.round(easeOut(clamp01(k * 1.7)) * 68);
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fff";
+      ctx.font = "200 56px -apple-system, Inter, system-ui";
+      ctx.fillText(String(n), cx, h - 44);
+      ctx.font = "500 11px -apple-system, Inter, system-ui";
+      ctx.letterSpacing = "2px";
+      ctx.fillStyle = "#98989d";
+      ctx.fillText("COUNTRIES", cx, h - 26);
+      ctx.restore();
+    } });
+    return loop(3000, (t) => { k = t; globe.invalidate(); }, { hold: 1800 });
+  },
+},
+{
+  tag: "BC", title: "Flat-vector explainer", ref: "the Kurzgesagt house style",
+  cat: "Signature", status: "extend",
+  blurb: "Saturated flat fills, thick outlines, everything lands with a bounce.",
+  options: { mode: "map", projection: "naturalEarth", preset: "mono", autoRotate: false,
+    landStyle: "fill", graticule: false,
+    theme: { ocean: ["#12355b", "#12355b"], land: "#f4b942", border: "#12355b", marker: "#ef476f" } },
+  run(globe) {
+    const palette = ["#f4b942", "#ef476f", "#06d6a0", "#118ab2", "#ffd166", "#8338ec"];
+    const picks = COUNTRIES.slice(0, 8).map(([n, iso], i) => [iso, palette[i % palette.length]]);
+    globe.setOptions({ countryColors: Object.fromEntries(picks) });
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      CITIES.slice(0, 8).forEach((c, i) => {
+        const p = g.project(c.lon, c.lat);
+        if (!p) return;
+        const local = clamp01(k * 9 - i * .8);
+        if (local <= 0) return;
+        const R = 9 * back(local);
+        ctx.fillStyle = "#12355b";
+        ctx.beginPath(); ctx.arc(p.x, p.y + 2.5, R, 0, TAU); ctx.fill();
+        ctx.fillStyle = "#ef476f";
+        ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, TAU); ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(p.x - R * .28, p.y - R * .3, R * .3, 0, TAU); ctx.fill();
+      });
+      ctx.restore();
+    } });
+    return loop(2600, (t) => { k = t; globe.invalidate(); }, { hold: 1600 });
+  },
+},
+{
+  tag: "BD", title: "Wrapped-style recap", ref: "annual music-recap cards",
+  cat: "Signature", status: "engine",
+  blurb: "Hard gradient, oversized kinetic type, each line punching in on beat.",
+  options: { preset: "neon", autoRotate: true, rotateSpeed: .08, landStyle: "dots", dotSpacing: 2.6,
+    stars: false, graticule: false,
+    theme: { ocean: ["#1db954", "#0b3d1f"], dot: "#f7f7f7", land: "#f7f7f7", marker: "#ffd166" } },
+  run(globe) {
+    const LINES = [["YOU REACHED", 12], ["68", 52], ["COUNTRIES", 20]];
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.textAlign = "left";
+      let y = h - 104;
+      LINES.forEach(([text, size], i) => {
+        const local = clamp01(k * 3.4 - i * .55);
+        if (local <= 0) return;
+        const e = back(Math.min(1, local * 1.4));
+        ctx.save();
+        ctx.translate(18, y);
+        ctx.scale(e, e);
+        ctx.fillStyle = i === 1 ? "#ffd166" : "#0b0f14";
+        ctx.font = `900 ${size}px Inter, system-ui`;
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+        y += size + 8;
+      });
+      ctx.restore();
+    } });
+    return loop(2800, (t) => { k = t; globe.invalidate(); }, { hold: 1500 });
+  },
+},
+{
+  tag: "BE", title: "Mesh-gradient backdrop", ref: "the Stripe / Linear marketing gradient",
+  cat: "Signature", status: "engine",
+  blurb: "Four coloured light sources drifting and blending behind the sphere.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .04, stars: false, graticule: false,
+    landStyle: "outline", theme: { ocean: ["rgba(6,8,15,.72)", "rgba(6,8,15,.92)"] } },
+  run(globe) {
+    const blobs = [["#7c3aed", .18, .22], ["#06b6d4", .78, .3], ["#ec4899", .3, .8], ["#f59e0b", .8, .78]];
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = "#06080f";
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "destination-over";
+      blobs.forEach(([col, bx, by], i) => {
+        const a = k * TAU + i * 1.7;
+        const x = (bx + Math.sin(a) * .13) * w;
+        const y = (by + Math.cos(a * .8) * .13) * h;
+        const R = Math.min(w, h) * (.44 + .07 * Math.sin(a * 1.3));
+        const grd = ctx.createRadialGradient(x, y, 0, x, y, R);
+        grd.addColorStop(0, col);
+        grd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+      });
+      ctx.restore();
+    } });
+    return loop(11000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "BF", title: "Data-desk map", ref: "FT / Bloomberg newsroom graphics",
+  cat: "Signature", status: "engine",
+  blurb: "Muted ground, one accent, serif annotations and a source line.",
+  options: { mode: "map", projection: "naturalEarth", preset: "mono", autoRotate: false,
+    landStyle: "fill", graticule: false,
+    theme: { ocean: ["#fff1e5", "#fff1e5"], land: "#e6d9cd", border: "#c9b8a8", label: "#33302e" } },
+  run(globe) {
+    globe.setOptions({ countryColors: Object.fromEntries(
+      COUNTRIES.map(([n, iso, v]) => [iso, `rgba(153,0,0,${.2 + (v / 412) * .75})`])) });
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.fillStyle = "#33302e";
+      ctx.font = "700 13px Georgia, 'Times New Roman', serif";
+      ctx.fillText("Where growth came from", 12, 20);
+      ctx.fillStyle = "#6b625c";
+      ctx.font = "11px Georgia, serif";
+      ctx.fillText("New customers, 2024", 12, 35);
+      const target = shapeOf("India");
+      if (target) {
+        const c = centroidOf(target);
+        const p = g.project(c[0], c[1]);
+        if (p && k > .25) {
+          const e = easeOut(clamp01((k - .25) / .35));
+          ctx.strokeStyle = "#33302e";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - 46 * e, p.y - 34 * e);
+          ctx.stroke();
+          ctx.globalAlpha = e;
+          ctx.fillStyle = "#33302e";
+          ctx.font = "italic 11px Georgia, serif";
+          ctx.textAlign = "right";
+          ctx.fillText("India, +412", p.x - 50, p.y - 36);
+        }
+      }
+      ctx.textAlign = "left";
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#8c8279";
+      ctx.font = "9px Georgia, serif";
+      ctx.fillText("Source: company accounts Â· Chart: canvas-globe", 12, h - 10);
+      ctx.restore();
+    } });
+    return loop(3600, (t) => { k = t; globe.invalidate(); }, { hold: 1800 });
+  },
+},
+{
+  tag: "BG", title: "Neon sign flicker", ref: "retro neon title cards",
+  cat: "Signature", status: "extend",
+  blurb: "Tube glow that stutters and catches, with a dead-tube moment.",
+  options: { preset: "neon", autoRotate: true, rotateSpeed: .05, landStyle: "glow", stars: false },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const flick = noise(Math.floor(k * 40), 3) > .82 ? .25 + noise(Math.floor(k * 40), 7) * .4 : 1;
+      ctx.save();
+      ctx.globalAlpha = flick;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.shadowColor = "#f0abfc";
+      ctx.shadowBlur = 24;
+      ctx.strokeStyle = "#f0abfc";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, Math.min(w, h) * .4 + 4, 0, TAU);
+      ctx.stroke();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fde68a";
+      ctx.shadowColor = "#fbbf24";
+      ctx.font = "800 22px Inter, system-ui";
+      ctx.fillText("WORLDWIDE", w / 2, h - 26);
+      ctx.restore();
+    } });
+    return loop(3000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "BH", title: "Cinematic grade", ref: "film grain, vignette and a light leak",
+  cat: "Signature", status: "engine",
+  blurb: "Grain plate, corner falloff and a warm leak drifting across.",
+  options: { preset: "atlas", autoRotate: true, rotateSpeed: .04, markers: CITIES.slice(0, 8), markerStyle: "dot" },
+  run(globe) {
+    const store = {};
+    let grain = null, k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      if (!grain) {
+        grain = document.createElement("canvas");
+        grain.width = 160; grain.height = 160;
+        const gc = grain.getContext("2d");
+        const img = gc.createImageData(160, 160);
+        for (let i = 0; i < img.data.length; i += 4) {
+          const v = 120 + Math.random() * 135;
+          img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+          img.data[i + 3] = 26;
+        }
+        gc.putImageData(img, 0, 0);
+      }
+      ctx.save();
+      ctx.globalCompositeOperation = "overlay";
+      const off = Math.floor(k * 12) % 6;
+      for (let x = -off * 7; x < w; x += 160) for (let y = -off * 5; y < h; y += 160) ctx.drawImage(grain, x, y);
+      ctx.restore();
+      ctx.save();
+      const vig = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .3, w / 2, h / 2, Math.min(w, h) * .78);
+      vig.addColorStop(0, "rgba(0,0,0,0)");
+      vig.addColorStop(1, "rgba(0,0,0,.72)");
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "screen";
+      const lx = lerp(-w * .3, w * 1.3, (k * 1.4) % 1);
+      const leak = ctx.createLinearGradient(lx - 90, 0, lx + 90, h);
+      leak.addColorStop(0, "rgba(255,120,40,0)");
+      leak.addColorStop(.5, "rgba(255,150,60,.24)");
+      leak.addColorStop(1, "rgba(255,120,40,0)");
+      ctx.fillStyle = leak;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    } });
+    return loop(9000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+
+/* ================= named chart types ================= */
+{
+  tag: "BI", title: "Bubble race with trails", ref: "Gapminder / Hans Rosling",
+  cat: "Chart", status: "engine",
+  blurb: "Country bubbles drift through wealth and lifespan, leaving their history.",
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false,
+    landStyle: "outline", graticule: false },
+  run(globe) {
+    const series = COUNTRIES.map(([n, iso, v, life], i) => ({ n, iso, v, life, seed: i }));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const pad = 34;
+      ctx.save();
+      ctx.fillStyle = "rgba(7,8,13,.82)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "#232c3e";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, h - pad); ctx.lineTo(w - 10, h - pad);
+      ctx.moveTo(pad, 16); ctx.lineTo(pad, h - pad);
+      ctx.stroke();
+      ctx.fillStyle = "#8b93a7";
+      ctx.font = "9px Inter, system-ui";
+      ctx.fillText("income â†’", w - 62, h - pad + 14);
+      ctx.save();
+      ctx.translate(12, h / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillText("life expectancy â†’", -40, 0);
+      ctx.restore();
+      series.forEach((s) => {
+        for (let ghost = 6; ghost >= 0; ghost--) {
+          const tt = clamp01(k - ghost * .045);
+          const x = pad + (.12 + (s.v / 412) * .7 + tt * .16) * (w - pad - 20);
+          const y = h - pad - ((s.life - 50) / 40 + tt * .12) * (h - pad - 26);
+          ctx.globalAlpha = ghost === 0 ? .95 : .1;
+          ctx.fillStyle = `hsl(${(s.seed * 47) % 360} 80% 62%)`;
+          ctx.beginPath();
+          ctx.arc(x, y, 4 + (s.v / 412) * 14, 0, TAU);
+          ctx.fill();
+          if (ghost === 0) {
+            ctx.globalAlpha = .9;
+            ctx.fillStyle = "#e8ecf5";
+            ctx.font = "700 8px Inter, system-ui";
+            ctx.fillText(s.iso, x - 6, y + 3);
+          }
+        }
+      });
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgba(232,236,245,.16)";
+      ctx.font = "900 34px Inter, system-ui";
+      ctx.textAlign = "right";
+      ctx.fillText(String(2015 + Math.floor(k * 9)), w - 14, h - 40);
+      ctx.restore();
+    } });
+    return loop(6000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "BJ", title: "Hex-bin map", ref: "the modern newsroom density map",
+  cat: "Chart", status: "engine",
+  blurb: "Points collapse into a honeycomb, each cell sized by what fell in it.",
+  options: { mode: "map", projection: "naturalEarth", preset: "noir", autoRotate: false,
+    landStyle: "outline", graticule: false },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const R = 11, dx = R * 1.732, dy = R * 1.5;
+      const bins = new Map();
+      for (const s of SWARM) {
+        const p = g.project(s.lon, s.lat);
+        if (!p) continue;
+        const row = Math.round(p.y / dy);
+        const col = Math.round((p.x - (row % 2) * dx / 2) / dx);
+        const key = row + ":" + col;
+        const cell = bins.get(key) || { x: col * dx + (row % 2) * dx / 2, y: row * dy, n: 0 };
+        cell.n++;
+        bins.set(key, cell);
+      }
+      const max = Math.max(...[...bins.values()].map((b) => b.n), 1);
+      ctx.save();
+      [...bins.values()].forEach((b, i) => {
+        const grow = clamp01(k * 3 - (b.y / h) * 1.2);
+        if (grow <= 0) return;
+        const f = (b.n / max);
+        const r = R * (.35 + f * .65) * easeOut(grow);
+        ctx.beginPath();
+        for (let a = 0; a < 6; a++) {
+          const ang = (a / 6) * TAU + Math.PI / 6;
+          const x = b.x + Math.cos(ang) * r, y = b.y + Math.sin(ang) * r;
+          a ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = `hsl(${188 - f * 130} 88% ${38 + f * 30}%)`;
+        ctx.fill();
+      });
+      ctx.restore();
+    } });
+    return loop(3200, (t) => { k = t; globe.invalidate(); }, { hold: 1500 });
+  },
+},
+{
+  tag: "BK", title: "Tilegram morph", ref: "the 'every country is one square' map",
+  cat: "Chart", status: "engine",
+  blurb: "Countries fly out of their real positions into an equal-area grid.",
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false,
+    landStyle: "outline", graticule: false },
+  run(globe) {
+    const tiles = COUNTRIES.map(([n, iso, v], i) => {
+      const s = shapeOf(n);
+      return s ? { iso, v, c: centroidOf(s), col: i % 5, row: Math.floor(i / 5) } : null;
+    }).filter(Boolean);
+    const max = Math.max(...tiles.map((t) => t.v));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const e = easeInOut(k);
+      const S = 38, gw = 5 * S, ox = (w - gw) / 2, oy = h / 2 - S;
+      ctx.save();
+      tiles.forEach((t) => {
+        const p = g.project(t.c[0], t.c[1]);
+        if (!p) return;
+        const tx = ox + t.col * S + S / 2, ty = oy + t.row * S + S / 2;
+        const x = lerp(p.x, tx, e), y = lerp(p.y, ty, e);
+        const size = lerp(8, S - 5, e);
+        ctx.fillStyle = `hsl(258 85% ${68 - (t.v / max) * 38}%)`;
+        ctx.beginPath();
+        ctx.roundRect(x - size / 2, y - size / 2, size, size, 4);
+        ctx.fill();
+        if (e > .45) {
+          ctx.globalAlpha = (e - .45) / .55;
+          ctx.fillStyle = "#fff";
+          ctx.font = "700 10px Inter, system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(t.iso, x, y + 3.5);
+          ctx.globalAlpha = 1;
+        }
+      });
+      ctx.restore();
+    } });
+    return loop(3400, (t) => { k = pingPong(t); globe.invalidate(); }, { hold: 700 });
+  },
+},
+{
+  tag: "BL", title: "Chord diagram", ref: "the D3 circular relationship chart",
+  cat: "Chart", status: "engine",
+  blurb: "Regions on the rim, ribbons across the middle for what moves between them.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .02, landStyle: "dots",
+    dotSpacing: 3.4, stars: false, graticule: false, radiusRatio: .27 },
+  run(globe) {
+    const regions = ["APAC", "EMEA", "AMER", "LATAM", "AFRICA"];
+    const flows = [[0, 1, .9], [0, 2, .7], [1, 2, .55], [2, 3, .4], [1, 4, .32], [0, 4, .25]];
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * .42;
+      const seg = TAU / regions.length, gap = .07;
+      ctx.save();
+      regions.forEach((name, i) => {
+        const a0 = i * seg - Math.PI / 2 + gap / 2, a1 = (i + 1) * seg - Math.PI / 2 - gap / 2;
+        ctx.strokeStyle = `hsl(${(i * 67) % 360} 85% 62%)`;
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, a0, a1);
+        ctx.stroke();
+        const am = (a0 + a1) / 2;
+        ctx.save();
+        ctx.translate(cx + Math.cos(am) * (R + 15), cy + Math.sin(am) * (R + 15));
+        ctx.rotate(am + (Math.cos(am) < 0 ? Math.PI : 0));
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "700 9px Inter, system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(name, 0, 3);
+        ctx.restore();
+      });
+      flows.forEach((f, i) => {
+        const grow = clamp01(k * 2.4 - i * .16);
+        if (grow <= 0) return;
+        const a = f[0] * seg - Math.PI / 2 + seg / 2, b = f[1] * seg - Math.PI / 2 + seg / 2;
+        const ax = cx + Math.cos(a) * R, ay = cy + Math.sin(a) * R;
+        const bx = cx + Math.cos(b) * R, by = cy + Math.sin(b) * R;
+        ctx.globalAlpha = .42 * easeOut(grow);
+        ctx.strokeStyle = `hsl(${(f[0] * 67) % 360} 85% 62%)`;
+        ctx.lineWidth = 2 + f[2] * 12;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.quadraticCurveTo(cx, cy, bx, by);
+        ctx.stroke();
+      });
+      ctx.restore();
+    } });
+    return loop(3600, (t) => { k = t; globe.invalidate(); }, { hold: 1600 });
+  },
+},
+{
+  tag: "BM", title: "Sankey flow", ref: "the classic alluvial breakdown",
+  cat: "Chart", status: "engine",
+  blurb: "One total splits into channels whose thickness is the number.",
+  options: { mode: "map", projection: "naturalEarth", preset: "noir", autoRotate: false, landStyle: "outline" },
+  run(globe) {
+    const nodes = COUNTRIES.slice(0, 6);
+    const total = nodes.reduce((a, n) => a + n[2], 0);
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const x0 = 26, x1 = w - 90, top = 28, H = h - 70;
+      ctx.save();
+      ctx.fillStyle = "rgba(5,6,10,.72)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#e8ecf5";
+      ctx.fillRect(x0, top, 11, H);
+      let y = top;
+      nodes.forEach((n, i) => {
+        const frac = n[2] / total, bh = H * frac;
+        const grow = easeOut(clamp01(k * 2.2 - i * .12));
+        const ty = top + (H * nodes.slice(0, i).reduce((a, m) => a + m[2] / total, 0));
+        ctx.beginPath();
+        ctx.moveTo(x0 + 11, y);
+        ctx.bezierCurveTo(lerp(x0, x1, .5), y, lerp(x0, x1, .5), ty, x1, ty);
+        ctx.lineTo(x1, ty + bh);
+        ctx.bezierCurveTo(lerp(x0, x1, .5), ty + bh, lerp(x0, x1, .5), y + bh, x0 + 11, y + bh);
+        ctx.closePath();
+        ctx.fillStyle = `hsla(${188 + i * 26} 82% 58% / ${.42 * grow})`;
+        ctx.fill();
+        ctx.fillStyle = "#e8ecf5";
+        ctx.globalAlpha = grow;
+        ctx.fillRect(x1, ty, 11, bh);
+        ctx.font = "600 9px Inter, system-ui";
+        ctx.fillText(`${n[1]} ${n[2]}`, x1 + 16, ty + bh / 2 + 3);
+        ctx.globalAlpha = 1;
+        y += bh;
+      });
+      ctx.restore();
+    } });
+    return loop(3200, (t) => { k = t; globe.invalidate(); }, { hold: 1600 });
+  },
+},
+{
+  tag: "BN", title: "Map â‡„ beeswarm", ref: "the NYT Upshot distribution swap",
+  cat: "Chart", status: "engine",
+  blurb: "Points leave the map and settle into a value distribution, then go home.",
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false,
+    landStyle: "outline", graticule: false },
+  run(globe) {
+    const pts = SWARM.filter((_, i) => i % 2 === 0);
+    const lanes = new Array(220).fill(0);
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const e = easeInOut(k);
+      lanes.fill(0);
+      ctx.save();
+      const maxV = Math.max(...pts.map((p) => p.v));
+      pts.forEach((s) => {
+        const p = g.project(s.lon, s.lat);
+        if (!p) return;
+        const bx = 26 + (s.v / maxV) * (w - 52);
+        const slot = Math.max(0, Math.min(lanes.length - 1, Math.round(bx)));
+        const n = lanes[slot]++;
+        const by = h * .62 + (n % 2 ? 1 : -1) * Math.ceil(n / 2) * 3.4;
+        ctx.fillStyle = `hsl(${196 - (s.v / maxV) * 120} 88% 62%)`;
+        ctx.beginPath();
+        ctx.arc(lerp(p.x, bx, e), lerp(p.y, by, e), 1.9, 0, TAU);
+        ctx.fill();
+      });
+      if (e > .5) {
+        ctx.globalAlpha = (e - .5) * 2;
+        ctx.strokeStyle = "#2b3346";
+        ctx.beginPath();
+        ctx.moveTo(26, h * .62 + 34); ctx.lineTo(w - 26, h * .62 + 34);
+        ctx.stroke();
+        ctx.fillStyle = "#8b93a7";
+        ctx.font = "9px Inter, system-ui";
+        ctx.fillText("low", 26, h * .62 + 47);
+        ctx.textAlign = "right";
+        ctx.fillText("high", w - 26, h * .62 + 47);
+      }
+      ctx.restore();
+    } });
+    return loop(4200, (t) => { k = pingPong(t); globe.invalidate(); }, { hold: 500 });
+  },
+},
+{
+  tag: "BO", title: "Streamgraph", ref: "the flowing stacked-area chart",
+  cat: "Chart", status: "engine",
+  blurb: "Regions as flowing bands, thickness breathing over the timeline.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .03, landStyle: "dots",
+    dotSpacing: 3.2, radiusRatio: .3, stars: false, graticule: false },
+  run(globe) {
+    const bands = 6, steps = 52;
+    const seeds = Array.from({ length: bands }, (_, i) => ({ ph: i * 1.3, sp: .7 + i * .22 }));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const baseY = h - 26, H = 86;
+      const cols = seeds.map((s, i) => Array.from({ length: steps }, (_, j) => {
+        const x = j / (steps - 1);
+        return (.35 + .65 * Math.abs(Math.sin(x * 3 + s.ph + k * TAU * .5))) * (1 - i * .08);
+      }));
+      const totals = Array.from({ length: steps }, (_, j) => cols.reduce((a, c) => a + c[j], 0));
+      ctx.save();
+      let below = cols.map(() => 0);
+      let acc = new Array(steps).fill(0);
+      cols.forEach((col, i) => {
+        ctx.beginPath();
+        for (let j = 0; j < steps; j++) {
+          const x = (j / (steps - 1)) * w;
+          const y = baseY - (acc[j] / totals[j]) * H + H / 2 - (H / 2) * (totals[j] / Math.max(...totals));
+          j ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        for (let j = steps - 1; j >= 0; j--) {
+          const x = (j / (steps - 1)) * w;
+          acc[j] += col[j];
+          const y = baseY - (acc[j] / totals[j]) * H + H / 2 - (H / 2) * (totals[j] / Math.max(...totals));
+          ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = `hsla(${196 + i * 22} 84% ${58 - i * 4}% / .82)`;
+        ctx.fill();
+      });
+      ctx.restore();
+    } });
+    return loop(9000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "BP", title: "Small multiples", ref: "twelve little maps, one per month",
+  cat: "Chart", status: "engine",
+  blurb: "The same map repeated across the year so the pattern reads at a glance.",
+  custom: true,
+  run(canvas) {
+    const ctx = canvas.getContext("2d");
+    const picks = COUNTRIES.map(([n, iso, v]) => ({ s: shapeOf(n), v })).filter((p) => p.s);
+    const shapes = world.filter((s) => s.geometry.coordinates.length < 12);
+    let k = 0;
+    const paint = () => {
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "#06080f";
+      ctx.fillRect(0, 0, w, h);
+      const cols = 4, rows = 3, cw = w / cols, chh = (h - 16) / rows;
+      const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+      for (let m = 0; m < 12; m++) {
+        const gx = (m % cols) * cw, gy = Math.floor(m / cols) * chh + 14;
+        const reveal = clamp01(k * 14 - m);
+        if (reveal <= 0) continue;
+        const proj = (lon, lat) => [gx + ((lon + 180) / 360) * cw, gy + ((90 - lat) / 180) * chh * .92];
+        ctx.save();
+        ctx.globalAlpha = reveal;
+        ctx.beginPath();
+        for (const s of shapes) {
+          const polys = s.geometry.type === "Polygon" ? [s.geometry.coordinates] : s.geometry.coordinates;
+          for (const poly of polys) for (const ring of poly) {
+            let open = false;
+            for (const c of ring) {
+              const [x, y] = proj(c[0], c[1]);
+              open ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), (open = true));
+            }
+            ctx.closePath();
+          }
+        }
+        ctx.fillStyle = "#151c2b";
+        ctx.fill();
+        for (const p of picks) {
+          const season = .35 + .65 * Math.abs(Math.sin((m / 12) * TAU + p.v * .01));
+          ctx.beginPath();
+          const polys = p.s.geometry.type === "Polygon" ? [p.s.geometry.coordinates] : p.s.geometry.coordinates;
+          for (const poly of polys) for (const ring of poly) {
+            let open = false;
+            for (const c of ring) {
+              const [x, y] = proj(c[0], c[1]);
+              open ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), (open = true));
+            }
+            ctx.closePath();
+          }
+          ctx.fillStyle = `hsl(258 85% ${72 - season * 40}%)`;
+          ctx.fill();
+        }
+        ctx.fillStyle = "#8b93a7";
+        ctx.font = "700 8px Inter, system-ui";
+        ctx.fillText(MONTHS[m], gx + 5, gy - 3);
+        ctx.restore();
+      }
+    };
+    return loop(2600, (t) => { k = t; paint(); }, { hold: 1700 });
+  },
+},
+{
+  tag: "BQ", title: "Bump chart", ref: "rank-over-time ribbons",
+  cat: "Chart", status: "engine",
+  blurb: "Positions swap places along the timeline with smooth crossings.",
+  options: { preset: "noir", autoRotate: true, rotateSpeed: .02, landStyle: "outline",
+    radiusRatio: .26, graticule: false },
+  run(globe) {
+    const N = 6, STEPS = 7;
+    const ranks = Array.from({ length: N }, (_, i) =>
+      Array.from({ length: STEPS }, (_, j) => (i + Math.round(Math.sin(j * 1.1 + i) * 1.6) + N) % N));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const top = h - 108, H = 84, pad = 34;
+      ctx.save();
+      ctx.fillStyle = "rgba(5,6,10,.78)";
+      ctx.fillRect(0, top - 14, w, h - top + 14);
+      const reach = k * (STEPS - 1);
+      ranks.forEach((series, i) => {
+        ctx.strokeStyle = `hsl(${(i * 58) % 360} 84% 62%)`;
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        for (let j = 0; j < STEPS; j++) {
+          if (j > reach + 1) break;
+          const t = Math.min(1, reach - j + 1);
+          const x = pad + (j / (STEPS - 1)) * (w - pad - 20);
+          const y = top + (series[j] / (N - 1)) * H;
+          if (j === 0) ctx.moveTo(x, y);
+          else {
+            const px = pad + ((j - 1) / (STEPS - 1)) * (w - pad - 20);
+            const py = top + (series[j - 1] / (N - 1)) * H;
+            const mx = lerp(px, x, .5);
+            const ex = lerp(px, x, t), ey = lerp(py, y, t);
+            ctx.bezierCurveTo(mx, py, mx, y, ex, ey);
+          }
+        }
+        ctx.stroke();
+        const j = Math.min(STEPS - 1, Math.floor(reach));
+        const x = pad + (j / (STEPS - 1)) * (w - pad - 20);
+        const y = top + (series[j] / (N - 1)) * H;
+        ctx.fillStyle = `hsl(${(i * 58) % 360} 84% 62%)`;
+        ctx.beginPath(); ctx.arc(x, y, 3.4, 0, TAU); ctx.fill();
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "700 8px Inter, system-ui";
+        ctx.textAlign = "right";
+        ctx.fillText(COUNTRIES[i][1], pad - 6, top + (series[0] / (N - 1)) * H + 3);
+        ctx.textAlign = "left";
+      });
+      ctx.restore();
+    } });
+    return loop(4600, (t) => { k = t; globe.invalidate(); }, { hold: 1400 });
+  },
+},
+{
+  tag: "BR", title: "Radar profile", ref: "the spider / star chart",
+  cat: "Chart", status: "engine",
+  blurb: "A region's shape across six measures, morphing as you switch region.",
+  options: { preset: "blueprint", autoRotate: true, rotateSpeed: .03, landStyle: "outline", radiusRatio: .3 },
+  run(globe) {
+    const AXES = ["reach", "revenue", "retention", "speed", "support", "growth"];
+    const sets = [[.9, .7, .6, .8, .5, .95], [.5, .95, .85, .55, .8, .6], [.75, .5, .9, .7, .95, .45]];
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * .33;
+      const f = k * sets.length;
+      const a = sets[Math.floor(f) % sets.length], b = sets[(Math.floor(f) + 1) % sets.length];
+      const mix = easeInOut(f % 1);
+      ctx.save();
+      ctx.strokeStyle = "rgba(125,211,252,.18)";
+      ctx.lineWidth = 1;
+      for (let ring = 1; ring <= 4; ring++) {
+        ctx.beginPath();
+        for (let i = 0; i <= AXES.length; i++) {
+          const ang = (i / AXES.length) * TAU - Math.PI / 2;
+          const x = cx + Math.cos(ang) * R * (ring / 4), y = cy + Math.sin(ang) * R * (ring / 4);
+          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      AXES.forEach((_, i) => {
+        const ang = (i / AXES.length) * TAU - Math.PI / 2;
+        const v = lerp(a[i], b[i], mix);
+        const x = cx + Math.cos(ang) * R * v, y = cy + Math.sin(ang) * R * v;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(56,189,248,.28)";
+      ctx.fill();
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#93c5fd";
+      ctx.font = "600 8px Inter, system-ui";
+      ctx.textAlign = "center";
+      AXES.forEach((lab, i) => {
+        const ang = (i / AXES.length) * TAU - Math.PI / 2;
+        ctx.fillText(lab, cx + Math.cos(ang) * (R + 14), cy + Math.sin(ang) * (R + 14) + 3);
+      });
+      ctx.restore();
+    } });
+    return loop(7000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "BS", title: "Unit / waffle chart", ref: "'one square = one thousand'",
+  cat: "Chart", status: "engine",
+  blurb: "Squares fill in one by one so the quantity is literally countable.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .04, landStyle: "dots",
+    dotSpacing: 3.4, radiusRatio: .27, stars: false, graticule: false },
+  run(globe) {
+    const COLS = 20, ROWS = 6, TOTAL = COLS * ROWS;
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const s = Math.min((w - 34) / COLS, 9), top = h - ROWS * s - 30, left = (w - COLS * s) / 2;
+      const filled = Math.floor(easeOut(k) * TOTAL * .72);
+      ctx.save();
+      for (let i = 0; i < TOTAL; i++) {
+        const c = i % COLS, r = Math.floor(i / COLS);
+        ctx.fillStyle = i < filled ? `hsl(${268 - (i / TOTAL) * 80} 85% 62%)` : "rgba(232,236,245,.09)";
+        ctx.beginPath();
+        ctx.roundRect(left + c * s, top + r * s, s - 2, s - 2, 1.6);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#8b93a7";
+      ctx.font = "600 9px Inter, system-ui";
+      ctx.fillText("each square = 250 customers", left, top - 7);
+      ctx.restore();
+    } });
+    return loop(2800, (t) => { k = t; globe.invalidate(); }, { hold: 1600 });
+  },
+},
+
+/* ================= signature AE techniques ================= */
+{
+  tag: "BT", title: "Trim paths", ref: "After Effects' trim-paths stroke reveal",
+  cat: "Technique", status: "engine",
+  blurb: "Stroke start and end travel independently so the line snakes into place.",
+  options: { preset: "blueprint", autoRotate: false, center: { lon: 30, lat: 28 }, zoom: 1.2, landStyle: "outline" },
+  run(globe) {
+    const routes = CITIES.slice(1, 7).map((c) => greatCircle(HUB.lon, HUB.lat, c.lon, c.lat, 70));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineWidth = 2.2;
+      routes.forEach((pts, i) => {
+        const t = clamp01(k * 1.5 - i * .07);
+        const end = easeInOut(clamp01(t * 1.6));
+        const start = easeInOut(clamp01(t * 1.6 - .38));
+        const i0 = Math.floor(pts.length * start), i1 = Math.ceil(pts.length * end);
+        ctx.strokeStyle = `hsl(${196 + i * 12} 92% 62%)`;
+        ctx.beginPath();
+        let open = false;
+        for (let j = i0; j < i1; j++) {
+          const p = g.project(pts[j][0], pts[j][1]);
+          if (!p) { open = false; continue; }
+          open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+    } });
+    return loop(3400, (t) => { k = t; globe.invalidate(); }, { hold: 900 });
+  },
+},
+{
+  tag: "BU", title: "Match-cut zoom", ref: "the seamless 'infinite zoom' cut",
+  cat: "Technique", status: "engine",
+  blurb: "Continuous push-in where each scale hands off to the next without a seam.",
+  options: { preset: "atlas", autoRotate: false, zoomable: false, markers: CITIES.slice(0, 4), labels: "markers" },
+  run(globe) {
+    return loop(5200, (t) => {
+      const cycles = 2;
+      const p = (t * cycles) % 1;
+      const zoom = Math.pow(2, p * 2.2) * .9;
+      globe.setOptions({ zoom: Math.min(7.8, zoom) });
+      globe.setOptions({ center: { lon: lerp(20, 72.58, easeInOut(t)), lat: lerp(14, 23.03, easeInOut(t)) } });
+    });
+  },
+},
+{
+  tag: "BV", title: "Liquid wipe", ref: "the organic ink / paint transition",
+  cat: "Technique", status: "engine",
+  blurb: "A wobbling blob swallows the frame instead of a hard geometric wipe.",
+  options: { preset: "aurora", autoRotate: true, rotateSpeed: .05, landStyle: "fill" },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2;
+      const base = k * Math.hypot(w, h) * .78;
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-in";
+      ctx.beginPath();
+      for (let a = 0; a <= 72; a++) {
+        const ang = (a / 72) * TAU;
+        const wob = 1 + Math.sin(ang * 5 + k * 9) * .13 + Math.sin(ang * 3 - k * 6) * .09;
+        const r = base * wob;
+        const x = cx + Math.cos(ang) * r, y = cy + Math.sin(ang) * r;
+        a ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    } });
+    return loop(2600, (t) => { k = t; globe.invalidate(); }, { hold: 800 });
+  },
+},
+];
+
+/* ------------------------------------------------------------------- ui - */
+const grid = document.getElementById("grid");
+const picked = new Set();
+const live = new Map();
+const SC = { "built-in": "built", extend: "extend", engine: "engine" };
+
+for (const fx of EFFECTS) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.cat = fx.cat;
+  card.innerHTML = `
+    <div class="stage">
+      <span class="tag">${fx.tag}</span>
+      <button class="replay" title="Replay">â†»</button>
+      <canvas></canvas>
+    </div>
+    <div class="body">
+      <div class="title">${fx.title}</div>
+      <div class="ref">â-¸ ${fx.ref}</div>
+      <p class="blurb">${fx.blurb}</p>
+      <div class="meta">
+        <span class="pill cat">${fx.cat}</span>
+        <span class="pill ${SC[fx.status]}">${fx.status}</span>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+  const canvas = card.querySelector("canvas");
+
+  const start = () => {
+    stop();
+    try {
+      if (fx.custom) { live.set(fx.tag, { stop: fx.run(canvas) }); return; }
+      const globe = createGlobe(canvas, {
+        interactive: false, keyboard: false, fps: 30, radiusRatio: .4,
+        center: { lon: 30, lat: 18 }, ...fx.options,
+      });
+      live.set(fx.tag, { globe, stop: fx.run(globe) || (() => {}) });
+    } catch (e) { console.error(fx.tag, e); }
+  };
+  const stop = () => {
+    const rec = live.get(fx.tag);
+    if (!rec) return;
+    rec.stop?.();
+    rec.globe?.destroy();
+    live.delete(fx.tag);
+  };
+
+  card.querySelector(".replay").addEventListener("click", (e) => { e.stopPropagation(); start(); });
+  card.addEventListener("click", () => {
+    picked.has(fx.tag) ? picked.delete(fx.tag) : picked.add(fx.tag);
+    card.classList.toggle("on", picked.has(fx.tag));
+    render();
+  });
+  new IntersectionObserver((en) => {
+    for (const e of en) e.isIntersecting ? (live.has(fx.tag) || start()) : stop();
+  }, { rootMargin: "240px" }).observe(card);
+  // Some browsers throttle observers in background tabs; check geometry too.
+  setTimeout(() => {
+    const r = card.getBoundingClientRect();
+    if (!live.has(fx.tag) && r.top < innerHeight + 240 && r.bottom > -240) start();
+  }, 350);
+}
+
+function render() {
+  const l = [...picked].sort();
+  document.getElementById("pickList").textContent = l.length ? l.join(", ") : "none";
+}
+document.getElementById("copy").addEventListener("click", () =>
+  navigator.clipboard?.writeText([...picked].sort().join(", ")));
+document.getElementById("clear").addEventListener("click", () => {
+  picked.clear();
+  document.querySelectorAll(".card.on").forEach((c) => c.classList.remove("on"));
+  render();
+});
+const filters = document.getElementById("filters");
+["All", ...new Set(EFFECTS.map((e) => e.cat))].forEach((cat, i) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.textContent = cat;
+  b.setAttribute("aria-pressed", String(i === 0));
+  b.addEventListener("click", () => {
+    filters.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    document.querySelectorAll(".card").forEach((c) =>
+      c.classList.toggle("hide", cat !== "All" && c.dataset.cat !== cat));
+  });
+  filters.appendChild(b);
+});
+</script>
+</body>
+</html>

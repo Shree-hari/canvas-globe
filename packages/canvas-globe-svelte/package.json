@@ -1,6 +1,6 @@
 {
   "name": "canvas-globe-svelte",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Svelte component for interactive 3D globes and world maps rendered with Canvas 2D.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
@@ -36,7 +36,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "canvas-globe": "^1.1.1"
+    "canvas-globe": "^1.2.0"
   },
   "peerDependencies": {
     "svelte": ">=4 <6"

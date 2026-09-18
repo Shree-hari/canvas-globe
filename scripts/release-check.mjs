@@ -24,7 +24,20 @@ const requiredFiles = [
   "dist/canvas-globe.umd.js",
   "dist/package.json",
   "types/index.d.ts",
+  "types/fx.d.ts",
+  "types/fx-interaction.d.ts",
+  "types/charts.d.ts",
+  "types/recipes.d.ts",
+  "types/controls.d.ts",
+  "types/places.d.ts",
   "types/data/world.d.ts",
+  "src/fx/index.js",
+  "src/fx/effects/interaction.js",
+  "src/charts.js",
+  "src/recipes.js",
+  "src/controls.js",
+  "src/places.js",
+  "src/data/places.js",
 ];
 
 if (existsSync(join(root, "src/version.js"))) {
@@ -172,7 +185,26 @@ if (packed.status === 0) {
       /^(?:test|website|legal|node_modules|\.github)(?:\/|$)/.test(path),
     );
     assert(forbidden.length === 0, `package contains forbidden paths: ${forbidden.join(", ")}`);
-    for (const file of [commercialRelease ? "LICENSE.md" : "LICENSE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "codemeta.json", "custom-elements.json"]) {
+    for (const file of [
+      commercialRelease ? "LICENSE.md" : "LICENSE",
+      "LICENSING.md",
+      "THIRD_PARTY_NOTICES.md",
+      "codemeta.json",
+      "custom-elements.json",
+      "src/fx/index.js",
+      "src/fx/effects/interaction.js",
+      "src/charts.js",
+      "src/recipes.js",
+      "src/controls.js",
+      "src/places.js",
+      "src/data/places.js",
+      "types/fx.d.ts",
+      "types/fx-interaction.d.ts",
+      "types/charts.d.ts",
+      "types/recipes.d.ts",
+      "types/controls.d.ts",
+      "types/places.d.ts",
+    ]) {
       assert(paths.includes(file), `packed artifact is missing ${file}`);
     }
     assert(info.unpackedSize < 1_500_000, `unpacked package is unexpectedly large: ${info.unpackedSize} bytes`);

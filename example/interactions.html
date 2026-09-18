@@ -1,0 +1,1256 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>canvas-globe â€” interaction catalogue</title>
+<style>
+  :root {
+    --bg: #07080d; --panel: #0e1018; --line: #1e2230; --ink: #e8ecf5; --dim: #8b93a7;
+    --accent: #34d399; --accent-soft: rgba(52, 211, 153, .15);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  header { padding: 38px 28px 20px; max-width: 1340px; margin: 0 auto; }
+  h1 { margin: 0 0 6px; font-size: 1.9rem; letter-spacing: -.02em; }
+  .sub { color: var(--dim); max-width: 84ch; margin: 0 0 14px; }
+  .sub strong { color: var(--ink); font-weight: 600; }
+  .links { display: flex; gap: 16px; font-size: .86rem; flex-wrap: wrap; }
+  .links a { color: var(--accent); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+  .bar { position: sticky; top: 0; z-index: 30; background: rgba(7,8,13,.93);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 12px 28px; }
+  .bar-inner { max-width: 1340px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .chipset { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--dim);
+    border-radius: 999px; padding: 5px 12px; font-size: .78rem; cursor: pointer; font-family: inherit; }
+  .chip:hover { color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .picked { margin-left: auto; display: flex; gap: 10px; align-items: center; font-size: .82rem; color: var(--dim); }
+  .picked code { color: var(--ink); }
+  .btn { border: 1px solid var(--accent); background: var(--accent-soft); color: #fff;
+    border-radius: 8px; padding: 6px 14px; font: inherit; font-size: .8rem; cursor: pointer; }
+  .btn:hover { background: var(--accent); color: #05231a; }
+  .grid { max-width: 1340px; margin: 0 auto; padding: 24px 28px 80px;
+    display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column; }
+  .card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 18px 40px -26px var(--accent); }
+  .card.hide { display: none; }
+  .stage { position: relative; background: #05060a; border-bottom: 1px solid var(--line); }
+  .stage canvas { display: block; width: 100%; aspect-ratio: 1 / 1; touch-action: none; }
+  .tag { position: absolute; top: 10px; left: 10px; z-index: 3; min-width: 34px; height: 30px; padding: 0 8px;
+    border-radius: 8px; background: rgba(7,8,13,.8); border: 1px solid var(--line);
+    display: grid; place-items: center; font-weight: 800; font-size: .8rem; backdrop-filter: blur(6px); }
+  .card.on .tag { background: var(--accent); border-color: var(--accent); color: #05231a; }
+  .pickbtn { position: absolute; top: 10px; right: 10px; z-index: 3; border: 1px solid var(--line);
+    background: rgba(7,8,13,.8); color: var(--dim); border-radius: 8px; height: 30px; padding: 0 10px;
+    cursor: pointer; font: inherit; font-size: .72rem; backdrop-filter: blur(6px); }
+  .pickbtn:hover { color: #fff; }
+  .hint { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3;
+    background: rgba(7,8,13,.78); border: 1px solid var(--line); border-radius: 8px;
+    padding: 5px 9px; font-size: .72rem; color: var(--accent); backdrop-filter: blur(6px);
+    pointer-events: none; text-align: center; }
+  .ui { position: absolute; left: 10px; right: 10px; top: 48px; z-index: 4; display: flex; gap: 6px; flex-wrap: wrap; }
+  .ui input[type="text"] { flex: 1; min-width: 0; background: rgba(7,8,13,.86); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 7px; padding: 5px 9px; font: inherit; font-size: .76rem; }
+  .ui input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .ui button { background: rgba(7,8,13,.86); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 7px; padding: 4px 9px; font: inherit; font-size: .72rem; cursor: pointer; }
+  .ui button:hover, .ui button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  .body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .title { font-weight: 700; font-size: .98rem; }
+  .use { font-size: .78rem; color: #6ee7b7; margin: 0; }
+  .blurb { color: var(--dim); font-size: .83rem; margin: 0; }
+  .fields { display: flex; gap: 5px; flex-wrap: wrap; margin-top: auto; padding-top: 6px; }
+  .f { font-size: .64rem; letter-spacing: .03em; text-transform: uppercase; font-weight: 700;
+    border-radius: 999px; padding: 3px 8px; border: 1px solid var(--line); color: var(--dim); }
+  footer { max-width: 1340px; margin: 0 auto; padding: 0 28px 60px; color: var(--dim); font-size: .85rem; }
+  footer h2 { color: var(--ink); font-size: 1rem; margin: 26px 0 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Interaction catalogue</h1>
+  <p class="sub">
+    Everything here responds to the pointer. <strong>Hover, click and drag inside the cards</strong> â€”
+    the grey line under each title tells you what to do. Each one is picked because a real industry
+    already pays for that interaction: logistics, travel, HR, fintech, education, infrastructure.
+    Tags run <strong>CA</strong> to <strong>CT</strong>.
+  </p>
+  <div class="links">
+    <a href="./animations.html">part one (Aâ€“X)</a>
+    <a href="./animations-2.html">part two (AAâ€“AX)</a>
+    <a href="./animations-3.html">part three (BAâ€“BX)</a>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="chipset" id="filters"></div>
+    <div class="picked">
+      <span>Picked:</span><code id="pickList">none</code>
+      <button class="btn" id="copy">Copy</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <h2>Why interaction is the moat</h2>
+  <p>
+    An exported clip can be copied by anyone with After Effects. An interaction cannot â€” it has to
+    ship as running code against live data, which is exactly what a component library sells. These
+    are also the pieces that justify a per-seat or per-domain licence rather than a one-off asset
+    purchase.
+  </p>
+</footer>
+
+<script type="module">
+import { createGlobe, world, greatCircle, angularDistance, geometryBounds } from "../src/index.js";
+
+/* ------------------------------------------------------------------ data - */
+const CITIES = [
+  { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 214, tz: 5.5 },
+  { city: "Bengaluru", lat: 12.97, lon: 77.59, count: 186, tz: 5.5 },
+  { city: "London", lat: 51.5, lon: -0.12, count: 164, tz: 0 },
+  { city: "New York", lat: 40.71, lon: -74.01, count: 152, tz: -5 },
+  { city: "San Francisco", lat: 37.77, lon: -122.42, count: 141, tz: -8 },
+  { city: "Berlin", lat: 52.52, lon: 13.4, count: 98, tz: 1 },
+  { city: "Toronto", lat: 43.65, lon: -79.38, count: 84, tz: -5 },
+  { city: "SÃ£o Paulo", lat: -23.55, lon: -46.63, count: 76, tz: -3 },
+  { city: "Singapore", lat: 1.35, lon: 103.82, count: 71, tz: 8 },
+  { city: "Sydney", lat: -33.87, lon: 151.21, count: 63, tz: 11 },
+  { city: "Tokyo", lat: 35.68, lon: 139.69, count: 58, tz: 9 },
+  { city: "Dubai", lat: 25.2, lon: 55.27, count: 47, tz: 4 },
+  { city: "Nairobi", lat: -1.29, lon: 36.82, count: 31, tz: 3 },
+  { city: "Lagos", lat: 6.52, lon: 3.38, count: 28, tz: 1 },
+  { city: "Mexico City", lat: 19.43, lon: -99.13, count: 42, tz: -6 },
+];
+const HUB = CITIES[0];
+const REGIONS = [
+  { code: "us-east", lat: 38.95, lon: -77.45, ms: 24 },
+  { code: "eu-west", lat: 51.47, lon: -0.45, ms: 18 },
+  { code: "ap-south", lat: 19.09, lon: 72.87, ms: 42 },
+  { code: "ap-southeast", lat: 1.36, lon: 103.99, ms: 38 },
+  { code: "sa-east", lat: -23.43, lon: -46.47, ms: 96 },
+  { code: "ap-northeast", lat: 35.76, lon: 140.39, ms: 51 },
+];
+const COUNTRIES = [["India", "IN", 412], ["United States of America", "US", 388],
+  ["United Kingdom", "GB", 214], ["Germany", "DE", 168], ["Brazil", "BR", 84], ["Japan", "JP", 66]];
+
+/* ----------------------------------------------------------------- utils - */
+const TAU = Math.PI * 2, D2R = Math.PI / 180;
+const clamp01 = (t) => Math.max(0, Math.min(1, t));
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const lerp = (a, b, t) => a + (b - a) * t;
+const kmBetween = (a, b) => angularDistance(a.lon, a.lat, b.lon, b.lat) * 111.195;
+const shapeOf = (n) => world.find((s) => s.name === n);
+function pointerPos(canvas, e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+function traceShape(g, shape, ctx, scale = 1) {
+  const b = geometryBounds(shape.geometry);
+  const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+  const polys = shape.geometry.type === "Polygon" ? [shape.geometry.coordinates] : shape.geometry.coordinates;
+  for (const poly of polys) for (const ring of poly) {
+    let open = false;
+    for (const c of ring) {
+      const p = g.project(cx + (c[0] - cx) * scale, cy + (c[1] - cy) * scale);
+      if (!p) { open = false; continue; }
+      open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+    }
+    if (open) ctx.closePath();
+  }
+}
+const pointInPoly = (x, y, poly) => {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+};
+
+/* --------------------------------------------------------------- effects - */
+const EFFECTS = [
+
+/* ---------------- feel ---------------- */
+{
+  tag: "CA", title: "Magnetic markers", cat: "Feel", hint: "Move the pointer over the globe",
+  use: "Makes a dense map feel responsive before anything is even clicked.",
+  blurb: "Pins lean toward the cursor and grow, with a falloff by distance.",
+  fields: ["Any"],
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .03, markers: [] },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let mx = -999, my = -999;
+    canvas.addEventListener("pointermove", (e) => { const p = pointerPos(canvas, e); mx = p.x; my = p.y; });
+    canvas.addEventListener("pointerleave", () => { mx = my = -999; });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      for (const c of CITIES) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        const d = Math.hypot(p.x - mx, p.y - my);
+        const pull = clamp01(1 - d / 90);
+        const x = p.x + (mx - p.x) * pull * .32, y = p.y + (my - p.y) * pull * .32;
+        const r = 2.6 + pull * 7;
+        ctx.shadowColor = "#34d399";
+        ctx.shadowBlur = pull * 20;
+        ctx.fillStyle = pull > .05 ? "#6ee7b7" : "#34d399";
+        ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+        if (pull > .55) {
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = "#e8ecf5";
+          ctx.font = "700 10px Inter, system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(c.city, x, y - r - 6);
+        }
+      }
+      ctx.restore();
+    } });
+    const id = setInterval(() => globe.invalidate(), 33);
+    return () => clearInterval(id);
+  },
+},
+{
+  tag: "CB", title: "Torch reveal", cat: "Feel", hint: "Sweep the pointer to uncover the map",
+  use: "Teasers, 'explore' prompts, and gated content reveals.",
+  blurb: "The world is dark except for a soft circle that follows the cursor.",
+  fields: ["Marketing", "Gaming"],
+  options: { preset: "atlas", autoRotate: true, rotateSpeed: .03, markers: CITIES, markerStyle: "dot" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let mx = null, my = null, buf = null, bctx = null;
+    canvas.addEventListener("pointermove", (e) => { const p = pointerPos(canvas, e); mx = p.x; my = p.y; globe.invalidate(); });
+    canvas.addEventListener("pointerleave", () => { mx = null; globe.invalidate(); });
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx, w = c.clientWidth, h = c.clientHeight;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.setTransform(g._dpr || 1, 0, 0, g._dpr || 1, 0, 0);
+      bctx.globalCompositeOperation = "source-over";
+      bctx.fillStyle = "rgba(4,6,12,.9)";
+      bctx.fillRect(0, 0, w, h);
+      if (mx != null) {
+        bctx.globalCompositeOperation = "destination-out";
+        const gr = bctx.createRadialGradient(mx, my, 0, mx, my, 74);
+        gr.addColorStop(0, "rgba(0,0,0,1)");
+        gr.addColorStop(.62, "rgba(0,0,0,.92)");
+        gr.addColorStop(1, "rgba(0,0,0,0)");
+        bctx.fillStyle = gr;
+        bctx.fillRect(mx - 80, my - 80, 160, 160);
+      }
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(buf, 0, 0);
+      ctx.restore();
+      if (mx != null) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,255,255,.22)";
+        ctx.beginPath(); ctx.arc(mx, my, 74, 0, TAU); ctx.stroke();
+        ctx.restore();
+      }
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CC", title: "Parallax tilt", cat: "Feel", hint: "Move the pointer â€” layers shift at different rates",
+  use: "Hero sections that feel three-dimensional without a 3D engine.",
+  blurb: "Stars, globe and labels each track the cursor by a different amount.",
+  fields: ["Marketing"],
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .02, stars: false, markers: CITIES.slice(0, 7) },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    const stars = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), z: .3 + Math.random() }));
+    let dx = 0, dy = 0;
+    canvas.addEventListener("pointermove", (e) => {
+      const p = pointerPos(canvas, e);
+      dx = (p.x / canvas.clientWidth - .5) * 2;
+      dy = (p.y / canvas.clientHeight - .5) * 2;
+      globe.setOptions({ center: { lon: 30 + dx * 18, lat: 18 - dy * 12 } });
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-over";
+      for (const s of stars) {
+        ctx.fillStyle = `rgba(255,255,255,${.2 + s.z * .5})`;
+        ctx.beginPath();
+        ctx.arc(s.x * w - dx * 26 * s.z, s.y * h - dy * 26 * s.z, s.z * 1.3, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CD", title: "Cursor as light source", cat: "Feel", hint: "Move the pointer to relight the sphere",
+  use: "Product pages where the globe is the hero object.",
+  blurb: "Specular highlight and terminator follow the pointer in real time.",
+  fields: ["Marketing", "Product"],
+  options: { preset: "political", autoRotate: true, rotateSpeed: .03, shade: false },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let mx = .3, my = .3;
+    canvas.addEventListener("pointermove", (e) => {
+      const p = pointerPos(canvas, e);
+      mx = p.x / canvas.clientWidth; my = p.y / canvas.clientHeight;
+      globe.invalidate();
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * .4;
+      const lx = mx * w, ly = my * h;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.clip();
+      const shade = ctx.createRadialGradient(lx, ly, r * .1, lx, ly, r * 1.9);
+      shade.addColorStop(0, "rgba(255,255,255,.26)");
+      shade.addColorStop(.35, "rgba(0,0,0,0)");
+      shade.addColorStop(1, "rgba(0,0,0,.82)");
+      ctx.fillStyle = shade;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      const spec = ctx.createRadialGradient(lx, ly, 0, lx, ly, r * .34);
+      spec.addColorStop(0, "rgba(255,255,255,.5)");
+      spec.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = spec;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CE", title: "Country lift on hover", cat: "Feel", hint: "Hover any country",
+  use: "The baseline affordance for any clickable map.",
+  blurb: "The hovered country scales up a touch, glows, and names itself.",
+  fields: ["Any"],
+  options: { mode: "map", projection: "naturalEarth", preset: "mono", autoRotate: false, tooltip: false },
+  run(globe, card) {
+    let hovered = null, t0 = 0;
+    globe.setOptions({ onCountryHover: (s) => { if (s !== hovered) { hovered = s; t0 = performance.now(); } globe.invalidate(); } });
+    globe.setOptions({ onRender: (g) => {
+      if (!hovered) return;
+      const ctx = g.ctx;
+      const k = easeOut(clamp01((performance.now() - t0) / 240));
+      ctx.save();
+      ctx.beginPath();
+      traceShape(g, hovered, ctx, 1 + .05 * k);
+      ctx.fillStyle = `rgba(52,211,153,${.35 + .3 * k})`;
+      ctx.shadowColor = "#34d399";
+      ctx.shadowBlur = 18 * k;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "#a7f3d0";
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      const b = geometryBounds(hovered.geometry);
+      const p = g.project((b[0] + b[2]) / 2, (b[1] + b[3]) / 2);
+      if (p) {
+        ctx.fillStyle = "#05231a";
+        ctx.font = "700 11px Inter, system-ui";
+        ctx.textAlign = "center";
+        const wdt = ctx.measureText(hovered.name).width + 14;
+        ctx.fillStyle = "#a7f3d0";
+        ctx.beginPath(); ctx.roundRect(p.x - wdt / 2, p.y - 26, wdt, 17, 4); ctx.fill();
+        ctx.fillStyle = "#05231a";
+        ctx.fillText(hovered.name, p.x, p.y - 14);
+      }
+      ctx.restore();
+    } });
+    const id = setInterval(() => hovered && globe.invalidate(), 40);
+    return () => clearInterval(id);
+  },
+},
+
+/* ---------------- navigation ---------------- */
+{
+  tag: "CF", title: "Drill-down zoom", cat: "Navigation", hint: "Click a country, click again to go back",
+  use: "Sales territories, market pages, anything with a country-level detail view.",
+  blurb: "Clicking frames the country and dims the rest; clicking again pulls out.",
+  fields: ["SaaS", "Analytics"],
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false },
+  run(globe) {
+    let open = null;
+    globe.setOptions({ onCountryClick: (s) => {
+      if (!s) return;
+      if (open === s.name) {
+        open = null;
+        globe.clearFocus();
+        globe.setZoom(1);
+        globe.flyTo(20, 14);
+      } else {
+        open = s.name;
+        globe.focusOn(s.name, { isolate: false, dim: .14, outlineWidth: 2 });
+        globe.fitTo(geometryBounds(s.geometry), { padding: .45 });
+      }
+    } });
+    return () => globe.clearFocus();
+  },
+},
+{
+  tag: "CG", title: "Search and fly", cat: "Navigation", hint: "Type a city name in the box",
+  use: "Store finders, booking flows, 'check availability near you'.",
+  blurb: "Typing filters the pins live and flies the camera to the best match.",
+  fields: ["Retail", "Travel"],
+  ui: `<input type="text" placeholder="Try: tokyo, berlin, lagosâ€¦" />`,
+  options: { mode: "map", projection: "naturalEarth", preset: "atlas", autoRotate: false, markers: CITIES, labels: "markers" },
+  run(globe, card) {
+    const input = card.querySelector("input");
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      if (!q) { globe.setMarkers(CITIES); globe.setZoom(1); globe.flyTo(20, 14); return; }
+      const hits = CITIES.filter((c) => c.city.toLowerCase().includes(q));
+      globe.setMarkers(hits.length ? hits : []);
+      if (hits.length) { globe.flyTo(hits[0].lon, hits[0].lat, { zoom: hits.length === 1 ? 3.4 : 1.6 }); }
+    });
+    return () => {};
+  },
+},
+{
+  tag: "CH", title: "Radial action menu", cat: "Navigation", hint: "Click anywhere on the globe",
+  use: "Map editors, field-ops tools, anything with per-location actions.",
+  blurb: "A wheel of actions springs out of the click point and tracks the pointer.",
+  fields: ["Ops", "Editors"],
+  options: { preset: "noir", autoRotate: false, landStyle: "fill", markers: CITIES.slice(0, 8), markerStyle: "dot" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    const ITEMS = ["ðŸ“ Pin", "ðŸ“Š Stats", "âœˆï¸ Route", "ðŸ” -  Share"];
+    let menu = null, t0 = 0, hot = -1;
+    canvas.addEventListener("click", (e) => {
+      const p = pointerPos(canvas, e);
+      menu = menu && Math.hypot(menu.x - p.x, menu.y - p.y) < 12 ? null : p;
+      t0 = performance.now();
+      globe.invalidate();
+    });
+    canvas.addEventListener("pointermove", (e) => {
+      if (!menu) return;
+      const p = pointerPos(canvas, e);
+      const a = (Math.atan2(p.y - menu.y, p.x - menu.x) + TAU) % TAU;
+      const d = Math.hypot(p.x - menu.x, p.y - menu.y);
+      hot = d > 22 && d < 80 ? Math.floor((a / TAU) * ITEMS.length) : -1;
+      globe.invalidate();
+    });
+    globe.setOptions({ onRender: (g) => {
+      if (!menu) return;
+      const ctx = g.ctx;
+      const k = easeOut(clamp01((performance.now() - t0) / 260));
+      ctx.save();
+      ctx.fillStyle = "#34d399";
+      ctx.beginPath(); ctx.arc(menu.x, menu.y, 4, 0, TAU); ctx.fill();
+      ITEMS.forEach((label, i) => {
+        const a = (i / ITEMS.length) * TAU + TAU / (ITEMS.length * 2) - Math.PI / 2;
+        const R = 52 * k;
+        const x = menu.x + Math.cos(a) * R, y = menu.y + Math.sin(a) * R;
+        ctx.globalAlpha = k;
+        ctx.fillStyle = hot === i ? "#34d399" : "rgba(10,14,22,.94)";
+        ctx.strokeStyle = hot === i ? "#a7f3d0" : "#2b3346";
+        ctx.beginPath(); ctx.roundRect(x - 31, y - 12, 62, 24, 12); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = hot === i ? "#05231a" : "#cbd5e1";
+        ctx.font = "600 10px Inter, system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(label, x, y + 4);
+      });
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CI", title: "Spin the globe", cat: "Navigation", hint: "Click to spin â€” it lands on a destination",
+  use: "Travel inspiration, giveaways, 'surprise me' product discovery.",
+  blurb: "A weighted spin that decelerates and settles on whatever is front-centre.",
+  fields: ["Travel", "Marketing"],
+  options: { preset: "aurora", autoRotate: false, markers: CITIES, markerStyle: "dot" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let vel = 0, lon = 20, landed = null, raf = 0;
+    const tick = () => {
+      if (Math.abs(vel) > .02) {
+        lon += vel;
+        vel *= .972;
+        globe.setOptions({ center: { lon, lat: 14 } });
+        landed = null;
+      } else if (!landed && vel !== 0) {
+        vel = 0;
+        landed = CITIES.reduce((best, c) => {
+          const d = Math.abs(((c.lon - lon + 540) % 360) - 180);
+          return d < best.d ? { c, d } : best;
+        }, { c: null, d: 999 }).c;
+        globe.invalidate();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    canvas.addEventListener("click", () => { vel = 7 + Math.random() * 5; landed = null; });
+    globe.setOptions({ onRender: (g) => {
+      if (!landed) return;
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.fillStyle = "rgba(7,8,13,.86)";
+      ctx.beginPath(); ctx.roundRect(w / 2 - 82, h - 62, 164, 38, 9); ctx.fill();
+      ctx.strokeStyle = "#34d399"; ctx.stroke();
+      ctx.fillStyle = "#6ee7b7";
+      ctx.font = "600 9px Inter, system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("YOUR DESTINATION", w / 2, h - 46);
+      ctx.fillStyle = "#fff";
+      ctx.font = "800 15px Inter, system-ui";
+      ctx.fillText(landed.city, w / 2, h - 31);
+      ctx.restore();
+    } });
+    return () => cancelAnimationFrame(raf);
+  },
+},
+
+/* ---------------- tools ---------------- */
+{
+  tag: "CJ", title: "Distance measure", cat: "Tools", hint: "Click two points to measure between them",
+  use: "Freight quoting, flight time estimates, field-service planning.",
+  blurb: "Great-circle path with live kilometres, because a straight line lies.",
+  fields: ["Logistics", "Travel"],
+  options: { preset: "blueprint", autoRotate: false, landStyle: "outline", interactive: true },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let a = null, b = null, moved = false;
+    canvas.addEventListener("pointerdown", () => { moved = false; });
+    canvas.addEventListener("pointermove", (e) => { if (e.buttons) moved = true; });
+    canvas.addEventListener("click", (e) => {
+      if (moved) return;
+      const p = pointerPos(canvas, e);
+      const g = globe.unproject(p.x, p.y);
+      if (!g) return;
+      const pt = { lon: g[0], lat: g[1] };
+      if (!a || b) { a = pt; b = null; } else { b = pt; }
+      globe.invalidate();
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      const dot = (pt, col) => {
+        const p = g.project(pt.lon, pt.lat);
+        if (!p) return null;
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, TAU); ctx.fill();
+        return p;
+      };
+      if (a) dot(a, "#34d399");
+      if (a && b) {
+        const pb = dot(b, "#fbbf24");
+        ctx.strokeStyle = "#34d399";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        let open = false;
+        for (const [lo, la] of greatCircle(a.lon, a.lat, b.lon, b.lat, 60)) {
+          const p = g.project(lo, la);
+          if (!p) { open = false; continue; }
+          open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        if (pb) {
+          const km = Math.round(kmBetween(a, b));
+          const label = `${km.toLocaleString()} km`;
+          ctx.font = "700 12px Inter, system-ui";
+          const wdt = ctx.measureText(label).width + 16;
+          ctx.fillStyle = "rgba(7,8,13,.92)";
+          ctx.beginPath(); ctx.roundRect(pb.x - wdt / 2, pb.y - 32, wdt, 20, 5); ctx.fill();
+          ctx.strokeStyle = "#34d399"; ctx.lineWidth = 1; ctx.stroke();
+          ctx.fillStyle = "#6ee7b7";
+          ctx.textAlign = "center";
+          ctx.fillText(label, pb.x, pb.y - 18);
+        }
+      }
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CK", title: "Lasso select", cat: "Tools", hint: "Switch to draw mode, then loop around pins",
+  use: "Territory assignment, campaign targeting, bulk edits in an admin tool.",
+  blurb: "Freehand selection that reports the aggregate of whatever it caught.",
+  fields: ["Sales", "Ops"],
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false,
+    interactive: false, markers: CITIES, markerStyle: "dot" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let path = [], drawing = false, hits = [];
+    canvas.addEventListener("pointerdown", (e) => { drawing = true; path = [Object.values(pointerPos(canvas, e))]; });
+    canvas.addEventListener("pointermove", (e) => {
+      if (!drawing) return;
+      const p = pointerPos(canvas, e);
+      path.push([p.x, p.y]);
+      globe.invalidate();
+    });
+    const finish = () => {
+      if (!drawing) return;
+      drawing = false;
+      hits = CITIES.filter((c) => {
+        const p = globe.project(c.lon, c.lat);
+        return p && path.length > 4 && pointInPoly(p.x, p.y, path);
+      });
+      globe.invalidate();
+    };
+    canvas.addEventListener("pointerup", finish);
+    canvas.addEventListener("pointerleave", finish);
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      if (path.length > 1) {
+        ctx.beginPath();
+        path.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+        if (!drawing) ctx.closePath();
+        ctx.fillStyle = "rgba(52,211,153,.13)";
+        ctx.strokeStyle = "#34d399";
+        ctx.lineWidth = 1.6;
+        ctx.setLineDash(drawing ? [4, 4] : []);
+        if (!drawing) ctx.fill();
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      for (const c of hits) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        ctx.strokeStyle = "#fbbf24";
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, TAU); ctx.stroke();
+      }
+      if (hits.length) {
+        const total = hits.reduce((a, c) => a + c.count, 0);
+        ctx.fillStyle = "rgba(7,8,13,.9)";
+        ctx.beginPath(); ctx.roundRect(10, h - 54, 150, 38, 8); ctx.fill();
+        ctx.strokeStyle = "#34d399"; ctx.stroke();
+        ctx.fillStyle = "#6ee7b7";
+        ctx.font = "600 9px Inter, system-ui";
+        ctx.fillText(`${hits.length} LOCATIONS SELECTED`, 20, h - 38);
+        ctx.fillStyle = "#fff";
+        ctx.font = "800 14px Inter, system-ui";
+        ctx.fillText(`${total.toLocaleString()} customers`, 20, h - 24);
+      }
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CL", title: "Service radius", cat: "Tools", hint: "Click to drop a centre, drag the slider",
+  use: "Delivery zones, franchise territory planning, coverage promises.",
+  blurb: "A true spherical radius that reports what falls inside it.",
+  fields: ["Logistics", "Retail"],
+  ui: `<button data-role="label">radius 2500 km</button><input type="range" min="500" max="6000" step="100" value="2500" />`,
+  options: { mode: "map", projection: "naturalEarth", preset: "noir", autoRotate: false,
+    markers: CITIES, markerStyle: "dot" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    const range = card.querySelector("input[type=range]");
+    const label = card.querySelector("[data-role=label]");
+    let centre = { lon: 55, lat: 25 }, km = 2500;
+    const update = () => {
+      km = +range.value;
+      label.textContent = `radius ${km.toLocaleString()} km`;
+      globe.invalidate();
+    };
+    range.addEventListener("input", update);
+    canvas.addEventListener("click", (e) => {
+      const p = pointerPos(canvas, e);
+      const g = globe.unproject(p.x, p.y);
+      if (g) { centre = { lon: g[0], lat: g[1] }; globe.invalidate(); }
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, h = g.canvas.clientHeight;
+      const deg = km / 111.195;
+      ctx.save();
+      ctx.beginPath();
+      let open = false;
+      for (let b = 0; b <= 360; b += 4) {
+        const br = b * D2R, f1 = centre.lat * D2R, l1 = centre.lon * D2R, d = deg * D2R;
+        const f2 = Math.asin(Math.sin(f1) * Math.cos(d) + Math.cos(f1) * Math.sin(d) * Math.cos(br));
+        const l2 = l1 + Math.atan2(Math.sin(br) * Math.sin(d) * Math.cos(f1), Math.cos(d) - Math.sin(f1) * Math.sin(f2));
+        const p = g.project(((l2 / D2R + 540) % 360) - 180, f2 / D2R);
+        if (!p) { open = false; continue; }
+        open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+      }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(52,211,153,.14)";
+      ctx.strokeStyle = "#34d399";
+      ctx.lineWidth = 1.8;
+      ctx.fill(); ctx.stroke();
+      const inside = CITIES.filter((c) => kmBetween(centre, c) <= km);
+      for (const c of inside) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        ctx.fillStyle = "#fbbf24";
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, TAU); ctx.fill();
+      }
+      const cp = g.project(centre.lon, centre.lat);
+      if (cp) { ctx.fillStyle = "#34d399"; ctx.beginPath(); ctx.arc(cp.x, cp.y, 5, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = "#e8ecf5";
+      ctx.font = "700 12px Inter, system-ui";
+      ctx.fillText(`${inside.length} of ${CITIES.length} locations covered`, 12, h - 16);
+      ctx.restore();
+    } });
+    update();
+    return () => {};
+  },
+},
+{
+  tag: "CM", title: "Drop a pin", cat: "Tools", hint: "Drag the pin chip onto the map",
+  use: "Address capture, incident reporting, 'where are you?' onboarding.",
+  blurb: "Drag-and-drop placement that snaps to a real coordinate on release.",
+  fields: ["Forms", "Field ops"],
+  ui: `<button data-role="chip" draggable="false">ðŸ“ drag me</button>`,
+  options: { mode: "map", projection: "naturalEarth", preset: "atlas", autoRotate: false, interactive: false },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    const chip = card.querySelector("[data-role=chip]");
+    let ghost = null, pins = [];
+    chip.addEventListener("pointerdown", (e) => {
+      chip.setPointerCapture(e.pointerId);
+      ghost = { x: 0, y: 0, active: false };
+    });
+    const move = (e) => {
+      if (!ghost) return;
+      const p = pointerPos(canvas, e);
+      ghost = { ...p, active: true };
+      globe.invalidate();
+    };
+    chip.addEventListener("pointermove", move);
+    chip.addEventListener("pointerup", (e) => {
+      if (ghost?.active) {
+        const p = pointerPos(canvas, e);
+        const g = globe.unproject(p.x, p.y);
+        if (g) pins.push({ lon: g[0], lat: g[1], t: performance.now() });
+      }
+      ghost = null;
+      globe.invalidate();
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.textAlign = "center";
+      for (const pin of pins) {
+        const p = g.project(pin.lon, pin.lat);
+        if (!p) continue;
+        const k = easeOut(clamp01((performance.now() - pin.t) / 420));
+        ctx.font = `${Math.round(18 + (1 - k) * 12)}px system-ui`;
+        ctx.fillText("ðŸ“", p.x, p.y - (1 - k) * 40);
+        ctx.strokeStyle = `rgba(52,211,153,${1 - k})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 6 + k * 18, 0, TAU); ctx.stroke();
+      }
+      if (ghost?.active) {
+        ctx.globalAlpha = .75;
+        ctx.font = "24px system-ui";
+        ctx.fillText("ðŸ“", ghost.x, ghost.y);
+      }
+      ctx.restore();
+    } });
+    const id = setInterval(() => pins.length && globe.invalidate(), 40);
+    return () => clearInterval(id);
+  },
+},
+
+/* ---------------- data interaction ---------------- */
+{
+  tag: "CN", title: "Time-zone overlap", cat: "Data", hint: "Click cities to add or remove them",
+  use: "Remote hiring, distributed standups, global support rotas.",
+  blurb: "Picks cities and shows the hours where every one of them is awake.",
+  fields: ["HR", "SaaS"],
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false,
+    markers: CITIES, markerStyle: "dot" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    // Ahmedabad / Dubai / Berlin genuinely overlap â€” click to break it and see.
+    let picked = [CITIES[0], CITIES[11], CITIES[5]];
+    canvas.addEventListener("click", (e) => {
+      const p = pointerPos(canvas, e);
+      let best = null, bd = 26;
+      for (const c of CITIES) {
+        const pp = globe.project(c.lon, c.lat);
+        if (!pp) continue;
+        const d = Math.hypot(pp.x - p.x, pp.y - p.y);
+        if (d < bd) { bd = d; best = c; }
+      }
+      if (!best) return;
+      picked = picked.includes(best) ? picked.filter((c) => c !== best) : [...picked, best].slice(-4);
+      globe.invalidate();
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const rows = picked.length;
+      const top = h - 26 - rows * 17, left = 58, right = w - 12, span = right - left;
+      ctx.save();
+      ctx.fillStyle = "rgba(7,8,13,.9)";
+      ctx.fillRect(0, top - 20, w, h - top + 20);
+      for (const c of picked) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        ctx.strokeStyle = "#34d399"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, TAU); ctx.stroke();
+      }
+      const overlap = new Array(24).fill(0);
+      picked.forEach((c, i) => {
+        const y = top + i * 17;
+        ctx.fillStyle = "#8b93a7";
+        ctx.font = "600 9px Inter, system-ui";
+        ctx.fillText(c.city.slice(0, 9), 8, y + 9);
+        for (let utc = 0; utc < 24; utc++) {
+          const local = (utc + c.tz + 24) % 24;
+          const work = local >= 9 && local < 18;
+          if (work) overlap[utc]++;
+          ctx.fillStyle = work ? "hsl(160 70% 45%)" : "rgba(232,236,245,.07)";
+          ctx.fillRect(left + (utc / 24) * span, y, span / 24 - 1, 11);
+        }
+      });
+      for (let utc = 0; utc < 24; utc++) {
+        if (overlap[utc] !== picked.length || !picked.length) continue;
+        ctx.fillStyle = "#fbbf24";
+        ctx.fillRect(left + (utc / 24) * span, top - 6, span / 24 - 1, 3);
+      }
+      ctx.fillStyle = "#fbbf24";
+      ctx.font = "700 9px Inter, system-ui";
+      const n = overlap.filter((o) => o === picked.length && picked.length).length;
+      ctx.fillText(`${n} h overlap`, 8, top - 6);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CO", title: "Brush the timeline", cat: "Data", hint: "Drag across the bar to filter by date",
+  use: "Incident review, cohort analysis, campaign post-mortems.",
+  blurb: "A range brush that filters the map to only what happened inside it.",
+  fields: ["Analytics", "Security"],
+  options: { mode: "map", projection: "naturalEarth", preset: "noir", autoRotate: false, markerStyle: "bubble" },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    const dated = CITIES.map((c, i) => ({ ...c, m: i % 12 }));
+    let lo = 2, hi = 8, dragging = null;
+    const barY = () => canvas.clientHeight - 34;
+    const xToM = (x) => Math.round(((x - 12) / (canvas.clientWidth - 24)) * 11);
+    canvas.addEventListener("pointerdown", (e) => {
+      const p = pointerPos(canvas, e);
+      if (Math.abs(p.y - barY()) > 22) return;
+      dragging = xToM(p.x); lo = hi = dragging; globe.invalidate();
+    });
+    canvas.addEventListener("pointermove", (e) => {
+      if (dragging == null) return;
+      const m = Math.max(0, Math.min(11, xToM(pointerPos(canvas, e).x)));
+      lo = Math.min(dragging, m); hi = Math.max(dragging, m);
+      globe.invalidate();
+    });
+    canvas.addEventListener("pointerup", () => { dragging = null; });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const MON = ["J","F","M","A","M","J","J","A","S","O","N","D"];
+      ctx.save();
+      for (const c of dated) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        const inRange = c.m >= lo && c.m <= hi;
+        ctx.globalAlpha = inRange ? 1 : .16;
+        ctx.fillStyle = inRange ? "#34d399" : "#64748b";
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3 + (c.count / 214) * 9, 0, TAU); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgba(7,8,13,.92)";
+      ctx.fillRect(0, h - 52, w, 52);
+      const bw = (w - 24) / 12;
+      for (let m = 0; m < 12; m++) {
+        const on = m >= lo && m <= hi;
+        ctx.fillStyle = on ? "#34d399" : "rgba(232,236,245,.1)";
+        ctx.fillRect(12 + m * bw, barY() - 8, bw - 2, 16);
+        ctx.fillStyle = on ? "#05231a" : "#64748b";
+        ctx.font = "700 8px Inter, system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(MON[m], 12 + m * bw + bw / 2 - 1, barY() + 3);
+      }
+      const n = dated.filter((c) => c.m >= lo && c.m <= hi).length;
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#6ee7b7";
+      ctx.font = "700 10px Inter, system-ui";
+      ctx.fillText(`${n} events in range`, 12, h - 10);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CP", title: "Compare two countries", cat: "Data", hint: "Click two countries to compare",
+  use: "Market entry decks, benchmarking dashboards, pricing pages.",
+  blurb: "Two picks light up in different colours with a side-by-side readout.",
+  fields: ["Finance", "Strategy"],
+  options: { mode: "map", projection: "naturalEarth", preset: "mono", autoRotate: false },
+  run(globe) {
+    let picks = [];
+    const valueOf = (name) => (COUNTRIES.find((c) => c[0] === name) || [, , 40 + name.length * 7])[2];
+    globe.setOptions({ onCountryClick: (s) => {
+      if (!s) return;
+      picks = picks.find((p) => p.name === s.name) ? picks.filter((p) => p.name !== s.name) : [...picks, s].slice(-2);
+      globe.invalidate();
+    } });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cols = ["#34d399", "#fbbf24"];
+      ctx.save();
+      picks.forEach((s, i) => {
+        ctx.beginPath();
+        traceShape(g, s, ctx);
+        ctx.fillStyle = cols[i] + "66";
+        ctx.strokeStyle = cols[i];
+        ctx.lineWidth = 1.6;
+        ctx.fill(); ctx.stroke();
+      });
+      if (picks.length === 2) {
+        const vals = picks.map((s) => valueOf(s.name));
+        const max = Math.max(...vals);
+        ctx.fillStyle = "rgba(7,8,13,.92)";
+        ctx.beginPath(); ctx.roundRect(10, h - 74, w - 20, 62, 9); ctx.fill();
+        picks.forEach((s, i) => {
+          const y = h - 62 + i * 26;
+          ctx.fillStyle = "#cbd5e1";
+          ctx.font = "600 10px Inter, system-ui";
+          ctx.fillText(s.name.slice(0, 16), 18, y + 9);
+          ctx.fillStyle = cols[i];
+          ctx.fillRect(126, y, (vals[i] / max) * (w - 190), 12);
+          ctx.fillStyle = "#fff";
+          ctx.font = "700 10px Inter, system-ui";
+          ctx.fillText(String(vals[i]), 130 + (vals[i] / max) * (w - 190), y + 10);
+        });
+      }
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CQ", title: "Threshold filter", cat: "Data", hint: "Drag the slider to raise the cut-off",
+  use: "Lead scoring, risk screening, 'only show me the ones that matter'.",
+  blurb: "Pins below the threshold shrink away instead of vanishing abruptly.",
+  fields: ["Sales", "Risk"],
+  ui: `<button data-role="label">min 0</button><input type="range" min="0" max="220" step="5" value="0" />`,
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: .03, markers: [] },
+  run(globe, card) {
+    const range = card.querySelector("input[type=range]");
+    const label = card.querySelector("[data-role=label]");
+    let min = 0;
+    range.addEventListener("input", () => { min = +range.value; label.textContent = `min ${min}`; globe.invalidate(); });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, h = g.canvas.clientHeight;
+      let shown = 0;
+      ctx.save();
+      for (const c of CITIES) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        const pass = c.count >= min;
+        if (pass) shown++;
+        const r = pass ? 3 + (c.count / 214) * 10 : 1.2;
+        ctx.globalAlpha = pass ? 1 : .22;
+        ctx.fillStyle = pass ? "#34d399" : "#475569";
+        ctx.shadowColor = "#34d399";
+        ctx.shadowBlur = pass ? 10 : 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill();
+      }
+      ctx.restore();
+      ctx.save();
+      ctx.fillStyle = "#6ee7b7";
+      ctx.font = "700 11px Inter, system-ui";
+      ctx.fillText(`${shown} / ${CITIES.length} shown`, 12, h - 14);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "CR", title: "Chart â‡„ map crossfilter", cat: "Data", hint: "Hover the bars, or hover the map",
+  use: "Any dashboard where the chart and the map must stay in sync.",
+  blurb: "Linked highlighting in both directions, the core dashboard interaction.",
+  fields: ["Analytics", "BI"],
+  options: { mode: "map", projection: "naturalEarth", preset: "midnight", autoRotate: false },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    let active = null;
+    const barsBox = () => ({ x: 10, y: canvas.clientHeight - 90, w: canvas.clientWidth - 20, h: 78 });
+    canvas.addEventListener("pointermove", (e) => {
+      const p = pointerPos(canvas, e);
+      const b = barsBox();
+      if (p.y >= b.y && p.y <= b.y + b.h) {
+        const i = Math.floor(((p.y - b.y) / b.h) * COUNTRIES.length);
+        active = COUNTRIES[i] ? COUNTRIES[i][0] : null;
+      } else {
+        const s = globe.countryAt(p.x, p.y);
+        active = s && COUNTRIES.some((c) => c[0] === s.name) ? s.name : null;
+      }
+      globe.invalidate();
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth;
+      const b = barsBox();
+      const max = Math.max(...COUNTRIES.map((c) => c[2]));
+      ctx.save();
+      if (active) {
+        const s = world.find((x) => x.name === active);
+        if (s) {
+          ctx.beginPath();
+          traceShape(g, s, ctx);
+          ctx.fillStyle = "rgba(52,211,153,.5)";
+          ctx.strokeStyle = "#a7f3d0";
+          ctx.lineWidth = 1.6;
+          ctx.fill(); ctx.stroke();
+        }
+      }
+      ctx.fillStyle = "rgba(7,8,13,.9)";
+      ctx.fillRect(0, b.y - 8, w, b.h + 20);
+      COUNTRIES.forEach(([name, iso, v], i) => {
+        const y = b.y + (i / COUNTRIES.length) * b.h;
+        const on = active === name;
+        ctx.fillStyle = "#8b93a7";
+        ctx.font = "600 9px Inter, system-ui";
+        ctx.fillText(iso, 14, y + 9);
+        ctx.fillStyle = on ? "#34d399" : "rgba(52,211,153,.32)";
+        ctx.fillRect(34, y + 1, (v / max) * (b.w - 60), 10);
+        if (on) {
+          ctx.fillStyle = "#fff";
+          ctx.font = "700 9px Inter, system-ui";
+          ctx.fillText(String(v), 38 + (v / max) * (b.w - 60), y + 9);
+        }
+      });
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+
+/* ---------------- applied ---------------- */
+{
+  tag: "CS", title: "Geography quiz", cat: "Applied", hint: "Click the country it asks for",
+  use: "Edtech, onboarding gamification, trade-show booth attractions.",
+  blurb: "A prompt, a click target, instant right-or-wrong feedback and a score.",
+  fields: ["Education", "Events"],
+  options: { mode: "map", projection: "naturalEarth", preset: "mono", autoRotate: false },
+  run(globe) {
+    const pool = COUNTRIES.map((c) => c[0]);
+    let target = pool[0], score = 0, asked = 0, flash = null;
+    const next = () => { target = pool[Math.floor(Math.random() * pool.length)]; globe.invalidate(); };
+    globe.setOptions({ onCountryClick: (s) => {
+      if (!s) return;
+      asked++;
+      const right = s.name === target;
+      if (right) score++;
+      flash = { right, at: performance.now(), name: s.name };
+      setTimeout(next, 700);
+      globe.invalidate();
+    } });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.fillStyle = "rgba(7,8,13,.9)";
+      ctx.fillRect(0, 0, w, 46);
+      ctx.fillStyle = "#6ee7b7";
+      ctx.font = "600 9px Inter, system-ui";
+      ctx.fillText("FIND", 50, 18);
+      ctx.fillStyle = "#fff";
+      ctx.font = "800 14px Inter, system-ui";
+      const short = target.length > 20 ? target.slice(0, 19) + "â€¦" : target;
+      ctx.fillText(short, 50, 35);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#34d399";
+      ctx.font = "700 13px Inter, system-ui";
+      ctx.fillText(`${score}/${asked}`, w - 52, 30);
+      if (flash && performance.now() - flash.at < 700) {
+        const s = world.find((x) => x.name === flash.name);
+        if (s) {
+          ctx.beginPath();
+          traceShape(g, s, ctx);
+          ctx.fillStyle = flash.right ? "rgba(52,211,153,.6)" : "rgba(244,63,94,.55)";
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    } });
+    const id = setInterval(() => flash && globe.invalidate(), 60);
+    return () => clearInterval(id);
+  },
+},
+{
+  tag: "CT", title: "Region latency picker", cat: "Applied", hint: "Click a region dot to 'ping' it",
+  use: "Cloud sign-up flows, CDN pickers, data-residency selection.",
+  blurb: "A pulse travels out and back, then the region reports its round trip.",
+  fields: ["Infrastructure", "SaaS"],
+  options: { preset: "blueprint", autoRotate: false, center: { lon: 30, lat: 22 }, landStyle: "outline",
+    markers: REGIONS.map((r) => ({ ...r, label: r.code })) },
+  run(globe, card) {
+    const canvas = card.querySelector("canvas");
+    const home = CITIES[0];
+    let active = null, t0 = 0;
+    canvas.addEventListener("click", (e) => {
+      const p = pointerPos(canvas, e);
+      let best = null, bd = 34;
+      for (const r of REGIONS) {
+        const pp = globe.project(r.lon, r.lat);
+        if (!pp) continue;
+        const d = Math.hypot(pp.x - p.x, pp.y - p.y);
+        if (d < bd) { bd = d; best = r; }
+      }
+      if (best) { active = best; t0 = performance.now(); }
+    });
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      for (const r of REGIONS) {
+        const p = g.project(r.lon, r.lat);
+        if (!p) continue;
+        const on = active === r;
+        ctx.strokeStyle = on ? "rgba(52,211,153,.5)" : "rgba(56,189,248,.28)";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 11, 0, TAU); ctx.stroke();
+        ctx.fillStyle = on ? "#34d399" : "#38bdf8";
+        ctx.beginPath(); ctx.arc(p.x, p.y, on ? 5.5 : 3.5, 0, TAU); ctx.fill();
+        ctx.fillStyle = on ? "#a7f3d0" : "#7dd3fc";
+        ctx.font = "600 8px Inter, system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(r.code, p.x, p.y - 9);
+      }
+      if (active) {
+        const k = clamp01((performance.now() - t0) / 1400);
+        const pts = greatCircle(home.lon, home.lat, active.lon, active.lat, 50);
+        const headIdx = Math.floor((k < .5 ? k * 2 : 1 - (k - .5) * 2) * (pts.length - 1));
+        ctx.strokeStyle = "rgba(52,211,153,.4)";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        let open = false;
+        for (const [lo, la] of pts) {
+          const p = g.project(lo, la);
+          if (!p) { open = false; continue; }
+          open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+        }
+        ctx.stroke();
+        const hp = g.project(pts[headIdx][0], pts[headIdx][1]);
+        if (hp) {
+          ctx.fillStyle = "#fbbf24";
+          ctx.shadowColor = "#fbbf24"; ctx.shadowBlur = 12;
+          ctx.beginPath(); ctx.arc(hp.x, hp.y, 3.6, 0, TAU); ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        ctx.textAlign = "left";
+        ctx.fillStyle = "rgba(7,8,13,.92)";
+        ctx.beginPath(); ctx.roundRect(10, h - 50, 168, 38, 8); ctx.fill();
+        ctx.strokeStyle = "#34d399"; ctx.stroke();
+        ctx.fillStyle = "#6ee7b7";
+        ctx.font = "600 9px Inter, system-ui";
+        ctx.fillText(`${active.code.toUpperCase()}`, 20, h - 34);
+        ctx.fillStyle = "#fff";
+        ctx.font = "800 15px Inter, system-ui";
+        ctx.fillText(k >= 1 ? `${active.ms} ms` : "pingingâ€¦", 20, h - 19);
+      }
+      ctx.restore();
+    } });
+    const id = setInterval(() => active && globe.invalidate(), 33);
+    return () => clearInterval(id);
+  },
+},
+];
+
+/* ------------------------------------------------------------------- ui - */
+const grid = document.getElementById("grid");
+const picked = new Set();
+const live = new Map();
+
+for (const fx of EFFECTS) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.cat = fx.cat;
+  card.innerHTML = `
+    <div class="stage">
+      <span class="tag">${fx.tag}</span>
+      <button class="pickbtn">pick</button>
+      ${fx.ui ? `<div class="ui">${fx.ui}</div>` : ""}
+      <canvas></canvas>
+      <div class="hint">${fx.hint}</div>
+    </div>
+    <div class="body">
+      <div class="title">${fx.title}</div>
+      <p class="use">${fx.use}</p>
+      <p class="blurb">${fx.blurb}</p>
+      <div class="fields">${fx.fields.map((f) => `<span class="f">${f}</span>`).join("")}</div>
+    </div>`;
+  grid.appendChild(card);
+  const canvas = card.querySelector("canvas");
+
+  const start = () => {
+    stop();
+    try {
+      const globe = createGlobe(canvas, {
+        keyboard: false, fps: 40, radiusRatio: .4, center: { lon: 30, lat: 18 }, ...fx.options,
+      });
+      live.set(fx.tag, { globe, stop: fx.run(globe, card) || (() => {}) });
+    } catch (e) { console.error(fx.tag, e); }
+  };
+  const stop = () => {
+    const rec = live.get(fx.tag);
+    if (!rec) return;
+    rec.stop?.();
+    rec.globe?.destroy();
+    live.delete(fx.tag);
+  };
+
+  card.querySelector(".pickbtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    picked.has(fx.tag) ? picked.delete(fx.tag) : picked.add(fx.tag);
+    card.classList.toggle("on", picked.has(fx.tag));
+    e.target.textContent = picked.has(fx.tag) ? "picked" : "pick";
+    renderPicked();
+  });
+
+  // Lazy-mount, with a geometry fallback for browsers that throttle observers.
+  const io = new IntersectionObserver((en) => {
+    for (const e of en) e.isIntersecting ? (live.has(fx.tag) || start()) : stop();
+  }, { rootMargin: "300px" });
+  io.observe(card);
+  setTimeout(() => {
+    const r = card.getBoundingClientRect();
+    if (!live.has(fx.tag) && r.top < innerHeight + 300 && r.bottom > -300) start();
+  }, 350);
+}
+
+function renderPicked() {
+  const l = [...picked].sort();
+  document.getElementById("pickList").textContent = l.length ? l.join(", ") : "none";
+}
+document.getElementById("copy").addEventListener("click", () =>
+  navigator.clipboard?.writeText([...picked].sort().join(", ")));
+document.getElementById("clear").addEventListener("click", () => {
+  picked.clear();
+  document.querySelectorAll(".card.on").forEach((c) => {
+    c.classList.remove("on");
+    c.querySelector(".pickbtn").textContent = "pick";
+  });
+  renderPicked();
+});
+const filters = document.getElementById("filters");
+["All", ...new Set(EFFECTS.map((e) => e.cat))].forEach((cat, i) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.textContent = cat;
+  b.setAttribute("aria-pressed", String(i === 0));
+  b.addEventListener("click", () => {
+    filters.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    document.querySelectorAll(".card").forEach((c) =>
+      c.classList.toggle("hide", cat !== "All" && c.dataset.cat !== cat));
+  });
+  filters.appendChild(b);
+});
+</script>
+</body>
+</html>

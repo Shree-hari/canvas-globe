@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>canvas-globe  -  effect system</title>
+<style>
+  :root { --bg:#07080d; --panel:#0e1018; --line:#1e2230; --ink:#e8ecf5; --dim:#8b93a7; --accent:#34d399; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 Inter, system-ui, -apple-system, sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1180px; margin:0 auto; padding:38px 28px 80px; }
+  h1 { margin:0 0 6px; font-size:1.9rem; letter-spacing:-.02em; }
+  .sub { color:var(--dim); max-width:80ch; margin:0 0 26px; }
+  code { background:#131722; padding:1px 5px; border-radius:4px; font-size:.86em; }
+  .cols { display:grid; gap:22px; grid-template-columns:minmax(0,1fr) 300px; align-items:start; }
+  @media (max-width:860px) { .cols { grid-template-columns:1fr; } }
+  .stage { background:#05060a; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .stage canvas { display:block; width:100%; aspect-ratio:1/1; touch-action:none; }
+  .side { display:flex; flex-direction:column; gap:14px; }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .box h2 { margin:0 0 10px; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); }
+  .fx { display:flex; flex-direction:column; gap:6px; }
+  .fx label { display:flex; gap:8px; align-items:center; font-size:.84rem; cursor:pointer; }
+  .fx input { accent-color:var(--accent); }
+  .row { display:flex; gap:8px; align-items:center; margin-top:8px; }
+  button { background:#131722; color:var(--ink); border:1px solid var(--line); border-radius:8px;
+    padding:6px 12px; font:inherit; font-size:.8rem; cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  button.primary { background:rgba(52,211,153,.15); border-color:var(--accent); color:#fff; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .mono { font-family:ui-monospace, monospace; font-size:.76rem; color:var(--dim); }
+  pre { background:#0b0e16; border:1px solid var(--line); border-radius:10px; padding:12px;
+    overflow:auto; font-size:.76rem; line-height:1.5; margin:0; }
+  .strip { display:flex; gap:4px; flex-wrap:wrap; margin-top:10px; }
+  .strip img { width:52px; height:52px; border-radius:5px; border:1px solid var(--line); background:#000; }
+  .note { color:var(--dim); font-size:.78rem; margin:8px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Effect system</h1>
+  <p class="sub">
+    Phase 0 of the effect kit. Two things are being proven here: effects <strong>compose</strong>
+    across three paint stages, and the clock is <strong>seekable</strong>, so
+    <code>renderFrame(ms)</code> reproduces any frame exactly  -  which is what frame-exact export
+    and genuinely seamless loops need.
+  </p>
+
+  <div class="cols">
+    <div>
+      <div class="stage"><canvas id="globe"></canvas></div>
+      <div class="box" style="margin-top:14px">
+        <h2>Timeline</h2>
+        <input type="range" id="scrub" min="0" max="6000" step="20" value="0" />
+        <div class="row">
+          <button id="playpause" class="primary">Pause</button>
+          <span class="mono" id="clock">live</span>
+        </div>
+        <div class="row">
+          <button id="export">Export 24 frames</button>
+          <span class="mono" id="exportNote"></span>
+        </div>
+        <div class="strip" id="strip"></div>
+        <p class="note">
+          Scrub while paused: the same millisecond always renders identically. That is the property
+          an add-on needs to hand a PNG sequence to Canva or Adobe Express.
+        </p>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="box">
+        <h2>Recipes</h2>
+        <p class="note" style="margin:0 0 10px">
+          Complete looks  -  options plus effects plus, sometimes, a call into the
+          imperative API. Applied with <code>applyRecipe</code>, not <code>use</code>.
+        </p>
+        <div class="row" id="recipes" style="flex-wrap:wrap"></div>
+      </div>
+      <div class="box">
+        <h2>Charts</h2>
+        <p class="note" style="margin:0 0 10px">
+          From <code>canvas-globe/charts</code>  -  same effect contract, separate import.
+        </p>
+        <div class="fx" id="chartToggles"></div>
+      </div>
+      <div class="box">
+        <h2>Controls</h2>
+        <p class="note" style="margin:0 0 10px">
+          From <code>canvas-globe/controls</code>  -  these bind your own DOM, so
+          they are functions, not effects.
+        </p>
+        <label style="font-size:.8rem;display:block;margin-bottom:6px">
+          searchAndFly · type a city, press Enter
+          <input id="search" placeholder="London" style="width:100%;margin-top:4px;padding:5px 8px;
+            background:#0b0e16;border:1px solid var(--line);border-radius:6px;color:var(--ink);font:inherit;font-size:.8rem" />
+        </label>
+        <label style="font-size:.8rem;display:block">
+          thresholdFilter · <span id="cutLabel">0</span> minimum
+          <input type="range" id="cut" />
+        </label>
+      </div>
+      <div class="box">
+        <h2>Effects</h2>
+        <div class="fx" id="toggles"></div>
+      </div>
+      <div class="box">
+        <h2>Live code</h2>
+        <pre id="code"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createGlobe } from "../src/index.js";
+import {
+  meshGradient, particleAssemble, radarSweep, scanlines, breathe, lightTrails, torch, cityLights,
+  starfield, shineSweep, glassSphere, neonFlicker,
+  counterRoll, shockwave, choroplethCascade, routeDashes, tally, markerCascade,
+  arcLaunch, spikesRising, pinDrop, orbitSubject,
+  magneticMarkers, measureTool, lassoSelect, hoverLift, pingProbe,
+  parallaxTilt, cursorLight, drillDown, radialMenu, spinToWin,
+  serviceRadius, timezoneOverlap, compareCountries, geoQuiz,
+  trimPaths, liquidWipe, matchCut, dropFromOrbit, dayNightSweep, markerBloom,
+  mapUnfold, firework, glitch, lowerThird, splitFlap, textOnCircle, countryMatte,
+  ghostTrail, windField, aurora, jellySquash, dataDesk,
+} from "../src/fx/index.js";
+import * as recipes from "../src/recipes.js";
+import * as charts from "../src/charts.js";
+import * as controls from "../src/controls.js";
+
+const CITIES = [
+  { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 214 },
+  { city: "London", lat: 51.5, lon: -0.12, count: 164 },
+  { city: "New York", lat: 40.71, lon: -74.01, count: 152 },
+  { city: "Berlin", lat: 52.52, lon: 13.4, count: 98 },
+  { city: "São Paulo", lat: -23.55, lon: -46.63, count: 76 },
+  { city: "Singapore", lat: 1.35, lon: 103.82, count: 71 },
+  { city: "Tokyo", lat: 35.68, lon: 139.69, count: 58 },
+  { city: "Nairobi", lat: -1.29, lon: 36.82, count: 31 },
+];
+const HUB = CITIES[0];
+const REVENUE = { IN: 21947, GB: 16400, US: 15200, DE: 9800, BR: 7600, SG: 7100, JP: 5800, KE: 3100 };
+
+const globe = createGlobe(document.getElementById("globe"), {
+  preset: "midnight",
+  rotateSpeed: 0.04,
+  markers: CITIES,
+  markerStyle: "dot",
+  arcs: CITIES.slice(1, 6).map((c, i) => ({ from: HUB, to: c, duration: 1800 + i * 160 })),
+});
+
+/** Each entry is [label, factory, on-by-default]. */
+const CATALOGUE = [
+  ["meshGradient()  · beneath", meshGradient, false],
+  ["starfield()  · beneath", starfield, false],
+  ["parallaxTilt()  · beneath", parallaxTilt, false],
+  ["orbitSubject()  · camera", orbitSubject, false],
+  ["matchCut()  · camera", matchCut, false],
+  ["dropFromOrbit()  · camera", dropFromOrbit, false],
+  ["dayNightSweep()  · camera", dayNightSweep, false],
+  ["particleAssemble()", particleAssemble, false],
+  ["radarSweep()", radarSweep, false],
+  ["markerCascade()", markerCascade, false],
+  ["markerBloom()", markerBloom, false],
+  ["trimPaths()", trimPaths, false],
+  ["pinDrop()", pinDrop, false],
+  ["spikesRising()", spikesRising, false],
+  ["arcLaunch()", arcLaunch, false],
+  ["routeDashes()", () => routeDashes({ routes: CITIES.slice(1, 5).map((c) => ({ from: HUB, to: c })) }), false],
+  ["choroplethCascade()", choroplethCascade, false],
+  ["counterRoll()", () => counterRoll({ to: 21947, caption: "customers worldwide" }), true],
+  ["tally()", () => tally({ caption: "LOCATIONS" }), false],
+  ["shockwave()", () => shockwave({ at: HUB }), true],
+  ["cityLights()", cityLights, false],
+  ["cursorLight()", cursorLight, false],
+  ["shineSweep()", shineSweep, false],
+  ["glassSphere()", glassSphere, false],
+  ["breathe()  · post", breathe, false],
+  ["scanlines()  · post", scanlines, false],
+  ["neonFlicker()  · post", neonFlicker, false],
+  ["liquidWipe()  · post", liquidWipe, false],
+  ["lightTrails()  · post", lightTrails, false],
+  ["torch()  · post", torch, false],
+  ["magneticMarkers()  · pointer", magneticMarkers, false],
+  ["hoverLift()  · pointer", hoverLift, false],
+  ["measureTool()  · pointer", measureTool, false],
+  ["lassoSelect()  · pointer", lassoSelect, false],
+  ["pingProbe()  · pointer", () => pingProbe({ from: HUB }), false],
+  ["drillDown()  · pointer", drillDown, false],
+  ["radialMenu()  · pointer", radialMenu, false],
+  ["spinToWin()  · pointer", spinToWin, false],
+  ["serviceRadius()  · pointer", serviceRadius, false],
+  ["timezoneOverlap()  · pointer", timezoneOverlap, false],
+  ["compareCountries()  · pointer", () => compareCountries({ metric: "revenue", values: REVENUE }), false],
+  ["geoQuiz()  · pointer", geoQuiz, false],
+  ["mapUnfold()", mapUnfold, false],
+  ["firework()", firework, false],
+  ["lowerThird()", () => lowerThird({ title: "Ahmedabad", subtitle: "214 customers" }), false],
+  ["splitFlap()", () => splitFlap({ to: 21947, caption: "CUSTOMERS" }), false],
+  ["textOnCircle()", textOnCircle, false],
+  ["countryMatte()", () => countryMatte({ country: "IN" }), false],
+  ["ghostTrail()", ghostTrail, false],
+  ["windField()", windField, false],
+  ["aurora()", aurora, false],
+  ["jellySquash()  · beneath", jellySquash, false],
+  ["dataDesk()", () => dataDesk({ title: "Where our customers are", standfirst: "2024 full year", source: "Source: internal" }), false],
+  ["glitch()  · post", glitch, false],
+];
+
+/** Charts come from canvas-globe/charts but use the same effect contract. */
+const CHARTS = Object.entries(charts).filter(([, fn]) => typeof fn === "function");
+
+const live = new Map();
+const toggles = document.getElementById("toggles");
+
+for (const [name, factory, on] of CATALOGUE) {
+  const id = "fx-" + name.replace(/\W+/g, "");
+  const row = document.createElement("label");
+  row.innerHTML = `<input type="checkbox" id="${id}" ${on ? "checked" : ""}/><span>${name}</span>`;
+  toggles.appendChild(row);
+  const box = row.querySelector("input");
+  const apply = () => {
+    if (box.checked) {
+      const fx = factory();
+      live.set(name, fx);
+      globe.use(fx);
+    } else {
+      globe.remove(live.get(name));
+      live.delete(name);
+    }
+    writeCode();
+  };
+  box.addEventListener("change", apply);
+  if (on) apply();
+}
+
+function writeCode() {
+  const lines = [...live.keys()].map((n) => `globe.use(${n.split("  ")[0]});`);
+  document.getElementById("code").textContent =
+    `import { createGlobe } from "canvas-globe";\n` +
+    `import { ... } from "canvas-globe/fx";\n\n` +
+    `const globe = createGlobe(canvas, { preset: "midnight" });\n` +
+    (lines.length ? lines.join("\n") : "// no effects installed");
+}
+writeCode();
+
+/* --------------------------- charts and controls -------------------------- */
+
+const chartBox = document.getElementById("chartToggles");
+const liveCharts = new Map();
+for (const [name, factory] of CHARTS) {
+  const row = document.createElement("label");
+  row.innerHTML = `<input type="checkbox" /><span>${name}()</span>`;
+  chartBox.appendChild(row);
+  row.querySelector("input").addEventListener("change", (e) => {
+    if (e.target.checked) {
+      const fx = factory({ values: REVENUE });
+      liveCharts.set(name, fx);
+      globe.use(fx);
+    } else {
+      globe.remove(liveCharts.get(name));
+      liveCharts.delete(name);
+    }
+  });
+}
+
+controls.searchAndFly(globe, document.getElementById("search"));
+controls.thresholdFilter(globe, document.getElementById("cut"), {
+  onChange: (_shown, value) => (document.getElementById("cutLabel").textContent = value),
+});
+
+/* -------------------------------- recipes -------------------------------- */
+const recipeBar = document.getElementById("recipes");
+let undoRecipe = null;
+let activeRecipe = null;
+
+for (const [name, factory] of Object.entries(recipes)) {
+  if (name === "applyRecipe" || typeof factory !== "function") continue;
+  const button = document.createElement("button");
+  button.textContent = name;
+  button.addEventListener("click", () => {
+    undoRecipe?.();
+    undoRecipe = null;
+    const again = activeRecipe === name;
+    activeRecipe = again ? null : name;
+    for (const b of recipeBar.children) b.classList.remove("primary");
+    if (!again) {
+      undoRecipe = recipes.applyRecipe(globe, factory());
+      button.classList.add("primary");
+    }
+    document.getElementById("code").textContent = again
+      ? `// recipe removed`
+      : `import { applyRecipe, ${name} } from "canvas-globe/recipes";\n\n` +
+        `const stop = applyRecipe(globe, ${name}());`;
+  });
+  recipeBar.appendChild(button);
+}
+
+/* ------------------------------ the timeline ------------------------------ */
+
+const scrub = document.getElementById("scrub");
+const clock = document.getElementById("clock");
+const playpause = document.getElementById("playpause");
+let paused = false;
+
+scrub.addEventListener("input", () => {
+  paused = true;
+  playpause.textContent = "Play";
+  playpause.classList.remove("primary");
+  globe.renderFrame(+scrub.value);
+  clock.textContent = `seeked to ${scrub.value} ms`;
+});
+
+playpause.addEventListener("click", () => {
+  paused = !paused;
+  if (paused) {
+    globe.seek(+scrub.value);
+    clock.textContent = `seeked to ${scrub.value} ms`;
+  } else {
+    globe.play();
+    clock.textContent = "live";
+  }
+  playpause.textContent = paused ? "Play" : "Pause";
+  playpause.classList.toggle("primary", !paused);
+});
+
+/* ------------------------------ frame export ------------------------------ */
+
+document.getElementById("export").addEventListener("click", () => {
+  const strip = document.getElementById("strip");
+  strip.innerHTML = "";
+  const COUNT = 24, SPAN = 6000;
+  const wasLive = !paused;
+  const started = performance.now();
+  for (let i = 0; i < COUNT; i++) {
+    globe.renderFrame((i / COUNT) * SPAN);
+    const img = new Image();
+    img.src = globe.snapshot();
+    strip.appendChild(img);
+  }
+  const ms = Math.round(performance.now() - started);
+  document.getElementById("exportNote").textContent = `${COUNT} frames in ${ms} ms`;
+  if (wasLive) globe.play();
+});
+</script>
+</body>
+</html>

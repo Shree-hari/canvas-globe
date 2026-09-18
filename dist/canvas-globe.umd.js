@@ -1314,7 +1314,7 @@ function drawFitted(ctx, media, box) {
 }
 
 // Keep in sync with package.json. Release checks enforce this value.
-const CANVAS_GLOBE_VERSION = "1.1.1";
+const CANVAS_GLOBE_VERSION = "1.2.0";
 
 /** Local license-key checks and production-use presentation helpers. */
 
@@ -1520,9 +1520,23 @@ const DEFAULTS = {
   onCountryHover: null,
   onCountryClick: null,
   onRender: null,
+  effects: null,
 };
 
 const coord = (v) => (Array.isArray(v) ? [v[0], v[1]] : [v.lon ?? v.lng ?? v.longitude, v.lat ?? v.latitude]);
+
+const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+
+/**
+ * An effect's own 0→1 progress at a point on the shared clock. Derived purely
+ * from `ms`, so the same millisecond always renders the same frame.
+ */
+const phaseOf = (fx, ms) => {
+  const duration = Math.max(1, fx.duration ?? 1000);
+  const total = duration + (fx.hold ?? 0);
+  const elapsed = fx.loop === false ? Math.min(ms, total) : ((ms % total) + total) % total;
+  return Math.min(1, elapsed / duration);
+};
 
 const defaultTooltip = (target, kind) => {
   if (kind === "country") return target.name || String(target.id ?? "");
@@ -1578,6 +1592,11 @@ class GeoGlobe {
     this._licenseHits = [];
     this._licenseDismissed = false;
     this._licenseHovered = false;
+    this._fx = [];
+    this._clock = null;
+    this._t0 = now();
+    this._spinBase = this.lon;
+    this.pointer = { x: 0, y: 0, lon: 0, lat: 0, over: false };
 
     this._applyWorld();
     this._applyMarkers(this.o.markers);
@@ -1589,11 +1608,137 @@ class GeoGlobe {
     this.resize();
     if (this.o.focus) this.focusOn(this.o.focus, { instant: true });
     if (this.o.showViewer) this._initViewer();
+    for (const fx of this.o.effects || []) this.use(fx);
     this._loop = this._loop.bind(this);
     this._raf = requestAnimationFrame(this._loop);
   }
 
   /* ------------------------------ public API ------------------------------ */
+
+  /* --------------------------------- effects ------------------------------- */
+
+  /** Installs an effect. Returns `this`, so calls chain. */
+  use(effect) {
+    if (!effect || typeof effect.frame !== "function") return this;
+    this._fx.push({ fx: effect, state: effect.setup?.(this) ?? {} });
+    this._fx.sort((a, b) => (a.fx.z ?? 0) - (b.fx.z ?? 0));
+    return this.invalidate();
+  }
+
+  /** Removes an effect by reference or by name. */
+  remove(effect) {
+    const i = this._fx.findIndex((e) => e.fx === effect || e.fx.name === effect);
+    if (i < 0) return this;
+    const [entry] = this._fx.splice(i, 1);
+    entry.fx.dispose?.(entry.state, this);
+    return this.invalidate();
+  }
+
+  clearEffects() {
+    while (this._fx.length) this.remove(this._fx[0].fx);
+    return this;
+  }
+
+  get effects() {
+    return this._fx.map((e) => e.fx);
+  }
+
+  /**
+   * Pins the effect clock to `ms`. Rendering becomes reproducible, which is
+   * what frame-exact export and seamless loops need. `play()` releases it.
+   */
+  seek(ms) {
+    // Capture where auto-rotation started from, so longitude can be derived
+    // from the clock instead of accumulated per frame. Only on the way in:
+    // seeking again while already seeked must not shift the origin.
+    if (this._clock == null) this._spinBase = wrapLon(this.lon - this._spinRate() * this._fxTime());
+    this._clock = Math.max(0, ms);
+    if (this._autoSpin()) this.lon = wrapLon(this._spinBase + this._spinRate() * this._clock);
+    return this.invalidate();
+  }
+
+  play() {
+    // Resume the timeline where it was paused rather than snapping back to 0.
+    if (this._clock != null) this._t0 = now() - this._clock;
+    this._clock = null;
+    return this.invalidate();
+  }
+
+  /** Draws the single frame that belongs at `ms` on the effect clock. */
+  renderFrame(ms) {
+    return this.seek(ms).render();
+  }
+
+  _fxTime() {
+    return this._clock != null ? this._clock : now() - this._t0;
+  }
+
+  /**
+   * Wall clock for looping scene animation. Pinned while seeking, so arcs,
+   * orbits and pulses land on the same phase every time a frame is redrawn.
+   */
+  _animTime() {
+    return this._clock != null ? this._clock : Date.now();
+  }
+
+  /** Degrees of auto-rotation per millisecond. */
+  _spinRate() {
+    return ((this.o.rotateSpeed || 0) * (this.o.fps || 30)) / 1000;
+  }
+
+  _runPasses(stage) {
+    if (!this._fx.length) return;
+    const ms = this._fxTime();
+    const { ctx } = this;
+    for (const entry of this._fx) {
+      if ((entry.fx.stage || "above") !== stage) continue;
+      ctx.save();
+      try {
+        entry.fx.frame(ctx, this, phaseOf(entry.fx, ms), entry.state);
+      } catch (err) {
+        // One bad effect must not take the render loop down with it.
+        if (!entry.failed) {
+          entry.failed = true;
+          console.error(`canvas-globe: effect "${entry.fx.name || "anonymous"}" failed`, err);
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  /** Land sample points as `[lon, lat]` pairs — what the dot matrix draws. */
+  landPoints(spacing) {
+    const prev = this.o.dotSpacing;
+    if (spacing != null) this.o.dotSpacing = spacing;
+    const flat = this._dotPoints();
+    this.o.dotSpacing = prev;
+    const out = [];
+    for (let i = 0; i < flat.length; i += 2) out.push([flat[i], flat[i + 1]]);
+    return out;
+  }
+
+  /** Traces a country outline into a path using the current projection. */
+  tracePath(shape, ctx = this.ctx, transform) {
+    const geom = shape?.geometry || shape;
+    if (!geom?.coordinates) return this;
+    const polys = geom.type === "Polygon" ? [geom.coordinates] : geom.coordinates;
+    for (const poly of polys) {
+      for (const ring of poly) {
+        let open = false;
+        for (const c of ring) {
+          const src = transform ? transform(c) : c;
+          const p = this.project(src[0], src[1]);
+          if (!p) {
+            open = false;
+            continue;
+          }
+          open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+        }
+        if (open) ctx.closePath();
+      }
+    }
+    return this;
+  }
 
   setMarkers(markers = []) {
     this._applyMarkers(markers);
@@ -2151,9 +2296,12 @@ class GeoGlobe {
     const { w, h } = this._size();
     ctx.setTransform(this._dpr, 0, 0, this._dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
+    this._runPasses("beneath");
     this.hits = this.o.mode === "map" ? this._paintMap(w, h) : this._paintGlobe(w, h);
     this._dirty = false;
+    this._runPasses("above");
     this.o.onRender?.(this);
+    this._runPasses("post");
     this._paintLicenseNotice(w, h);
     return this;
   }
@@ -2171,6 +2319,7 @@ class GeoGlobe {
   destroy() {
     this._destroyed = true;
     cancelAnimationFrame(this._raf);
+    this.clearEffects();
     this.stopTour();
     this.stopStory();
     this.stopTimeline();
@@ -2625,6 +2774,15 @@ class GeoGlobe {
     this._onMove = (e) => {
       const [x, y] = this._local(e);
       this._pointer = { x: e.clientX, y: e.clientY };
+      this.pointer.x = x;
+      this.pointer.y = y;
+      this.pointer.over = true;
+      const at = this.unproject(x, y);
+      if (at) {
+        this.pointer.lon = at[0];
+        this.pointer.lat = at[1];
+      }
+      if (this._fx.length) this._dirty = true;
       const licenseHovered = this._licenseHitAt(x, y);
       if (licenseHovered !== this._licenseHovered) {
         this._licenseHovered = licenseHovered;
@@ -2695,6 +2853,7 @@ class GeoGlobe {
     this._onLeave = (e) => {
       this._onUp(e);
       this._pointer = null;
+      this.pointer.over = false;
       this._licenseHovered = false;
       if (this._hovered || this._hoveredCountry) {
         if (this._hovered) this.o.onHover?.(null, null);
@@ -2875,13 +3034,20 @@ class GeoGlobe {
 
   /* --------------------------------- loop --------------------------------- */
 
-  _spinning() {
+  /** Auto-rotation is configured and permitted, regardless of the clock. */
+  _autoSpin() {
     return !!this.o.autoRotate && !this._reducedMotion() && !this._drag && !this._vel && this.o.mode === "globe";
+  }
+
+  /** Auto-rotation should advance on its own this frame. */
+  _spinning() {
+    return this._autoSpin() && this._clock == null;
   }
 
   /** True while something on screen still needs to move. */
   _animating() {
     if (this._target || this._drag || this._vel) return true;
+    if (this._fx.length && this._clock == null) return true;
     if (this._spinning()) return true;
     if (this._reducedMotion()) return false;
     if (this._hasLive || this._pings.length) return true;
@@ -3155,7 +3321,7 @@ class GeoGlobe {
     const list = this._orbitList();
     if (!list.length) return;
     const { ctx } = this;
-    const spin = this._reducedMotion() ? 0 : (Date.now() / 1000) % 3600;
+    const spin = this._reducedMotion() ? 0 : (this._animTime() / 1000) % 3600;
     ctx.lineCap = "round";
     for (const orbit of list) {
       const inc = (orbit.inclination ?? 30) * D2R;
@@ -3709,7 +3875,7 @@ class GeoGlobe {
     const arcs = this.o.arcs;
     if (!arcs || !arcs.length) return;
     const { ctx } = this;
-    const now = Date.now();
+    const now = this._animTime();
     const still = this._reducedMotion();
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -4438,7 +4604,7 @@ class GeoGlobe {
     }
 
     if (m.live && !this._reducedMotion()) {
-      const pulse = (Date.now() % 2200) / 2200;
+      const pulse = (this._animTime() % 2200) / 2200;
       ctx.globalAlpha = 1 - pulse;
       ctx.strokeStyle = t.live;
       ctx.lineWidth = 1.4 * scale;
