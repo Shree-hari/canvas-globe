@@ -270,22 +270,46 @@ export const spikesRising = ({
   hold,
   frame(ctx, globe, t) {
     const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
-    const grow = easeOut(t);
     const max = Math.max(1, ...globe.markers.map((m) => m.count || 1));
     ctx.lineCap = "round";
-    for (const m of globe.markers) {
+    globe.markers.forEach((m, i) => {
+      const grow = easeOut(stagger(t, i, globe.markers.length, 0.35));
+      if (grow <= 0) return;
       const p = globe.project(m.lon, m.lat);
-      if (!p) continue;
+      if (!p) return;
       const dx = p.x - w / 2, dy = p.y - h / 2;
       const d = Math.hypot(dx, dy) || 1;
-      const len = ((m.count || 1) / max) * height * grow;
+      const ratio = (m.count || 1) / max;
+      const len = Math.max(10, ratio * height) * grow;
+      const x2 = p.x + (dx / d) * len, y2 = p.y + (dy / d) * len;
+      ctx.globalAlpha = 0.22 + grow * 0.78;
       ctx.strokeStyle = m.color || color;
+      ctx.shadowColor = m.color || color;
+      ctx.shadowBlur = 10;
       ctx.lineWidth = width;
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x + (dx / d) * len, p.y + (dy / d) * len);
+      ctx.lineTo(x2, y2);
       ctx.stroke();
-    }
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = m.color || color;
+      ctx.beginPath();
+      ctx.arc(x2, y2, Math.max(2.5, width * 1.5), 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 0.34;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4 + grow * 4, 0, TAU);
+      ctx.stroke();
+      if (grow > 0.82 && ratio > 0.55) {
+        ctx.globalAlpha = grow;
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "700 9px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(String(m.count || 1), x2, y2 - 8);
+      }
+      ctx.globalAlpha = 1;
+      ctx.textAlign = "left";
+    });
   },
 });
 
@@ -310,19 +334,39 @@ export const pinDrop = ({
       if (k <= 0) return;
       const p = globe.project(m.lon, m.lat);
       if (!p) return;
-      const fall = (1 - easeOut(Math.min(1, k * 1.6))) * -drop;
-      const impact = clamp01((k - 0.62) / 0.38);
-      const squash = 1 + Math.sin(impact * Math.PI) * 0.5;
+      const fallPhase = clamp01(k / 0.72);
+      const fall = (1 - easeOut(fallPhase)) * -drop;
+      const impact = clamp01((k - 0.66) / 0.34);
+      const bounce = Math.sin(impact * Math.PI * 2.2) * (1 - impact) * size * 0.8;
+      const squash = 1 + Math.sin(impact * Math.PI) * 0.34;
       ctx.save();
-      ctx.translate(p.x, p.y + fall);
+      if (impact > 0) {
+        ctx.globalAlpha = (1 - impact) * 0.65;
+        ctx.strokeStyle = m.color || color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size + impact * 20, 0, TAU);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      ctx.translate(p.x, p.y + fall - bounce);
       ctx.scale(squash, 1 / squash);
       ctx.fillStyle = m.color || color;
+      ctx.shadowColor = m.color || color;
+      ctx.shadowBlur = 14;
       ctx.beginPath();
-      ctx.arc(0, 0, size, 0, TAU);
+      ctx.arc(0, -size * 0.9, size, 0, TAU);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.55, -size * 0.25);
+      ctx.lineTo(0, size * 1.15);
+      ctx.lineTo(size * 0.55, -size * 0.25);
+      ctx.closePath();
       ctx.fill();
       ctx.fillStyle = "rgba(255,255,255,.85)";
       ctx.beginPath();
-      ctx.arc(0, 0, size * 0.38, 0, TAU);
+      ctx.arc(0, -size * 0.9, size * 0.34, 0, TAU);
       ctx.fill();
       ctx.restore();
     });

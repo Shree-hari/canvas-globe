@@ -56,7 +56,7 @@ key, tile service, or runtime network request.
 - **Viewer location:** estimate a region from the browser time zone without a permission prompt
 - **Live pings:** display recent activity without requiring a CanvasGlobe backend
 - **Recording:** export a WebM clip in the browser
-- **Optional effects:** 56 seekable visual and interaction effects in `canvas-globe/fx`
+- **Optional effects:** 54 seekable visual and interaction effects in `canvas-globe/fx`
 - **Chart layers:** nine animated geographic chart treatments in `canvas-globe/charts`
 - **Recipes and controls:** complete looks and DOM bindings without adding framework code
 - **Place search:** an optional 6,772-place search table with no runtime API request
@@ -296,7 +296,7 @@ modules they import.
 
 | Import | Approximate gzip size | Includes |
 | --- | ---: | --- |
-| `canvas-globe/fx` | 25.4 KB | 56 visual, transition, data, camera, and interaction effects plus authoring helpers |
+| `canvas-globe/fx` | 25.4 KB | 54 visual, transition, data, camera, and interaction effects plus authoring helpers |
 | `canvas-globe/charts` | 4.3 KB | Nine animated chart layers |
 | `canvas-globe/recipes` | 2.0 KB | Six complete, reversible compositions |
 | `canvas-globe/controls` | 1.8 KB | Search, timeline, threshold, and crossfilter bindings |
@@ -347,7 +347,7 @@ cities. Import the place module only when broader offline city search is worth
 the extra payload.
 
 `seek(ms)` and `renderFrame(ms)` pin the effect clock, auto-rotation, arcs,
-orbits, and marker pulses. `whipPan`, `motionBlur`, `windField`, and part of
+orbits, and marker pulses. `windField` and part of
 `glitch` accumulate the previous frame by design, so reproduce them by
 exporting frames sequentially. Live media, newly fired pings, and a terminator
 using the current time are external dynamic state and should be fixed or

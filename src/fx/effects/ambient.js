@@ -1,6 +1,22 @@
 /** Ambient loops and post-processing passes. */
 import { lerp, particles, scratch, releaseScratch, TAU } from "../runtime.js";
 
+const alpha = (color, opacity) => {
+  if (typeof color !== "string") return `rgba(255,255,255,${opacity})`;
+  const hex = color.trim().match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+  if (hex) {
+    const value = hex[1].length === 3
+      ? hex[1].split("").map((c) => c + c).join("")
+      : hex[1];
+    const n = Number.parseInt(value, 16);
+    return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${opacity})`;
+  }
+  if (/^\s*\d+\s*,/.test(color)) return `rgba(${color},${opacity})`;
+  const rgb = color.match(/^rgba?\(([^)]+)\)$/i);
+  if (rgb) return `rgba(${rgb[1].split(",").slice(0, 3).join(",")},${opacity})`;
+  return color;
+};
+
 /**
  * CRT lines plus a bright band travelling top to bottom.
  * Ports catalogue effect H.
@@ -218,7 +234,7 @@ export const starfield = ({ duration = 9000, layers = 3, per = 40, seed = 5 } = 
  * A specular band sweeping across the sphere, like light off glass.
  * Ports catalogue effect AG.
  */
-export const shineSweep = ({ duration = 3600, width = 0.22, strength = 0.35 } = {}) => ({
+export const shineSweep = ({ duration = 3200, width = 0.26, strength = 0.7 } = {}) => ({
   name: "shineSweep",
   stage: "above",
   z: 30,
@@ -226,21 +242,30 @@ export const shineSweep = ({ duration = 3600, width = 0.22, strength = 0.35 } = 
   frame(ctx, globe, t) {
     if (globe.o.mode !== "globe") return;
     const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
-    const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+    const cx = w / 2, cy = h / 2, r = globe._radius(w, h);
     // Travel beyond both edges so the band leaves the sphere completely.
-    const centre = -1.4 + t * 2.8;
+    const centre = -1.45 + t * 2.9;
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     ctx.clip();
     ctx.globalCompositeOperation = "lighter";
     const from = cx + (centre - width) * r, to = cx + (centre + width) * r;
-    const band = ctx.createLinearGradient(from, cy - r, to, cy + r);
+    const band = ctx.createLinearGradient(from, cy + r * 0.8, to, cy - r * 0.8);
     band.addColorStop(0, "rgba(255,255,255,0)");
-    band.addColorStop(0.5, `rgba(255,255,255,${strength})`);
+    band.addColorStop(0.36, `rgba(180,225,255,${strength * 0.18})`);
+    band.addColorStop(0.49, `rgba(255,255,255,${strength * 0.9})`);
+    band.addColorStop(0.54, `rgba(255,255,255,${strength})`);
+    band.addColorStop(0.66, `rgba(180,225,255,${strength * 0.2})`);
     band.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = band;
     ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    ctx.globalAlpha = strength * 0.7;
+    ctx.strokeStyle = "rgba(255,255,255,.9)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 1.2, -1.1, 0.2);
+    ctx.stroke();
     ctx.restore();
   },
 });
@@ -249,7 +274,7 @@ export const shineSweep = ({ duration = 3600, width = 0.22, strength = 0.35 } = 
  * Glass-ball treatment: a bright upper cap, a dark lower rim and a thin edge.
  * Ports catalogue effect AT.
  */
-export const glassSphere = ({ tint = "255,255,255", rim = 0.5, gloss = 0.3 } = {}) => ({
+export const glassSphere = ({ tint = "#bde8ff", rim = 0.72, gloss = 0.58 } = {}) => ({
   name: "glassSphere",
   stage: "above",
   z: 32,
@@ -257,27 +282,40 @@ export const glassSphere = ({ tint = "255,255,255", rim = 0.5, gloss = 0.3 } = {
   frame(ctx, globe) {
     if (globe.o.mode !== "globe") return;
     const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
-    const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+    const cx = w / 2, cy = h / 2, r = globe._radius(w, h);
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     ctx.clip();
     const cap = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.45, 0, cx - r * 0.35, cy - r * 0.45, r * 1.1);
-    cap.addColorStop(0, `rgba(${tint},${gloss})`);
-    cap.addColorStop(0.45, `rgba(${tint},0)`);
+    cap.addColorStop(0, alpha(tint, gloss));
+    cap.addColorStop(0.28, alpha(tint, gloss * 0.34));
+    cap.addColorStop(0.58, alpha(tint, 0));
     ctx.fillStyle = cap;
     ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     const base = ctx.createRadialGradient(cx, cy + r * 0.6, r * 0.1, cx, cy + r * 0.2, r);
-    base.addColorStop(0, "rgba(0,0,0,.34)");
+    base.addColorStop(0, "rgba(0,0,0,.48)");
+    base.addColorStop(0.72, "rgba(0,0,0,.08)");
     base.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = base;
     ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     ctx.restore();
-    ctx.strokeStyle = `rgba(${tint},${rim})`;
-    ctx.lineWidth = 1.2;
+    ctx.save();
+    ctx.strokeStyle = alpha(tint, rim);
+    ctx.shadowColor = alpha(tint, 0.9);
+    ctx.shadowBlur = 14;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(cx, cy, r - 0.6, 0, TAU);
+    ctx.arc(cx, cy, r - 1, 0, TAU);
     ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.lineCap = "round";
+    ctx.lineWidth = Math.max(2, r * 0.018);
+    ctx.strokeStyle = "rgba(255,255,255,.72)";
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.82, -2.65, -1.78);
+    ctx.stroke();
+    ctx.restore();
   },
 });
 
@@ -285,7 +323,7 @@ export const glassSphere = ({ tint = "255,255,255", rim = 0.5, gloss = 0.3 } = {
  * Mains-hum flicker on a coloured bloom, as a neon sign does.
  * Ports catalogue effect BG.
  */
-export const neonFlicker = ({ duration = 2400, color = "236,72,153", strength = 0.5, seed = 9 } = {}) => ({
+export const neonFlicker = ({ duration = 2400, color = "#ec4899", strength = 0.72, seed = 9 } = {}) => ({
   name: "neonFlicker",
   stage: "post",
   duration,
@@ -295,11 +333,23 @@ export const neonFlicker = ({ duration = 2400, color = "236,72,153", strength = 
   frame(ctx, globe, t, state) {
     const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
     const dpr = globe.canvas.width / Math.max(1, w);
+    const cx = w / 2, cy = h / 2;
+    const r = globe.o.mode === "globe" ? globe._radius(w, h) : Math.min(w, h) * 0.42;
     const level = state.steps[Math.floor(t * state.steps.length) % state.steps.length];
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalCompositeOperation = "lighter";
-    ctx.fillStyle = `rgba(${color},${strength * level * 0.12})`;
+    ctx.fillStyle = alpha(color, strength * level * 0.055);
     ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 0.45 + level * 0.55;
+    ctx.strokeStyle = alpha(color, Math.min(1, strength * 0.95));
+    ctx.shadowColor = alpha(color, 1);
+    ctx.shadowBlur = 12 + strength * 28;
+    ctx.lineWidth = 1.5 + strength * 2.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r + 2, 0, TAU);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = "source-over";
   },
 });

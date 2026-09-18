@@ -4,13 +4,8 @@
  * Camera effects run at the `beneath` stage so the move lands on the frame
  * being drawn rather than the next one, and they derive the view purely from
  * the clock, which keeps them seekable.
- *
- * The two accumulation effects here  -  `whipPan` and `motionBlur`  -  are the
- * exception: they read the previous frame by design, so they reproduce only
- * when frames are rendered in order. Sequential export is fine; random seeking
- * is not.
  */
-import { clamp01, easeInOut, easeOut, lerp, scratch, releaseScratch, TAU } from "../runtime.js";
+import { clamp01, drawPath, easeInOut, label, lerp, panel, TAU } from "../runtime.js";
 
 const clampZoom = (globe, z) => {
   if (Math.abs(globe.zoom - z) > 1e-4) globe.setZoom(z);
@@ -100,94 +95,6 @@ export const liquidWipe = ({ duration = 2600, hold = 800, lobes = 5, wobble = 0.
 });
 
 /**
- * The camera snaps sideways and the frame smears along the direction of travel.
- * Ports catalogue effect BW.
- */
-export const whipPan = ({
-  duration = 3600,
-  from = { lon: 72, lat: 23 },
-  to = { lon: -74, lat: 40 },
-  at = 0.42,
-  over = 0.16,
-  taps = 7,
-} = {}) => ({
-  name: "whipPan",
-  stage: "post",
-  z: 70,
-  duration,
-  setup() {
-    return { prev: null, speed: 0 };
-  },
-  frame(ctx, globe, t, state) {
-    // The camera move belongs to this effect, so the smear always matches it.
-    const seg = t < at ? 0 : t < at + over ? easeInOut((t - at) / over) : 1;
-    const lon = lerp(from.lon, to.lon, seg), lat = lerp(from.lat, to.lat, seg);
-    const delta = state.prev == null ? 0 : Math.abs(lon - state.prev);
-    const dir = state.prev == null ? 1 : Math.sign(lon - state.prev) || 1;
-    state.prev = lon;
-    globe.lon = lon;
-    globe.lat = lat;
-    if (delta < 1.2) return;
-
-    const buf = scratch(globe, "whipPan");
-    if (!buf) return;
-    const c = globe.canvas;
-    buf.canvas.width = c.width;
-    buf.canvas.height = c.height;
-    buf.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    buf.ctx.clearRect(0, 0, c.width, c.height);
-    buf.ctx.drawImage(c, 0, 0);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalAlpha = 0.34;
-    for (let i = 1; i <= taps; i++) {
-      ctx.drawImage(buf.canvas, dir * i * Math.min(16, delta) * 1.4, 0);
-    }
-    ctx.globalAlpha = 1;
-  },
-  dispose(_state, globe) {
-    releaseScratch(globe, "whipPan");
-  },
-});
-
-/**
- * Frames accumulate while the camera is quick and resolve when it settles.
- * Ports catalogue effect BX.
- */
-export const motionBlur = ({ decay = 0.34, strength = 0.4, feed = 0.55 } = {}) => ({
-  name: "motionBlur",
-  stage: "post",
-  z: 60,
-  duration: 1000,
-  frame(ctx, globe) {
-    const buf = scratch(globe, "motionBlur");
-    if (!buf) return;
-    const c = globe.canvas;
-    if (buf.canvas.width !== c.width || buf.canvas.height !== c.height) {
-      buf.canvas.width = c.width;
-      buf.canvas.height = c.height;
-    }
-    buf.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    buf.ctx.globalCompositeOperation = "source-over";
-    buf.ctx.fillStyle = `rgba(4,7,14,${decay})`;
-    buf.ctx.fillRect(0, 0, c.width, c.height);
-    buf.ctx.globalCompositeOperation = "lighter";
-    buf.ctx.globalAlpha = feed;
-    buf.ctx.drawImage(c, 0, 0);
-    buf.ctx.globalAlpha = 1;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = strength;
-    ctx.drawImage(buf.canvas, 0, 0);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
-  },
-  dispose(_state, globe) {
-    releaseScratch(globe, "motionBlur");
-  },
-});
-
-/**
  * Continuous push-in where each scale hands off to the next without a seam.
  * Ports catalogue effect BU.
  */
@@ -197,17 +104,57 @@ export const matchCut = ({
   to = { lon: 72.58, lat: 23.03 },
   cycles = 2,
   maxZoom = 7.8,
+  fromLabel = "Origin",
+  toLabel = "Destination",
+  color = "#38bdf8",
 } = {}) => ({
   name: "matchCut",
-  stage: "beneath",
-  z: -90,
+  stage: "above",
+  z: 52,
   duration,
-  frame(_ctx, globe, t) {
+  frame(ctx, globe, t) {
     const p = (t * cycles) % 1;
     clampZoom(globe, Math.min(maxZoom, Math.pow(2, p * 2.2) * 0.9));
     const e = easeInOut(t);
     globe.lon = lerp(from.lon, to.lon, e);
     globe.lat = lerp(from.lat, to.lat, e);
+    const path = Array.from({ length: 65 }, (_, i) => {
+      const k = i / 64;
+      return [lerp(from.lon, to.lon, k), lerp(from.lat, to.lat, k) + Math.sin(k * Math.PI) * 10];
+    });
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.62;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    drawPath(ctx, globe, path);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const drawPoint = (point, labelText, active) => {
+      const q = globe.project(point.lon, point.lat);
+      if (!q) return;
+      ctx.globalAlpha = active ? 1 : 0.6;
+      ctx.fillStyle = active ? "#fff" : color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, active ? 6 : 4, 0, TAU);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, active ? 13 : 9, 0, TAU);
+      ctx.stroke();
+      label(ctx, labelText, q.x, q.y - 17, { color: "#fff", size: 9, weight: 800, align: "center" });
+    };
+    drawPoint(from, fromLabel, t < 0.5);
+    drawPoint(to, toLabel, t >= 0.5);
+    const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
+    panel(ctx, Math.max(12, w / 2 - 150), h - 58, Math.min(300, w - 24), 44, { fill: "rgba(5,10,20,.9)", stroke: "rgba(232,236,245,.18)", radius: 8 });
+    ctx.globalAlpha = 1;
+    label(ctx, fromLabel, Math.max(25, w / 2 - 134), h - 31, { color: t < 0.5 ? "#fff" : "rgba(232,236,245,.55)", size: 10, weight: 700 });
+    label(ctx, "→", w / 2, h - 31, { color, size: 15, weight: 800, align: "center" });
+    label(ctx, toLabel, Math.min(w - 25, w / 2 + 134), h - 31, { color: t >= 0.5 ? "#fff" : "rgba(232,236,245,.55)", size: 10, weight: 700, align: "right" });
+    ctx.restore();
   },
 });
 
@@ -248,7 +195,15 @@ export const dayNightSweep = ({ duration = 6000, start = Date.UTC(2024, 5, 21, 0
   stage: "beneath",
   z: -95,
   duration,
+  setup(globe) {
+    const previous = { terminator: globe.o.terminator, time: globe.o.time };
+    globe.setOptions({ terminator: true });
+    return previous;
+  },
   frame(_ctx, globe, t) {
     globe.o.time = start + t * 86400000;
+  },
+  dispose(previous, globe) {
+    globe.setOptions(previous);
   },
 });

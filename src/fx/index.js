@@ -20,7 +20,7 @@ export {
   arcLaunch, spikesRising, pinDrop, orbitSubject, markerBloom,
 } from "./effects/data.js";
 export {
-  trimPaths, liquidWipe, whipPan, motionBlur, matchCut, dropFromOrbit, dayNightSweep,
+  trimPaths, liquidWipe, matchCut, dropFromOrbit, dayNightSweep,
 } from "./effects/transitions.js";
 export {
   mapUnfold, firework, glitch, lowerThird, splitFlap, textOnCircle, countryMatte,

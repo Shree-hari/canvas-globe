@@ -14,7 +14,7 @@ caveats that need to survive into the public docs.
 
 | Group | Count | Section |
 | --- | --- | --- |
-| Effects (`canvas-globe/fx`) | **56** | Â§3 |
+| Effects (`canvas-globe/fx`) | **54** | Â§3 |
 | Chart layers (`canvas-globe/charts`) | **9** | Â§4 |
 | Recipes (`canvas-globe/recipes`) | **6** | Â§5 |
 | Controls (`canvas-globe/controls`) | **4** | Â§6 |
@@ -50,7 +50,7 @@ import paths, so nobody pays for what they don't use.
 | Import | Size (gz) | What it holds |
 | --- | --- | --- |
 | `canvas-globe` | 125.0 KB | The globe. Unchanged. |
-| `canvas-globe/fx` | 25.4 KB | 56 effects â€” `globe.use(fx)` |
+| `canvas-globe/fx` | 25.4 KB | 54 effects â€” `globe.use(fx)` |
 | `canvas-globe/charts` | 4.3 KB | 9 chart layers â€” same contract, separate import |
 | `canvas-globe/recipes` | 2.0 KB | 6 complete looks â€” `applyRecipe(globe, recipe)` |
 | `canvas-globe/controls` | 1.8 KB | 4 DOM bindings â€” plain functions |
@@ -125,8 +125,8 @@ drifting. Now:
 
 A regression test asserts that one full revolution closes the loop exactly.
 
-**Documented exception.** Four effects accumulate the previous frame by
-design: `whipPan`, `motionBlur`, `windField`, and `glitch` (partially). They
+**Documented exception.** Two effects accumulate the previous frame by
+design: `windField` and `glitch` (partially). They
 reproduce during **sequential** export, which is how export runs, but not
 under random seeking. This is noted in `types/fx.d.ts` and must appear in the
 docs.
@@ -137,7 +137,7 @@ reproducible export is required.
 
 ---
 
-## 3. Effects catalogue â€” 56
+## 3. Effects catalogue â€” 54
 
 Catalogue tags (A, AA, BE, CJâ€¦) refer to the demo pages in `example/`.
 
@@ -199,8 +199,6 @@ Catalogue tags (A, AA, BE, CJâ€¦) refer to the demo pages in `example/`.
 | --- | --- | --- |
 | `trimPaths()` | BT | Stroke start and end travel independently. |
 | `liquidWipe()` | BV | A wobbling blob swallows the frame. |
-| `whipPan()` | BW | Camera snaps sideways, frame smears. **Accumulates.** |
-| `motionBlur()` | BX | Frames accumulate while quick. **Accumulates.** |
 
 ### 3.6 Scene and stylised
 
@@ -225,7 +223,7 @@ All bind their own listeners and unbind on `remove()` / `destroy()`.
 | `magneticMarkers()` | CA | Pins lean toward the cursor and label themselves. |
 | `hoverLift()` | CE | Hovered country scales up, glows, names itself. |
 | `measureTool()` | CJ | Click two points for a great-circle distance. |
-| `lassoSelect()` | CK | Drag a loop, get an aggregate of what it caught. |
+| `lassoSelect()` | CK | Starts in rotate mode. Enable `drawMode` to drag a loop and get an aggregate of what it caught. |
 | `pingProbe()` | CT | Click a location for a round-trip pulse. |
 | `drillDown()` | CF | Tap a country to frame it, tap again to pull out. |
 | `radialMenu()` | CH | Tap for a ring of actions. `onPick` callback. |
@@ -410,7 +408,7 @@ this section is the additional `counterRoll` positioning.
 
 | File | Contents |
 | --- | --- |
-| `example/effects.html` | Live demo: all 56 effects, 9 charts, 6 recipes, 2 controls, a scrub timeline and a 24-frame export. |
+| `example/effects.html` | Live demo: all 54 effects, 9 charts, 6 recipes, 2 controls, a scrub timeline and a 24-frame export. |
 | `example/animations.html` | Catalogue part 1 (Aâ€“X) |
 | `example/animations-2.html` | Catalogue part 2 (AAâ€“AX) |
 | `example/animations-3.html` | Catalogue part 3 (BAâ€“BX) |
@@ -429,7 +427,7 @@ Serve with `node scripts/serve.mjs 8123`.
    PNG sequence or a WASM encoder â€” that belongs in the add-on, not core.
 3. **No UMD build for the add-on modules.** `fx`, `charts`, `recipes`,
    `controls` and `places` are ESM only. UMD cannot tree-shake, so a combined
-   bundle would hand CDN users all 56 effects at once.
+   bundle would hand CDN users all 54 effects at once.
 4. **Website docs not written.** The README and CHANGELOG cover the five new
    import paths, but the public website still needs catalogue, API, authoring,
    and example pages. This file is the source material for that work.
@@ -498,7 +496,7 @@ cannot export frame-for-frame, which defeats Â§2.3.
 | `releaseScratch(globe, key)` | Return it. Call from `dispose`. |
 
 Backed by a `WeakMap`, so buffers die with the globe. Used by every
-accumulation effect (`motionBlur`, `windField`, `whipPan`, `glitch`, `torch`).
+accumulation effect (`windField`, `glitch`, `torch`).
 
 ### 12.4 Geometry
 

@@ -10,7 +10,7 @@ All notable changes to this package are documented here. The format follows
 
 ### Added
 
-- Added an opt-in effect system with 56 composable effects, three paint stages,
+- Added an opt-in effect system with 54 composable effects, three paint stages,
   deterministic timeline controls, pointer state, path tracing, and land-point
   sampling through `canvas-globe/fx`.
 - Added nine chart layers in `canvas-globe/charts`, six reversible recipes in

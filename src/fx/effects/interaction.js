@@ -9,7 +9,7 @@ const stamp = () => (typeof performance !== "undefined" ? performance.now() : Da
  * Pins lean toward the cursor and label themselves as it closes in.
  * Ports catalogue effect CA.
  */
-export const magneticMarkers = ({ reach = 90, pull = 0.32, color = "#34d399" } = {}) => ({
+export const magneticMarkers = ({ reach = 120, pull = 0.42, color = "#34d399" } = {}) => ({
   name: "magneticMarkers",
   stage: "above",
   duration: 1000,
@@ -21,21 +21,44 @@ export const magneticMarkers = ({ reach = 90, pull = 0.32, color = "#34d399" } =
       const strength = over ? clamp01(1 - Math.hypot(p.x - x, p.y - y) / reach) : 0;
       const px = p.x + (x - p.x) * strength * pull;
       const py = p.y + (y - p.y) * strength * pull;
+      if (strength > 0.08) {
+        ctx.globalAlpha = strength * 0.65;
+        ctx.strokeStyle = m.color || color;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(px, py);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
       ctx.fillStyle = m.color || color;
       ctx.shadowColor = m.color || color;
       ctx.shadowBlur = strength * 20;
       ctx.beginPath();
       ctx.arc(px, py, 2.6 + strength * 7, 0, TAU);
       ctx.fill();
-      const name = m.city || m.label || m.name;
-      if (strength > 0.55 && name) {
+      if (strength > 0.16) {
         ctx.shadowBlur = 0;
-        ctx.fillStyle = "#e8ecf5";
-        ctx.font = "700 10px Inter, system-ui, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(name, px, py - 12);
-        ctx.textAlign = "left";
+        ctx.globalAlpha = strength * 0.7;
+        ctx.strokeStyle = m.color || color;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(px, py, 9 + strength * 12, 0, TAU);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
       }
+      const name = m.city || m.label || m.name;
+      if (strength > 0.38 && name) {
+        ctx.shadowBlur = 0;
+        ctx.font = "700 10px Inter, system-ui, sans-serif";
+        const width = ctx.measureText(name).width + 16;
+        panel(ctx, px - width / 2, py - 35, width, 21, { fill: "rgba(5,10,20,.9)", stroke: m.color || color, radius: 6 });
+        label(ctx, name, px, py - 21, { color: "#f8fafc", size: 10, weight: 700, align: "center" });
+      }
+    }
+    if (!over) {
+      label(ctx, "Move near a marker", 12, globe.canvas.clientHeight - 16,
+        { color: "rgba(232,236,245,.62)", size: 11, weight: 600 });
     }
   },
 });
@@ -125,6 +148,7 @@ const greatCircleKm = (a, b) => {
  * Ports catalogue effect CK.
  */
 export const lassoSelect = ({
+  drawMode = false,
   color = "#34d399",
   accent = "#fbbf24",
   caption = "SELECTED",
@@ -154,11 +178,18 @@ export const lassoSelect = ({
         onSelect?.(state.hits);
         globe.invalidate();
       },
-    });
+    }, () => drawMode);
     return state;
   },
   frame(ctx, globe, _t, state) {
     const h = globe.canvas.clientHeight;
+    if (!drawMode) {
+      label(ctx, "ROTATE MODE  Drag to turn the globe", 12, h - 16,
+        { color: "rgba(232,236,245,.68)", size: 10, weight: 700 });
+    } else if (!state.drawing && !state.hits.length) {
+      label(ctx, "DRAW MODE  Drag a loop around markers", 12, h - 16,
+        { color, size: 10, weight: 700 });
+    }
     if (state.path?.length > 1) {
       ctx.beginPath();
       state.path.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
@@ -193,7 +224,7 @@ export const lassoSelect = ({
  * The hovered country lifts, glows and names itself.
  * Ports catalogue effect CE.
  */
-export const hoverLift = ({ color = "52,211,153", scale = 1.05 } = {}) => ({
+export const hoverLift = ({ color = "52,211,153", scale = 1.12 } = {}) => ({
   name: "hoverLift",
   stage: "above",
   duration: 1000,
@@ -211,30 +242,37 @@ export const hoverLift = ({ color = "52,211,153", scale = 1.05 } = {}) => ({
     return state;
   },
   frame(ctx, globe, _t, state) {
-    if (!state.shape) return;
+    if (!state.shape) {
+      label(ctx, "Hover a country", 12, globe.canvas.clientHeight - 16,
+        { color: "rgba(232,236,245,.62)", size: 11, weight: 600 });
+      return;
+    }
     const bounds = globe._shapeBox(state.shape);
     const cx = (bounds[0] + bounds[2]) / 2, cy = (bounds[1] + bounds[3]) / 2;
+    ctx.save();
+    ctx.translate(0, -5);
     ctx.beginPath();
     globe.tracePath(state.shape, ctx, (c) => [cx + (c[0] - cx) * scale, cy + (c[1] - cy) * scale]);
-    ctx.fillStyle = `rgba(${color},.45)`;
+    ctx.fillStyle = `rgba(${color},.72)`;
     ctx.shadowColor = `rgba(${color},1)`;
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = 26;
     ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.strokeStyle = "#a7f3d0";
-    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = "#ecfdf5";
+    ctx.lineWidth = 2;
     ctx.stroke();
+    ctx.restore();
     const p = globe.project(cx, cy);
     if (!p || !state.shape.name) return;
     ctx.font = "700 11px Inter, system-ui, sans-serif";
     const w = ctx.measureText(state.shape.name).width + 14;
     ctx.fillStyle = "#a7f3d0";
     ctx.beginPath();
-    ctx.roundRect(p.x - w / 2, p.y - 26, w, 17, 4);
+    ctx.roundRect(p.x - w / 2, p.y - 38, w, 20, 5);
     ctx.fill();
     ctx.fillStyle = "#05231a";
     ctx.textAlign = "center";
-    ctx.fillText(state.shape.name, p.x, p.y - 14);
+    ctx.fillText(state.shape.name, p.x, p.y - 24);
     ctx.textAlign = "left";
   },
   dispose(state) {
@@ -257,15 +295,31 @@ export const pingProbe = ({ from, color = "#34d399", head = "#fbbf24", duration 
       const hit = nearest(globe, globe.markers, p.x, p.y, 34);
       if (!hit) return;
       state.target = hit;
-      globe.play();
+      state.startedAt = stamp();
       globe.invalidate();
     });
     return state;
   },
-  frame(ctx, globe, t, state) {
+  frame(ctx, globe, _t, state) {
     const origin = from || globe.markers[0];
-    if (!state.target || !origin) return;
+    if (!origin) return;
     const h = globe.canvas.clientHeight;
+    if (!state.target) {
+      for (const marker of globe.markers.slice(0, 6)) {
+        const p = globe.project(marker.lon, marker.lat);
+        if (!p) continue;
+        ctx.globalAlpha = 0.42;
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 8, 0, TAU);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      label(ctx, "Click a marker to send a probe", 12, h - 16,
+        { color: "rgba(232,236,245,.65)", size: 11, weight: 600 });
+      return;
+    }
+    const t = clamp01((stamp() - state.startedAt) / duration);
     const path = [];
     for (let i = 0; i <= 50; i++) {
       const f = i / 50;
@@ -292,8 +346,10 @@ export const pingProbe = ({ from, color = "#34d399", head = "#fbbf24", duration 
       ctx.shadowBlur = 0;
     }
     const name = state.target.label || state.target.city || state.target.code || "region";
+    const latency = state.target.ms ?? 28 + Math.abs(Math.round(state.target.lon * 1.7 + state.target.lat)) % 94;
     readout(ctx, 10, h - 50, String(name).toUpperCase(),
-      t >= 1 ? `${state.target.ms ?? " - "} ms` : "pinging…", { accent: color });
+      t >= 1 ? `${latency} ms` : "Pinging...", { accent: color });
+    if (t < 1) globe.invalidate();
   },
   dispose(state) {
     state.unbind?.();
@@ -469,12 +525,18 @@ export const radialMenu = ({
  * Tap to spin the globe; it coasts to a stop on one of the markers.
  * Ports catalogue effect CI.
  */
-export const spinToWin = ({ color = "#fbbf24", caption = "LANDED ON", onLand } = {}) => ({
+export const spinToWin = ({
+  color = "#fbbf24",
+  caption = "LANDED ON",
+  duration = 2600,
+  turns = 2.75,
+  onLand,
+} = {}) => ({
   name: "spinToWin",
   stage: "above",
   duration: 1000,
   setup(globe) {
-    const state = { winner: null, target: null, seed: 1 };
+    const state = { winner: null, target: null, seed: 1, startedAt: 0, fromLon: 0, fromLat: 0 };
     state.unbind = onTap(globe, () => {
       if (state.target || !globe.markers.length) return;
       // A deterministic pick keeps the demo reproducible across reloads.
@@ -482,29 +544,45 @@ export const spinToWin = ({ color = "#fbbf24", caption = "LANDED ON", onLand } =
       const pick = globe.markers[state.seed % globe.markers.length];
       state.target = pick;
       state.winner = null;
-      globe.flyTo(pick.lon, pick.lat);
+      state.startedAt = stamp();
+      state.fromLon = globe.lon;
+      state.fromLat = globe.lat;
       globe.invalidate();
     });
     return state;
   },
   frame(ctx, globe, _t, state) {
-    const h = globe.canvas.clientHeight;
+    const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
     if (state.target) {
-      // flyTo has no completion callback, so watch the centre settle instead.
-      const c = globe.getCenter();
-      if (Math.abs(c.lat - state.target.lat) < 0.5 &&
-          Math.abs(((c.lon - state.target.lon + 540) % 360) - 180) < 0.5) {
+      const k = clamp01((stamp() - state.startedAt) / duration);
+      const coast = 1 - Math.pow(1 - k, 3);
+      const delta = ((state.target.lon - state.fromLon + 540) % 360) - 180;
+      globe.lon = state.fromLon + (turns * 360 + delta) * coast;
+      globe.lat = state.fromLat + (state.target.lat - state.fromLat) * easeOut(k);
+      panel(ctx, Math.max(12, w / 2 - 145), h - 62, Math.min(290, w - 24), 48,
+        { fill: "rgba(5,10,20,.92)", stroke: "rgba(251,191,36,.38)", radius: 8 });
+      label(ctx, "SPINNING", Math.max(26, w / 2 - 130), h - 40,
+        { color, size: 9, weight: 800 });
+      bar(ctx, Math.max(26, w / 2 - 130), h - 31, Math.min(260, w - 52), 4, k,
+        { fill: color, track: "rgba(255,255,255,.12)" });
+      if (k >= 1) {
+        globe.lon = state.target.lon;
+        globe.lat = state.target.lat;
         state.winner = state.target;
         state.target = null;
         onLand?.(state.winner, globe);
       } else {
-        label(ctx, "spinning…", 12, h - 16, { color, size: 12, weight: 700 });
         globe.invalidate();
         return;
       }
     }
     if (!state.winner) {
-      label(ctx, "tap to spin", 12, h - 16, { color: "rgba(232,236,245,.6)", size: 12, weight: 600 });
+      ctx.font = "700 11px Inter, system-ui, sans-serif";
+      const copy = "Click globe to spin";
+      const chipW = ctx.measureText(copy).width + 30;
+      panel(ctx, w / 2 - chipW / 2, h - 54, chipW, 34,
+        { fill: "rgba(5,10,20,.9)", stroke: "rgba(251,191,36,.38)", radius: 17 });
+      label(ctx, copy, w / 2, h - 32, { color, size: 11, weight: 700, align: "center" });
       return;
     }
     const name = state.winner.city || state.winner.label || state.winner.name || "";
@@ -512,10 +590,14 @@ export const spinToWin = ({ color = "#fbbf24", caption = "LANDED ON", onLand } =
     const p = globe.project(state.winner.lon, state.winner.lat);
     if (!p) return;
     ctx.strokeStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 16;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 10, 0, TAU);
     ctx.stroke();
+    ctx.shadowBlur = 0;
+    ring(ctx, p.x, p.y, 18, color, 0.55, 1.4);
   },
   dispose(state) {
     state.unbind?.();

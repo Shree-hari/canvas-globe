@@ -266,7 +266,7 @@ test("every shipped effect renders in both modes without throwing", () => {
       return false;
     }
   });
-  assert.ok(factories.length >= 56, `expected the whole kit, saw ${factories.length}`);
+  assert.ok(factories.length >= 54, `expected the whole kit, saw ${factories.length}`);
 
   for (const mode of ["globe", "map"]) {
     for (const [name, factory] of factories) {
@@ -279,6 +279,65 @@ test("every shipped effect renders in both modes without throwing", () => {
       g.destroy();
     }
   }
+});
+
+test("day and night sweep enables the terminator and restores the prior setting", () => {
+  const g = globe({ terminator: false });
+  const fx = kit.dayNightSweep({ start: Date.UTC(2024, 0, 1) });
+  g.use(fx);
+  g.renderFrame(500);
+  assert.equal(g.o.terminator, true, "the sweep makes the day/night boundary visible");
+  g.remove(fx);
+  assert.equal(g.o.terminator, false, "removing the effect restores the caller's setting");
+  g.destroy();
+});
+
+test("lasso drag listeners capture input before globe rotation", () => {
+  const canvas = makeCanvas();
+  const listeners = new Map();
+  canvas.addEventListener = (type, handler, capture) => listeners.set(type, { handler, capture });
+  canvas.removeEventListener = (type) => listeners.delete(type);
+  const globeStub = { canvas };
+  let ended = 0;
+  const unbind = kit.onDragPath(globeStub, { end: () => ended++ });
+  for (const type of ["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerleave"]) {
+    assert.equal(listeners.get(type)?.capture, true, `${type} must run in the capture phase`);
+  }
+  const event = {
+    clientX: 20, clientY: 30, pointerId: 7,
+    preventDefault() {}, stopImmediatePropagation() {},
+  };
+  listeners.get("pointerdown").handler(event);
+  listeners.get("pointermove").handler({ ...event, clientX: 28 });
+  listeners.get("pointerup").handler(event);
+  assert.equal(ended, 1);
+  unbind();
+  assert.equal(listeners.size, 0);
+});
+
+test("disabled drag paths leave pointer input available to globe rotation", () => {
+  const canvas = makeCanvas();
+  const listeners = new Map();
+  canvas.addEventListener = (type, handler) => listeners.set(type, handler);
+  canvas.removeEventListener = (type) => listeners.delete(type);
+  let starts = 0, prevented = 0, stopped = 0, enabled = false;
+  const unbind = kit.onDragPath({ canvas }, { start: () => starts++ }, () => enabled);
+  const event = {
+    clientX: 20, clientY: 30, pointerId: 7,
+    preventDefault: () => prevented++,
+    stopImmediatePropagation: () => stopped++,
+  };
+  listeners.get("pointerdown")(event);
+  assert.deepEqual([starts, prevented, stopped], [0, 0, 0], "rotate mode does not consume the gesture");
+  enabled = true;
+  listeners.get("pointerdown")(event);
+  assert.deepEqual([starts, prevented, stopped], [1, 1, 1], "draw mode captures the gesture");
+  unbind();
+});
+
+test("removed effects are absent from the public kit", () => {
+  assert.equal("whipPan" in kit, false);
+  assert.equal("motionBlur" in kit, false);
 });
 
 test("pointer-driven effects survive a tap on empty ocean", () => {

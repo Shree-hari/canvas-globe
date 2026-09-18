@@ -100,23 +100,9 @@ export declare function liquidWipe(options?: {
   duration?: number; hold?: number; lobes?: number; wobble?: number;
 }): GlobeEffect;
 
-/** Accumulates the previous frame, so it reproduces only in sequential order. */
-export declare function whipPan(options?: {
-  duration?: number;
-  from?: Coordinate;
-  to?: Coordinate;
-  at?: number;
-  over?: number;
-  taps?: number;
-}): GlobeEffect;
-
-/** Accumulates the previous frame, so it reproduces only in sequential order. */
-export declare function motionBlur(options?: {
-  decay?: number; strength?: number; feed?: number;
-}): GlobeEffect;
-
 export declare function matchCut(options?: {
   duration?: number; from?: Coordinate; to?: Coordinate; cycles?: number; maxZoom?: number;
+  fromLabel?: string; toLabel?: string; color?: string;
 }): GlobeEffect;
 
 export declare function dropFromOrbit(options?: {
@@ -220,6 +206,7 @@ export declare function magneticMarkers(options?: {
 export declare function measureTool(options?: { color?: string; accent?: string }): GlobeEffect;
 
 export declare function lassoSelect<M = unknown>(options?: {
+  drawMode?: boolean;
   color?: string; accent?: string; caption?: string;
   value?: (hits: M[]) => string;
   onSelect?: (hits: M[]) => void;
@@ -256,6 +243,8 @@ export declare function radialMenu(options?: {
 export declare function spinToWin<M = unknown>(options?: {
   color?: string;
   caption?: string;
+  duration?: number;
+  turns?: number;
   onLand?: (marker: M, globe: GeoGlobe) => void;
 }): GlobeEffect;
 
@@ -319,6 +308,6 @@ export declare function onDragPath(globe: GeoGlobe, handlers: {
   start?: (path: { x: number; y: number }[]) => void;
   move?: (path: { x: number; y: number }[]) => void;
   end?: (path: { x: number; y: number }[]) => void;
-}): () => void;
+}, enabled?: () => boolean): () => void;
 export declare function nearest<T extends Coordinate>(globe: GeoGlobe, items: T[], x: number, y: number, radius?: number): T | null;
 export declare function pointInPath(x: number, y: number, path: { x: number; y: number }[]): boolean;

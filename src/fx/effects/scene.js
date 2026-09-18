@@ -254,11 +254,11 @@ export const splitFlap = ({
  * Ports catalogue effect AD.
  */
 export const textOnCircle = ({
-  text = "· SHIPPING WORLDWIDE ",
+  text = "• SHIPPING WORLDWIDE • ",
   duration = 12000,
   color = "#a7f3d0",
-  size = 12,
-  offset = 1.14,
+  size = 13,
+  offset = 1.1,
 } = {}) => ({
   name: "textOnCircle",
   stage: "above",
@@ -266,20 +266,32 @@ export const textOnCircle = ({
   duration,
   frame(ctx, globe, t) {
     const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
-    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.4 * offset;
-    ctx.font = `700 ${size}px Inter, system-ui, sans-serif`;
+    const cx = w / 2, cy = h / 2;
+    const radius = globe.o.mode === "globe" ? globe._radius(w, h) : Math.min(w, h) * 0.4;
+    const factor = offset > 3 ? 1 + offset / Math.max(1, radius) : offset;
+    const R = radius * Math.max(0.9, Math.min(1.45, factor));
+    const content = text.length < 18 ? `${text} • ${text}` : text;
+    ctx.font = `800 ${size}px Inter, system-ui, sans-serif`;
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = color;
-    const step = TAU / text.length;
-    for (let i = 0; i < text.length; i++) {
+    ctx.strokeStyle = "rgba(4,8,18,.92)";
+    ctx.lineWidth = Math.max(2.5, size * 0.28);
+    ctx.shadowColor = "rgba(0,0,0,.8)";
+    ctx.shadowBlur = 6;
+    const step = TAU / content.length;
+    for (let i = 0; i < content.length; i++) {
       const a = i * step + t * TAU - Math.PI / 2;
       ctx.save();
       ctx.translate(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
       ctx.rotate(a + Math.PI / 2);
-      ctx.fillText(text[i], 0, 0);
+      ctx.strokeText(content[i], 0, 0);
+      ctx.fillText(content[i], 0, 0);
       ctx.restore();
     }
+    ctx.shadowBlur = 0;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
   },
 });
 
@@ -336,22 +348,33 @@ export const ghostTrail = ({ duration = 5000, hold = 800, ghosts = 5, color = "#
   hold,
   frame(ctx, globe, t) {
     const markers = globe.markers;
-    if (!markers.length) return;
-    for (let g = ghosts; g >= 0; g--) {
-      const back = t - g * 0.06;
-      if (back <= 0) continue;
-      const upto = Math.floor(clamp01(back) * markers.length);
-      ctx.globalAlpha = g === 0 ? 1 : 0.5 * (1 - g / (ghosts + 1));
-      ctx.fillStyle = color;
-      for (let i = 0; i < upto; i++) {
-        const p = globe.project(markers[i].lon, markers[i].lat);
+    if (markers.length < 2) return;
+    const hub = markers[0];
+    ctx.globalCompositeOperation = "lighter";
+    for (let i = 1; i < Math.min(markers.length, 7); i++) {
+      const target = markers[i];
+      const phase = clamp01(t * 1.45 - (i - 1) * 0.1);
+      for (let g = ghosts; g >= 0; g--) {
+        const k = clamp01(phase - g * 0.055);
+        if (k <= 0) continue;
+        const eased = easeInOut(k);
+        const lon = lerp(hub.lon, target.lon, eased);
+        const lat = lerp(hub.lat, target.lat, eased) + Math.sin(eased * Math.PI) * 13;
+        const p = globe.project(lon, lat);
         if (!p) continue;
+        const head = g === 0;
+        ctx.globalAlpha = head ? 1 : 0.58 * (1 - g / (ghosts + 1));
+        ctx.fillStyle = target.color || color;
+        ctx.shadowColor = target.color || color;
+        ctx.shadowBlur = head ? 14 : 5;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, g === 0 ? 4 : 3, 0, TAU);
+        ctx.arc(p.x, p.y, head ? 4.5 : Math.max(1.2, 3.4 - g * 0.25), 0, TAU);
         ctx.fill();
       }
     }
+    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
   },
 });
 
@@ -466,20 +489,36 @@ export const aurora = ({
 
 /**
  * The whole sphere squashes and stretches as if it had weight.
- * Runs beneath so the deformation applies to everything painted after it.
+ * Repaints the finished frame so the deformation affects the whole scene.
  * Ports catalogue effect AX.
  */
-export const jellySquash = ({ duration = 2200, amount = 0.07 } = {}) => ({
+export const jellySquash = ({ duration = 2200, amount = 0.13 } = {}) => ({
   name: "jellySquash",
-  stage: "beneath",
-  z: -80,
+  stage: "post",
+  z: 85,
   duration,
   frame(ctx, globe, t) {
-    const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
-    const wobble = Math.sin(t * TAU * 2) * Math.exp(-t * 1.6) * amount;
+    const c = globe.canvas;
+    const w = c.width, h = c.height;
+    const wobble = Math.sin(t * TAU * 2) * (0.35 + 0.65 * (1 - t)) * amount;
+    const buf = scratch(globe, "jellySquash");
+    if (!buf) return;
+    if (buf.canvas.width !== w || buf.canvas.height !== h) {
+      buf.canvas.width = w;
+      buf.canvas.height = h;
+    }
+    buf.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    buf.ctx.clearRect(0, 0, w, h);
+    buf.ctx.drawImage(c, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
     ctx.translate(w / 2, h / 2);
     ctx.scale(1 + wobble, 1 - wobble);
     ctx.translate(-w / 2, -h / 2);
+    ctx.drawImage(buf.canvas, 0, 0);
+  },
+  dispose(_state, globe) {
+    releaseScratch(globe, "jellySquash");
   },
 });
 
@@ -499,21 +538,34 @@ export const dataDesk = ({
   duration: 1000,
   frame(ctx, globe) {
     const w = globe.canvas.clientWidth, h = globe.canvas.clientHeight;
+    const boxW = Math.min(330, Math.max(220, w * 0.43));
+    const boxH = standfirst ? 116 : 88;
+    panel(ctx, 14, 14, boxW, boxH, { fill: "rgba(5,10,20,.9)", stroke: "rgba(232,236,245,.18)", radius: 10 });
     ctx.fillStyle = accent;
-    ctx.fillRect(20, 20, 26, 3);
-    label(ctx, title, 20, 46, { size: 17, weight: 800 });
+    ctx.fillRect(14, 14, 4, boxH);
+    label(ctx, "LIVE DATA", 30, 36, { size: 9, weight: 800, color: accent });
+    label(ctx, title || "Global activity", 30, 62, { size: Math.min(19, Math.max(15, boxW / 17)), weight: 800 });
     if (standfirst) {
-      label(ctx, standfirst, 20, 64, { size: 11, weight: 500, color: "rgba(232,236,245,.66)" });
+      const words = standfirst.split(/\s+/);
+      const lines = [];
+      let line = "";
+      ctx.font = "500 10px Inter, system-ui, sans-serif";
+      for (const word of words) {
+        const next = line ? `${line} ${word}` : word;
+        if (ctx.measureText(next).width > boxW - 48 && line) {
+          lines.push(line);
+          line = word;
+        } else line = next;
+      }
+      if (line) lines.push(line);
+      lines.slice(0, 2).forEach((copy, i) => label(ctx, copy, 30, 82 + i * 14, { size: 10, weight: 500, color: "rgba(232,236,245,.72)" }));
     }
     if (source) {
-      label(ctx, source, 20, h - 16, { size: 9, weight: 600, color: "rgba(232,236,245,.42)" });
+      label(ctx, `SOURCE  ${source}`, 18, h - 18, { size: 9, weight: 700, color: "rgba(232,236,245,.55)" });
     }
-    ctx.strokeStyle = "rgba(232,236,245,.22)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w - 90, h - 24);
-    ctx.lineTo(w - 20, h - 24);
-    ctx.stroke();
-    label(ctx, "1,000 km", w - 90, h - 30, { size: 9, color: "rgba(232,236,245,.42)" });
+    panel(ctx, w - 112, h - 48, 98, 34, { fill: "rgba(5,10,20,.82)", stroke: "rgba(232,236,245,.16)", radius: 7 });
+    ctx.fillStyle = accent;
+    ctx.fillRect(w - 100, h - 29, 68, 2);
+    label(ctx, "1,000 KM", w - 100, h - 34, { size: 8, weight: 700, color: "rgba(232,236,245,.62)" });
   },
 });

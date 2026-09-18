@@ -27,32 +27,45 @@ export function onTap(globe, handler, slop = 4) {
 }
 
 /** Freehand drag path in canvas pixels, for lassos and brushes. */
-export function onDragPath(globe, { start, move, end }) {
+export function onDragPath(globe, { start, move, end }, enabled = () => true) {
   const c = globe.canvas;
   let path = null;
   const down = (e) => {
+    if (!enabled()) return;
+    e.preventDefault?.();
+    e.stopImmediatePropagation?.();
+    c.setPointerCapture?.(e.pointerId);
     path = [local(c, e)];
     start?.(path);
   };
   const drag = (e) => {
     if (!path) return;
+    e.preventDefault?.();
+    e.stopImmediatePropagation?.();
     path.push(local(c, e));
     move?.(path);
   };
-  const stop = () => {
+  const stop = (e) => {
     if (!path) return;
+    e?.preventDefault?.();
+    e?.stopImmediatePropagation?.();
     end?.(path);
     path = null;
+    c.releasePointerCapture?.(e?.pointerId);
   };
-  c.addEventListener("pointerdown", down);
-  c.addEventListener("pointermove", drag);
-  c.addEventListener("pointerup", stop);
-  c.addEventListener("pointerleave", stop);
+  // Capture before the globe's own drag handlers so drawing a lasso never
+  // rotates the camera underneath the selection.
+  c.addEventListener("pointerdown", down, true);
+  c.addEventListener("pointermove", drag, true);
+  c.addEventListener("pointerup", stop, true);
+  c.addEventListener("pointercancel", stop, true);
+  c.addEventListener("pointerleave", stop, true);
   return () => {
-    c.removeEventListener("pointerdown", down);
-    c.removeEventListener("pointermove", drag);
-    c.removeEventListener("pointerup", stop);
-    c.removeEventListener("pointerleave", stop);
+    c.removeEventListener("pointerdown", down, true);
+    c.removeEventListener("pointermove", drag, true);
+    c.removeEventListener("pointerup", stop, true);
+    c.removeEventListener("pointercancel", stop, true);
+    c.removeEventListener("pointerleave", stop, true);
   };
 }
 

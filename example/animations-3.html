@@ -1098,69 +1098,6 @@ const EFFECTS = [
     return loop(2600, (t) => { k = t; globe.invalidate(); }, { hold: 800 });
   },
 },
-{
-  tag: "BW", title: "Whip pan", ref: "the smeared fast-pan transition",
-  cat: "Technique", status: "engine",
-  blurb: "The camera snaps sideways and the frame smears in the direction of travel.",
-  options: { preset: "midnight", autoRotate: false, markers: CITIES.slice(0, 8), markerStyle: "bubble" },
-  run(globe) {
-    const store = {};
-    let k = 0, prev = 0;
-    globe.setOptions({ onRender: (g) => {
-      const c = g.canvas, ctx = g.ctx;
-      const speed = Math.abs(g.getCenter().lon - prev);
-      prev = g.getCenter().lon;
-      if (speed < 1.2) return;
-      buffer(store, c);
-      store.bctx.clearRect(0, 0, c.width, c.height);
-      store.bctx.drawImage(c, 0, 0);
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.globalAlpha = .34;
-      const dir = Math.sign(g.getCenter().lon - prev) || 1;
-      for (let i = 1; i <= 7; i++) ctx.drawImage(store.buf, dir * i * Math.min(16, speed) * 1.4, 0);
-      ctx.restore();
-    } });
-    return loop(3600, (t) => {
-      const seg = t < .42 ? 0 : t < .58 ? easeInOut((t - .42) / .16) : 1;
-      globe.setOptions({ center: { lon: lerp(72, -74, seg), lat: lerp(23, 40, seg) } });
-      k = t;
-    });
-  },
-},
-{
-  tag: "BX", title: "Motion blur on fast moves", ref: "shutter-angle blur",
-  cat: "Technique", status: "engine",
-  blurb: "Frames accumulate while the camera is quick and resolve when it stops.",
-  options: { preset: "hologram", autoRotate: false, landStyle: "dots", dotSpacing: 2.4, markers: CITIES.slice(0, 6) },
-  run(globe) {
-    const store = {};
-    globe.setOptions({ onRender: (g) => {
-      const c = g.canvas, ctx = g.ctx;
-      buffer(store, c);
-      store.bctx.globalCompositeOperation = "source-over";
-      store.bctx.fillStyle = "rgba(4,7,14,.34)";
-      store.bctx.fillRect(0, 0, c.width, c.height);
-      store.bctx.globalCompositeOperation = "lighter";
-      store.bctx.globalAlpha = .55;
-      store.bctx.drawImage(c, 0, 0);
-      store.bctx.globalAlpha = 1;
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = .4;
-      ctx.drawImage(store.buf, 0, 0);
-      ctx.restore();
-    } });
-    const spots = CITIES.slice(0, 6);
-    return loop(6000, (t) => {
-      const i = Math.floor(t * spots.length);
-      const local = easeInOut(clamp01((t * spots.length - i) * 2.4));
-      const a = spots[i % spots.length], b = spots[(i + 1) % spots.length];
-      globe.setOptions({ center: { lon: lerp(a.lon, b.lon, local), lat: lerp(a.lat, b.lat, local) } });
-    });
-  },
-},
 ];
 
 /* ------------------------------------------------------------------- ui - */
