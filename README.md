@@ -56,6 +56,10 @@ key, tile service, or runtime network request.
 - **Viewer location:** estimate a region from the browser time zone without a permission prompt
 - **Live pings:** display recent activity without requiring a CanvasGlobe backend
 - **Recording:** export a WebM clip in the browser
+- **Optional effects:** 56 seekable visual and interaction effects in `canvas-globe/fx`
+- **Chart layers:** nine animated geographic chart treatments in `canvas-globe/charts`
+- **Recipes and controls:** complete looks and DOM bindings without adding framework code
+- **Place search:** an optional 6,772-place search table with no runtime API request
 - **Presets:** ten included visual styles
 - **Day and night:** calculate the solar terminator for a given time
 - **Four projections:** orthographic, equirectangular, Mercator, and Natural Earth
@@ -135,19 +139,19 @@ your existing application rather than installing a second React copy.
 For a plain `<script>` installation, use the versioned UMD build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.1.1/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.2.0/dist/canvas-globe.umd.js"></script>
 ```
 
 The same npm release is also available from UNPKG:
 
 ```html
-<script src="https://unpkg.com/canvas-globe@1.1.1/dist/canvas-globe.umd.js"></script>
+<script src="https://unpkg.com/canvas-globe@1.2.0/dist/canvas-globe.umd.js"></script>
 ```
 
 Modern browsers can import the package through an ESM CDN:
 
 ```js
-import { createGlobe } from "https://esm.sh/canvas-globe@1.1.1";
+import { createGlobe } from "https://esm.sh/canvas-globe@1.2.0";
 ```
 
 Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
@@ -167,7 +171,7 @@ import { createGlobe } from "canvas-globe";
 Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.1.1/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.2.0/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {
@@ -283,6 +287,74 @@ npx skills add https://github.com/Shree-hari/canvas-globe --skill canvas-globe
 ```
 
 Or copy the maintained prompt from the [AI-assisted setup guide](https://canvasglobe.swiftools.com/getting-started/ai-assisted-setup). The skill and prompt select the correct framework entry point, include cleanup and accessibility, and require the user to purchase a production license before shipping.
+
+## Effects, charts, recipes, controls, and place search
+
+The animation and data-visualization modules are separate entry points. The
+core globe remains about 125 KB gzipped, and applications only download the
+modules they import.
+
+| Import | Approximate gzip size | Includes |
+| --- | ---: | --- |
+| `canvas-globe/fx` | 25.4 KB | 56 visual, transition, data, camera, and interaction effects plus authoring helpers |
+| `canvas-globe/charts` | 4.3 KB | Nine animated chart layers |
+| `canvas-globe/recipes` | 2.0 KB | Six complete, reversible compositions |
+| `canvas-globe/controls` | 1.8 KB | Search, timeline, threshold, and crossfilter bindings |
+| `canvas-globe/places` | 93.6 KB | Search over 6,772 bundled places |
+
+Effects are plain objects installed on a globe. They can be combined, removed,
+and rendered at an exact timeline position:
+
+```js
+import { createGlobe } from "canvas-globe";
+import { aurora, counterRoll, routeDashes } from "canvas-globe/fx";
+import { tilegram } from "canvas-globe/charts";
+
+const globe = createGlobe(canvas, { preset: "midnight", markers });
+globe
+  .use(aurora())
+  .use(routeDashes({ routes }))
+  .use(counterRoll({ to: 21947, caption: "customers", position: "bottom-center" }));
+
+globe.renderFrame(1200); // draw the frame at 1.2 seconds
+globe.use(tilegram({ values: countryValues }));
+```
+
+Use a recipe when you want a complete look rather than individual effects:
+
+```js
+import { applyRecipe, keynoteGlobe } from "canvas-globe/recipes";
+
+const undo = applyRecipe(globe, keynoteGlobe({ countries: 68 }));
+undo(); // restores the previous options and removes the recipe effects
+```
+
+Controls bind elements you already own and return cleanup functions. They do
+not inject markup or styles:
+
+```js
+import { searchAndFly } from "canvas-globe/controls";
+import { placeSource } from "canvas-globe/places";
+
+const unbind = searchAndFly(globe, document.querySelector("#place-search"), {
+  source: placeSource(),
+});
+```
+
+`canvas-globe/places` is optional because its city table is almost as large as
+the country geometry. Core already resolves countries and roughly 300 major
+cities. Import the place module only when broader offline city search is worth
+the extra payload.
+
+`seek(ms)` and `renderFrame(ms)` pin the effect clock, auto-rotation, arcs,
+orbits, and marker pulses. `whipPan`, `motionBlur`, `windField`, and part of
+`glitch` accumulate the previous frame by design, so reproduce them by
+exporting frames sequentially. Live media, newly fired pings, and a terminator
+using the current time are external dynamic state and should be fixed or
+disabled for frame-exact export.
+
+Custom effects use the same public contract and authoring helpers as the
+included effects. See `types/fx.d.ts` for every option and callback signature.
 
 ## Options
 

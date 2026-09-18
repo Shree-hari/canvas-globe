@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>canvas-globe  -  animation catalogue, part two</title>
+<style>
+  :root {
+    --bg: #07080d; --panel: #0e1018; --line: #1e2230; --ink: #e8ecf5; --dim: #8b93a7;
+    --accent: #f59e0b; --accent-soft: rgba(245, 158, 11, 0.16);
+    --ok: #22c55e; --warn: #f59e0b; --new: #38bdf8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  header { padding: 38px 28px 20px; max-width: 1320px; margin: 0 auto; }
+  h1 { margin: 0 0 6px; font-size: 1.9rem; letter-spacing: -0.02em; }
+  .sub { color: var(--dim); max-width: 80ch; margin: 0 0 14px; }
+  .sub strong { color: var(--ink); font-weight: 600; }
+  .backlink { color: var(--accent); text-decoration: none; font-size: 0.86rem; }
+  .backlink:hover { text-decoration: underline; }
+  .bar { position: sticky; top: 0; z-index: 20; background: rgba(7,8,13,.92);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 12px 28px; }
+  .bar-inner { max-width: 1320px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .chipset { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--dim);
+    border-radius: 999px; padding: 5px 12px; font-size: .78rem; cursor: pointer; font-family: inherit; transition: .15s; }
+  .chip:hover { color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .picked { margin-left: auto; display: flex; gap: 10px; align-items: center; font-size: .82rem; color: var(--dim); }
+  .picked code { color: var(--ink); font-size: .85rem; }
+  .btn { border: 1px solid var(--accent); background: var(--accent-soft); color: #fff;
+    border-radius: 8px; padding: 6px 14px; font: inherit; font-size: .8rem; cursor: pointer; }
+  .btn:hover { background: var(--accent); }
+  .grid { max-width: 1320px; margin: 0 auto; padding: 24px 28px 80px;
+    display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column; transition: .18s; }
+  .card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 18px 40px -26px var(--accent); }
+  .card.hide { display: none; }
+  .stage { position: relative; background: #05060a; border-bottom: 1px solid var(--line); }
+  .stage canvas { display: block; width: 100%; aspect-ratio: 1 / 1; }
+  .tag { position: absolute; top: 10px; left: 10px; z-index: 2; min-width: 34px; height: 30px; padding: 0 8px;
+    border-radius: 8px; background: rgba(7,8,13,.82); border: 1px solid var(--line);
+    display: grid; place-items: center; font-weight: 800; font-size: .8rem; backdrop-filter: blur(6px); }
+  .card.on .tag { background: var(--accent); border-color: var(--accent); color: #111; }
+  .replay { position: absolute; top: 10px; right: 10px; z-index: 2; border: 1px solid var(--line);
+    background: rgba(7,8,13,.82); color: var(--dim); border-radius: 8px; width: 30px; height: 30px;
+    cursor: pointer; font-size: .9rem; backdrop-filter: blur(6px); }
+  .replay:hover { color: #fff; }
+  .body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .title { font-weight: 700; font-size: .98rem; }
+  .blurb { color: var(--dim); font-size: .83rem; margin: 0; }
+  .sells { font-size: .78rem; color: #fbbf77; margin: 0; }
+  .meta { display: flex; gap: 6px; margin-top: auto; padding-top: 6px; flex-wrap: wrap; }
+  .pill { font-size: .66rem; letter-spacing: .04em; text-transform: uppercase; font-weight: 700;
+    border-radius: 999px; padding: 3px 8px; border: 1px solid; }
+  .pill.cat { color: var(--dim); border-color: var(--line); }
+  .pill.built { color: var(--ok); border-color: rgba(34,197,94,.4); }
+  .pill.extend { color: var(--warn); border-color: rgba(245,158,11,.4); }
+  .pill.newwork { color: var(--new); border-color: rgba(56,189,248,.4); }
+  footer { max-width: 1320px; margin: 0 auto; padding: 0 28px 60px; color: var(--dim); font-size: .85rem; }
+  footer h2 { color: var(--ink); font-size: 1rem; margin: 26px 0 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Animation catalogue  -  part two</h1>
+  <p class="sub">
+    Effects lifted from what motion-design map kits actually sell, plus data-visualisation
+    showpieces that a stock video can never do because they have to be driven by
+    <strong>your</strong> numbers. Tags run <strong>AA</strong> to <strong>AX</strong> so they
+    never collide with part one.
+  </p>
+  <a class="backlink" href="./animations.html">← back to part one (A-X)</a>
+</header>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="chipset" id="filters"></div>
+    <div class="picked">
+      <span>Picked:</span><code id="pickList">none</code>
+      <button class="btn" id="copy">Copy</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <h2>What I deliberately left out</h2>
+  <p>
+    Volumetric clouds, real atmospheric scattering, ray-traced glass and true depth-of-field all
+    need a GPU. Anything here that imitates them does it with compositing tricks, which is honest
+    at these canvas sizes but would fall apart at 4K. If you want any of those properly, that is a
+    WebGL renderer, not an effect.
+  </p>
+</footer>
+
+<script type="module">
+import { createGlobe, world, greatCircle, subsolarPoint, angularDistance, pointInGeometry } from "../src/index.js";
+
+/* ------------------------------------------------------------------ data - */
+const CITIES = [
+  { city: "Ahmedabad", lat: 23.03, lon: 72.58, count: 214 },
+  { city: "Bengaluru", lat: 12.97, lon: 77.59, count: 186 },
+  { city: "London", lat: 51.5, lon: -0.12, count: 164 },
+  { city: "New York", lat: 40.71, lon: -74.01, count: 152 },
+  { city: "San Francisco", lat: 37.77, lon: -122.42, count: 141 },
+  { city: "Berlin", lat: 52.52, lon: 13.4, count: 98 },
+  { city: "Toronto", lat: 43.65, lon: -79.38, count: 84 },
+  { city: "São Paulo", lat: -23.55, lon: -46.63, count: 76 },
+  { city: "Singapore", lat: 1.35, lon: 103.82, count: 71 },
+  { city: "Sydney", lat: -33.87, lon: 151.21, count: 63 },
+  { city: "Tokyo", lat: 35.68, lon: 139.69, count: 58 },
+  { city: "Dubai", lat: 25.2, lon: 55.27, count: 47 },
+  { city: "Nairobi", lat: -1.29, lon: 36.82, count: 31 },
+  { city: "Lagos", lat: 6.52, lon: 3.38, count: 28 },
+  { city: "Mexico City", lat: 19.43, lon: -99.13, count: 42 },
+];
+const HUB = { lat: 23.03, lon: 72.58 };
+const RANKED = [["India", 412], ["United States", 388], ["United Kingdom", 214], ["Germany", 168],
+  ["Canada", 96], ["Brazil", 84], ["Australia", 72], ["Japan", 66]];
+
+/* ----------------------------------------------------------------- utils - */
+const D2R = Math.PI / 180;
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const lerp = (a, b, t) => a + (b - a) * t;
+
+function loop(ms, onTick, { hold = 0 } = {}) {
+  let raf = 0, start = performance.now();
+  const step = (now) => {
+    const el = now - start;
+    onTick(Math.min(1, el / ms), el);
+    if (el >= ms + hold) start = now;
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
+function destination(lon, lat, bearing, dist) {
+  const f1 = lat * D2R, l1 = lon * D2R, b = bearing * D2R, d = dist * D2R;
+  const f2 = Math.asin(Math.sin(f1) * Math.cos(d) + Math.cos(f1) * Math.sin(d) * Math.cos(b));
+  const l2 = l1 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(f1), Math.cos(d) - Math.sin(f1) * Math.sin(f2));
+  return [((l2 / D2R + 540) % 360) - 180, f2 / D2R];
+}
+const shapeOf = (name) => world.find((s) => s.name === name);
+const centroidOf = (shape) => {
+  let x = 0, y = 0, n = 0;
+  const polys = shape.geometry.type === "Polygon" ? [shape.geometry.coordinates] : shape.geometry.coordinates;
+  for (const p of polys) for (const r of p) for (const c of r) { x += c[0]; y += c[1]; n++; }
+  return [x / n, y / n];
+};
+/** Traces a country into the current path using the globe's own projection. */
+function traceShape(g, shape, ctx, xf) {
+  const polys = shape.geometry.type === "Polygon" ? [shape.geometry.coordinates] : shape.geometry.coordinates;
+  for (const poly of polys) for (const ring of poly) {
+    let open = false;
+    for (const c of ring) {
+      const src = xf ? xf(c) : c;
+      const p = g.project(src[0], src[1]);
+      if (!p) { open = false; continue; }
+      open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+    }
+    if (open) ctx.closePath();
+  }
+}
+
+/* --------------------------------------------------------------- effects - */
+const EFFECTS = [
+
+/* ---------------- motion-design staples ---------------- */
+{
+  tag: "AA", title: "Travel route dashes", cat: "Motion kit", status: "extend",
+  blurb: "The classic dotted trail, drawing itself with a vehicle at the head.",
+  sells: "The single best-selling map effect on every stock marketplace.",
+  options: { preset: "atlas", autoRotate: false, center: { lon: 40, lat: 32 }, zoom: 1.35 },
+  run(globe) {
+    const legs = [[HUB, CITIES[2]], [CITIES[2], CITIES[3]], [CITIES[3], CITIES[4]]];
+    const paths = legs.map(([a, b]) => greatCircle(a.lon, a.lat, b.lon, b.lat, 64));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.lineCap = "round";
+      const total = paths.length;
+      paths.forEach((pts, i) => {
+        const local = Math.max(0, Math.min(1, k * total * 1.15 - i));
+        if (local <= 0) return;
+        const upto = Math.floor(pts.length * local);
+        ctx.strokeStyle = "#ef4444";
+        ctx.lineWidth = 2.4;
+        ctx.setLineDash([1, 9]);
+        ctx.beginPath();
+        let open = false, head = null;
+        for (let j = 0; j < upto; j++) {
+          const p = g.project(pts[j][0], pts[j][1]);
+          if (!p) { open = false; continue; }
+          open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+          head = p;
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        if (head && local < 1) {
+          ctx.font = "17px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText("✈️", head.x, head.y + 6);
+        }
+        if (local >= 1 && head) {
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 4, 0, 6.283);
+          ctx.fill();
+        }
+      });
+      ctx.restore();
+    } });
+    return loop(4200, (t) => { k = t; globe.invalidate(); }, { hold: 1200 });
+  },
+},
+{
+  tag: "AB", title: "Location lower-third", cat: "Motion kit", status: "engine",
+  blurb: "Leader line snaps out, a card slides open, the text types itself.",
+  sells: "Every travel vlog and documentary needs this. Sold by the hundred.",
+  options: { preset: "noir", autoRotate: false, center: { lon: 60, lat: 28 }, zoom: 1.6, markers: [{ ...HUB, live: true }] },
+  run(globe) {
+    const LABEL = "AHMEDABAD", SUB = "23.03° N, 72.58° E";
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const p = g.project(HUB.lon, HUB.lat);
+      if (!p) return;
+      const ctx = g.ctx;
+      const line = Math.min(1, k / 0.22);
+      const card = Math.max(0, Math.min(1, (k - 0.2) / 0.25));
+      const type = Math.max(0, Math.min(1, (k - 0.42) / 0.4));
+      const ex = p.x + 62 * easeOut(line), ey = p.y - 52 * easeOut(line);
+      ctx.save();
+      ctx.strokeStyle = "#fbbf24";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+      if (card > 0) {
+        const w = 150 * easeOut(card), h = 42;
+        ctx.fillStyle = "rgba(8,9,14,.88)";
+        ctx.strokeStyle = "#fbbf24";
+        ctx.beginPath();
+        ctx.rect(ex, ey - h, w, h);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ex, ey - h); ctx.lineTo(ex, ey);
+        ctx.lineWidth = 3; ctx.stroke();
+        if (type > 0) {
+          ctx.fillStyle = "#fff";
+          ctx.font = "700 14px Inter, system-ui";
+          ctx.fillText(LABEL.slice(0, Math.ceil(LABEL.length * type)), ex + 10, ey - 23);
+          ctx.fillStyle = "#fbbf24";
+          ctx.font = "10px Inter, system-ui";
+          ctx.fillText(SUB.slice(0, Math.ceil(SUB.length * type)), ex + 10, ey - 9);
+        }
+      }
+      ctx.restore();
+    } });
+    return loop(3200, (t) => { k = t; globe.invalidate(); }, { hold: 1400 });
+  },
+},
+{
+  tag: "AC", title: "Split-flap counter", cat: "Motion kit", status: "engine",
+  blurb: "Airport departure-board digits flipping up to the final number.",
+  sells: "Far more premium than a rolling counter. Instantly recognisable.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.05, markers: CITIES.slice(0, 9), markerStyle: "dot" },
+  run(globe) {
+    const FINAL = "21947";
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cw = 26, ch = 38, gap = 4;
+      const totalW = FINAL.length * (cw + gap) - gap;
+      let x = (w - totalW) / 2;
+      const y = h - 58;
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let i = 0; i < FINAL.length; i++) {
+        const settle = Math.max(0, Math.min(1, (k - i * 0.1) / 0.55));
+        const target = +FINAL[i];
+        const spin = settle < 1 ? Math.floor((1 - settle) * 28 + target) % 10 : target;
+        const flip = settle < 1 ? Math.abs(Math.sin((1 - settle) * 26)) : 1;
+        ctx.fillStyle = "#101521";
+        ctx.strokeStyle = "#232c3e";
+        ctx.beginPath();
+        ctx.roundRect(x, y, cw, ch, 4);
+        ctx.fill();
+        ctx.stroke();
+        ctx.save();
+        ctx.translate(x + cw / 2, y + ch / 2);
+        ctx.scale(1, 0.25 + flip * 0.75);
+        ctx.fillStyle = "#e8ecf5";
+        ctx.font = "700 22px ui-monospace, monospace";
+        ctx.fillText(String(spin), 0, 1);
+        ctx.restore();
+        ctx.strokeStyle = "#05070c";
+        ctx.beginPath();
+        ctx.moveTo(x, y + ch / 2); ctx.lineTo(x + cw, y + ch / 2);
+        ctx.stroke();
+        x += cw + gap;
+      }
+      ctx.fillStyle = "#8b93a7";
+      ctx.font = "600 10px Inter, system-ui";
+      ctx.fillText("CUSTOMERS WORLDWIDE", w / 2, y + ch + 14);
+      ctx.restore();
+    } });
+    return loop(3200, (t) => { k = t; globe.invalidate(); }, { hold: 1600 });
+  },
+},
+{
+  tag: "AD", title: "Text on a great circle", cat: "Motion kit", status: "engine",
+  blurb: "Letters ride the curve of the sphere, each one rotated to the tangent.",
+  sells: "Title treatment nobody can fake with a flat text layer.",
+  options: { preset: "aurora", autoRotate: true, rotateSpeed: 0.03, landStyle: "dots", dotSpacing: 2.6 },
+  run(globe) {
+    const TEXT = "· SHIPPING TO 68 COUNTRIES ";
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.4 * 1.14;
+      ctx.save();
+      ctx.font = "700 12px Inter, system-ui";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#a7f3d0";
+      const step = (Math.PI * 2) / TEXT.length;
+      for (let i = 0; i < TEXT.length; i++) {
+        const a = i * step + k * Math.PI * 2 - Math.PI / 2;
+        ctx.save();
+        ctx.translate(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+        ctx.rotate(a + Math.PI / 2);
+        ctx.fillText(TEXT[i], 0, 0);
+        ctx.restore();
+      }
+      ctx.restore();
+    } });
+    return loop(12000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AE", title: "Country as a matte", cat: "Motion kit", status: "engine",
+  blurb: "The country outline becomes a window onto a moving gradient.",
+  sells: "Launch posts, national-day campaigns, 'now live in ___' packs.",
+  options: { mode: "map", preset: "noir", autoRotate: false, projection: "naturalEarth",
+             center: { lon: 78, lat: 22 }, zoom: 2.6 },
+  run(globe) {
+    const india = shapeOf("India");
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      if (!india) return;
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      ctx.save();
+      ctx.beginPath();
+      traceShape(g, india, ctx);
+      ctx.clip();
+      const shift = k * w * 2 - w * 0.5;
+      const grad = ctx.createLinearGradient(shift - w * 0.6, 0, shift + w * 0.6, h);
+      grad.addColorStop(0, "#f97316");
+      grad.addColorStop(0.45, "#fbbf24");
+      grad.addColorStop(0.55, "#fff");
+      grad.addColorStop(1, "#22c55e");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+      ctx.save();
+      ctx.beginPath();
+      traceShape(g, india, ctx);
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.restore();
+    } });
+    return loop(4200, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AF", title: "Light pillar", cat: "Motion kit", status: "engine",
+  blurb: "A shaft of light stands up off the surface at a location.",
+  sells: "Marks 'here' with far more weight than a pin. Very premium.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.04, stars: true },
+  run(globe) {
+    const spots = CITIES.slice(0, 6);
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      spots.forEach((s, i) => {
+        const p = g.project(s.lon, s.lat);
+        if (!p) return;
+        const pulse = 0.55 + 0.45 * Math.sin((k + i * 0.17) * Math.PI * 2);
+        const dx = p.x - cx, dy = p.y - cy;
+        const len = Math.hypot(dx, dy) || 1;
+        const ux = dx / len, uy = dy / len;
+        const H = 46 * pulse;
+        const wdt = 5;
+        const grad = ctx.createLinearGradient(p.x, p.y, p.x + ux * H, p.y + uy * H);
+        grad.addColorStop(0, "rgba(125,211,252,.75)");
+        grad.addColorStop(1, "rgba(125,211,252,0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(p.x - uy * wdt, p.y + ux * wdt);
+        ctx.lineTo(p.x + uy * wdt, p.y - ux * wdt);
+        ctx.lineTo(p.x + ux * H + uy * 1.2, p.y + uy * H - ux * 1.2);
+        ctx.lineTo(p.x + ux * H - uy * 1.2, p.y + uy * H + ux * 1.2);
+        ctx.closePath();
+        ctx.fill();
+      });
+      ctx.restore();
+    } });
+    return loop(2600, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AG", title: "Specular shine sweep", cat: "Motion kit", status: "extend",
+  blurb: "A soft highlight travels across the sphere like light on glass.",
+  sells: "The polish pass. Makes any look feel finished.",
+  options: { preset: "political", autoRotate: true, rotateSpeed: 0.04, shade: true },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 6.283);
+      ctx.clip();
+      ctx.globalCompositeOperation = "lighter";
+      const x = lerp(-r * 1.6, r * 1.6, k) + cx;
+      const grad = ctx.createLinearGradient(x - 60, cy - r, x + 60, cy + r);
+      grad.addColorStop(0, "rgba(255,255,255,0)");
+      grad.addColorStop(0.5, "rgba(255,255,255,.28)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+    } });
+    return loop(3600, (t) => { k = t; globe.invalidate(); }, { hold: 1200 });
+  },
+},
+{
+  tag: "AH", title: "Isometric 2.5D tilt", cat: "Motion kit", status: "engine",
+  blurb: "The flat map lays back into perspective and floats.",
+  sells: "The isometric map look sells constantly and nobody ships it in 2D.",
+  options: { mode: "map", preset: "mono", autoRotate: false, projection: "naturalEarth", markers: CITIES.slice(0, 8) },
+  run(globe) {
+    let k = 0, buf = null, bctx = null;
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      const w = c.clientWidth, h = c.clientHeight;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.clearRect(0, 0, buf.width, buf.height);
+      bctx.drawImage(c, 0, 0);
+      const tilt = 0.45 + 0.2 * Math.sin(k * Math.PI * 2);
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.translate(c.width / 2, c.height * 0.56);
+      ctx.transform(1, 0, -0.34, tilt, 0, 0);
+      ctx.drawImage(buf, -c.width / 2, -c.height / 2);
+      ctx.restore();
+    } });
+    return loop(7000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+
+/* ---------------- data-visualisation showpieces ---------------- */
+{
+  tag: "AI", title: "Cartogram morph", cat: "Data", status: "engine",
+  blurb: "Countries inflate and shrink to match their value, then snap back.",
+  sells: "The single most requested data map. Impossible to fake in stock.",
+  options: { mode: "map", preset: "mono", autoRotate: false, projection: "naturalEarth" },
+  run(globe) {
+    const picks = RANKED.map(([name, v]) => ({ shape: shapeOf(name), v })).filter((p) => p.shape);
+    const max = Math.max(...picks.map((p) => p.v));
+    picks.forEach((p) => (p.c = centroidOf(p.shape)));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      for (const p of picks) {
+        const scale = lerp(1, 0.55 + (p.v / max) * 1.5, easeInOut(k));
+        ctx.beginPath();
+        traceShape(g, p.shape, ctx, (c) => [
+          p.c[0] + (c[0] - p.c[0]) * scale,
+          p.c[1] + (c[1] - p.c[1]) * scale,
+        ]);
+        ctx.fillStyle = `hsl(258 85% ${70 - (p.v / max) * 34}%)`;
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.55)";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+      ctx.restore();
+    } });
+    return loop(2600, (t) => { k = t < 0.5 ? t * 2 : 1 - (t - 0.5) * 2; globe.invalidate(); }, { hold: 700 });
+  },
+},
+{
+  tag: "AJ", title: "Ranked bar race", cat: "Data", status: "engine",
+  blurb: "Bars reorder as the timeline runs, tied to the map behind them.",
+  sells: "Bar races get millions of views. Nobody pairs them with a live map.",
+  options: { mode: "map", preset: "midnight", autoRotate: false, projection: "naturalEarth", landStyle: "outline" },
+  run(globe) {
+    let k = 0;
+    const seeds = RANKED.map(([n, v], i) => ({ n, v, w: 0.3 + Math.random() * 0.5, ph: i }));
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const rows = seeds.map((s) => ({ ...s, cur: s.v * (0.35 + 0.65 * easeOut(Math.min(1, k * 1.4))) *
+        (1 + 0.3 * Math.sin(k * 6 + s.ph)) }))
+        .sort((a, b) => b.cur - a.cur).slice(0, 6);
+      const max = rows[0].cur;
+      ctx.save();
+      ctx.fillStyle = "rgba(7,8,13,.62)";
+      ctx.fillRect(8, h - 122, w - 16, 114);
+      rows.forEach((r, i) => {
+        const y = h - 114 + i * 18;
+        const bw = (r.cur / max) * (w - 130);
+        ctx.fillStyle = `hsl(${258 - i * 16} 82% 62%)`;
+        ctx.beginPath();
+        ctx.roundRect(78, y, Math.max(2, bw), 12, 3);
+        ctx.fill();
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "600 9px Inter, system-ui";
+        ctx.textAlign = "right";
+        ctx.fillText(r.n.slice(0, 12), 72, y + 9);
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#fff";
+        ctx.fillText(String(Math.round(r.cur)), 82 + Math.max(2, bw), y + 9);
+      });
+      ctx.restore();
+    } });
+    return loop(6000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AK", title: "Radial bars on the rim", cat: "Data", status: "engine",
+  blurb: "Each city gets a bar standing off the horizon at its longitude.",
+  sells: "Turns the globe itself into the chart. Very distinctive.",
+  options: { preset: "blueprint", autoRotate: true, rotateSpeed: 0.05, landStyle: "outline", markers: [] },
+  run(globe) {
+    let k = 0;
+    const max = Math.max(...CITIES.map((c) => c.count));
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+      ctx.save();
+      ctx.lineCap = "round";
+      CITIES.forEach((c, i) => {
+        const p = g.project(c.lon, c.lat);
+        if (!p) return;
+        const grow = Math.max(0, Math.min(1, k * CITIES.length * 0.9 - i * 0.5));
+        const len = (c.count / max) * 40 * easeOut(grow);
+        if (len < 0.5) return;
+        const dx = p.x - cx, dy = p.y - cy;
+        const d = Math.hypot(dx, dy) || 1;
+        const ux = dx / d, uy = dy / d;
+        ctx.strokeStyle = `hsl(${200 - (c.count / max) * 70} 92% 62%)`;
+        ctx.lineWidth = 4.5;
+        ctx.beginPath();
+        ctx.moveTo(cx + ux * (r + 3), cy + uy * (r + 3));
+        ctx.lineTo(cx + ux * (r + 3 + len), cy + uy * (r + 3 + len));
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(125,211,252,.28)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(cx + ux * (r + 3), cy + uy * (r + 3));
+        ctx.stroke();
+      });
+      ctx.restore();
+    } });
+    return loop(3000, (t) => { k = t; globe.invalidate(); }, { hold: 1400 });
+  },
+},
+{
+  tag: "AL", title: "Dot density", cat: "Data", status: "engine",
+  blurb: "One dot per thousand people, scattered inside real borders.",
+  sells: "Census and market-size storytelling. Reads as serious research.",
+  options: { mode: "map", preset: "noir", autoRotate: false, projection: "naturalEarth",
+             center: { lon: 40, lat: 25 }, zoom: 1.5, landStyle: "outline" },
+  run(globe) {
+    const picks = RANKED.slice(0, 6).map(([n, v]) => ({ shape: shapeOf(n), v })).filter((p) => p.shape);
+    const dots = [];
+    for (const p of picks) {
+      let box = [180, 90, -180, -90];
+      const polys = p.shape.geometry.type === "Polygon" ? [p.shape.geometry.coordinates] : p.shape.geometry.coordinates;
+      for (const poly of polys) for (const c of poly[0]) {
+        box = [Math.min(box[0], c[0]), Math.min(box[1], c[1]), Math.max(box[2], c[0]), Math.max(box[3], c[1])];
+      }
+      let tries = 0, made = 0;
+      const want = Math.round(p.v / 6);
+      while (made < want && tries < want * 40) {
+        tries++;
+        const lon = box[0] + Math.random() * (box[2] - box[0]);
+        const lat = box[1] + Math.random() * (box[3] - box[1]);
+        if (pointInGeometry(p.shape.geometry, lon, lat)) { dots.push([lon, lat, Math.random()]); made++; }
+      }
+    }
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.fillStyle = "#38bdf8";
+      for (const [lon, lat, seed] of dots) {
+        if (seed > k) continue;
+        const p = g.project(lon, lat);
+        if (!p) continue;
+        ctx.globalAlpha = Math.min(1, (k - seed) * 6);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.restore();
+    } });
+    return loop(3000, (t) => { k = t; globe.invalidate(); }, { hold: 1500 });
+  },
+},
+{
+  tag: "AM", title: "Contour bands", cat: "Data", status: "engine",
+  blurb: "Density drawn as topographic isolines instead of a soft blob.",
+  sells: "Looks like a scientific instrument. Far classier than a heatmap.",
+  options: { preset: "noir", autoRotate: true, rotateSpeed: 0.03, landStyle: "outline" },
+  run(globe) {
+    const sources = CITIES.slice(0, 5);
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.lineWidth = 1;
+      sources.forEach((s, si) => {
+        for (let band = 1; band <= 5; band++) {
+          const reveal = Math.max(0, Math.min(1, k * 7 - si * 0.5 - band * 0.35));
+          if (reveal <= 0) continue;
+          const dist = band * 6 * (s.count / 214 + 0.4);
+          ctx.strokeStyle = `hsla(${34 + band * 8} 95% 60% / ${(0.75 - band * 0.11) * reveal})`;
+          ctx.beginPath();
+          let open = false;
+          for (let b = 0; b <= 360; b += 6) {
+            const [lo, la] = destination(s.lon, s.lat, b, dist);
+            const p = g.project(lo, la);
+            if (!p) { open = false; continue; }
+            open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+          }
+          ctx.stroke();
+        }
+      });
+      ctx.restore();
+    } });
+    return loop(3400, (t) => { k = t; globe.invalidate(); }, { hold: 1600 });
+  },
+},
+{
+  tag: "AN", title: "Migration ribbons", cat: "Data", status: "engine",
+  blurb: "Tapered flows whose width carries the volume, not just the colour.",
+  sells: "Trade, migration, supply chain. Encodes a second variable for free.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.03, landStyle: "fill" },
+  run(globe) {
+    const flows = CITIES.slice(1, 8).map((c) => ({
+      pts: greatCircle(HUB.lon, HUB.lat, c.lon, c.lat, 60), v: c.count,
+    }));
+    const max = Math.max(...flows.map((f) => f.v));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      flows.forEach((f, i) => {
+        const grow = Math.max(0, Math.min(1, k * 2.2 - i * 0.12));
+        if (grow <= 0) return;
+        const upto = Math.floor(f.pts.length * easeOut(grow));
+        const wMax = 1.5 + (f.v / max) * 9;
+        const left = [], right = [];
+        for (let j = 0; j < upto; j++) {
+          const p = g.project(f.pts[j][0], f.pts[j][1]);
+          const q = g.project(f.pts[Math.min(j + 1, f.pts.length - 1)][0], f.pts[Math.min(j + 1, f.pts.length - 1)][1]);
+          if (!p || !q) continue;
+          const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
+          const t = j / (f.pts.length - 1);
+          const wid = wMax * Math.sin(Math.PI * Math.min(1, t * 1.05)) * 0.5 + 0.4;
+          left.push([p.x - (dy / len) * wid, p.y + (dx / len) * wid]);
+          right.push([p.x + (dy / len) * wid, p.y - (dx / len) * wid]);
+        }
+        if (left.length < 2) return;
+        ctx.beginPath();
+        left.forEach(([x, y], j) => (j ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+        for (let j = right.length - 1; j >= 0; j--) ctx.lineTo(right[j][0], right[j][1]);
+        ctx.closePath();
+        ctx.fillStyle = `hsla(${190 + i * 14} 90% 62% / .5)`;
+        ctx.fill();
+      });
+      ctx.restore();
+    } });
+    return loop(3600, (t) => { k = t; globe.invalidate(); }, { hold: 1400 });
+  },
+},
+{
+  tag: "AO", title: "Ghost-trail timeline", cat: "Data", status: "engine",
+  blurb: "Past states linger as fading echoes while the current one leads.",
+  sells: "Shows change and history in one frame. Very hard to do in stock.",
+  options: { mode: "map", preset: "midnight", autoRotate: false, projection: "naturalEarth", markerStyle: "bubble" },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      for (let ghost = 5; ghost >= 0; ghost--) {
+        const t = k - ghost * 0.06;
+        if (t < 0) continue;
+        const alpha = ghost === 0 ? 0.95 : 0.16 * (1 - ghost / 6);
+        CITIES.forEach((c, i) => {
+          const phase = (t * 1.6 - i * 0.05) % 1;
+          if (phase < 0) return;
+          const p = g.project(c.lon, c.lat);
+          if (!p) return;
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = "#a78bfa";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2 + Math.sin(phase * Math.PI) * (c.count / 214) * 11, 0, 6.283);
+          ctx.fill();
+        });
+      }
+      ctx.restore();
+    } });
+    return loop(5000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AP", title: "Donuts on countries", cat: "Data", status: "engine",
+  blurb: "A small share ring sits on each country and sweeps to its value.",
+  sells: "Two variables per country without a second chart. Dashboard gold.",
+  options: { mode: "map", preset: "mono", autoRotate: false, projection: "naturalEarth", landStyle: "fill" },
+  run(globe) {
+    const picks = RANKED.map(([n, v]) => ({ c: centroidOf(shapeOf(n) || world[0]), v })).filter(Boolean);
+    const max = Math.max(...picks.map((p) => p.v));
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      picks.forEach((p, i) => {
+        const pt = g.project(p.c[0], p.c[1]);
+        if (!pt) return;
+        const grow = Math.max(0, Math.min(1, k * 2 - i * 0.1));
+        if (grow <= 0) return;
+        const R = 7 + (p.v / max) * 9;
+        ctx.lineWidth = 4.5;
+        ctx.strokeStyle = "rgba(255,255,255,.18)";
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, R, 0, 6.283);
+        ctx.stroke();
+        ctx.strokeStyle = `hsl(${268 - (p.v / max) * 70} 88% 62%)`;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, R, -Math.PI / 2, -Math.PI / 2 + easeOut(grow) * (p.v / max) * 6.283);
+        ctx.stroke();
+      });
+      ctx.restore();
+    } });
+    return loop(3000, (t) => { k = t; globe.invalidate(); }, { hold: 1500 });
+  },
+},
+
+/* ---------------- atmosphere & grade ---------------- */
+{
+  tag: "AQ", title: "Wind / flow field", cat: "Atmosphere", status: "engine",
+  blurb: "Thousands of particles streaming along a vector field over the sphere.",
+  sells: "The single most admired geo visual on the web. Huge licensing value.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.02, landStyle: "fill", graticule: false },
+  run(globe) {
+    const N = 900;
+    const spawn = () => ({ lon: Math.random() * 360 - 180, lat: Math.random() * 150 - 75, age: Math.random() * 90 });
+    let P = Array.from({ length: N }, spawn);
+    let buf = null, bctx = null;
+    const field = (lon, lat) => {
+      const u = Math.cos(lat * D2R * 3) * 1.6 + Math.sin(lon * D2R * 2) * 0.9 + 1.4;
+      const v = Math.sin(lon * D2R * 3) * 0.7 - Math.cos(lat * D2R * 2) * 0.4;
+      return [u, v];
+    };
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.setTransform(g._dpr || 1, 0, 0, g._dpr || 1, 0, 0);
+      bctx.globalCompositeOperation = "source-over";
+      bctx.fillStyle = "rgba(4,8,18,.13)";
+      bctx.fillRect(0, 0, c.clientWidth, c.clientHeight);
+      bctx.lineWidth = 1;
+      for (const p of P) {
+        const a = g.project(p.lon, p.lat);
+        const [u, v] = field(p.lon, p.lat);
+        p.lon += u * 0.42; p.lat += v * 0.42; p.age++;
+        if (p.lon > 180) p.lon -= 360;
+        if (p.lon < -180) p.lon += 360;
+        const b = g.project(p.lon, p.lat);
+        if (a && b && Math.abs(a.x - b.x) < 40) {
+          const speed = Math.min(1, Math.hypot(u, v) / 2.6);
+          bctx.strokeStyle = `hsla(${196 - speed * 60} 95% ${58 + speed * 22}% / .85)`;
+          bctx.beginPath();
+          bctx.moveTo(a.x, a.y);
+          bctx.lineTo(b.x, b.y);
+          bctx.stroke();
+        }
+        if (p.age > 110 || Math.abs(p.lat) > 84) Object.assign(p, spawn(), { age: 0 });
+      }
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(buf, 0, 0);
+      ctx.restore();
+    } });
+    return loop(1000, () => globe.invalidate());
+  },
+},
+{
+  tag: "AR", title: "Night-side city lights", cat: "Atmosphere", status: "engine",
+  blurb: "Cities only glow once the terminator has rolled over them.",
+  sells: "The NASA night-lights look, driven by your own locations.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.05, terminator: true, markers: [], landStyle: "fill" },
+  run(globe) {
+    let time = Date.UTC(2024, 5, 21, 0);
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      const sun = subsolarPoint(new Date(time));
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (const c of CITIES) {
+        const p = g.project(c.lon, c.lat);
+        if (!p) continue;
+        const night = angularDistance(c.lon, c.lat, sun.lon ?? sun[0], sun.lat ?? sun[1]);
+        const k = Math.max(0, Math.min(1, (night - 78) / 34));
+        if (k <= 0.02) continue;
+        const R = (5 + (c.count / 214) * 13) * k;
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, R);
+        grad.addColorStop(0, `rgba(255,236,170,${0.95 * k})`);
+        grad.addColorStop(0.35, `rgba(255,186,90,${0.5 * k})`);
+        grad.addColorStop(1, "rgba(255,150,40,0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, R, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.restore();
+    } });
+    return loop(9000, (t) => { time = Date.UTC(2024, 5, 21, 0) + t * 86400000; globe.setTime(time); });
+  },
+},
+{
+  tag: "AS", title: "Polar aurora", cat: "Atmosphere", status: "engine",
+  blurb: "Curtains of green and violet light rippling over the pole.",
+  sells: "Pure beauty. Sells seasonal and travel packs on its own.",
+  options: { preset: "midnight", autoRotate: true, rotateSpeed: 0.03, center: { lon: 20, lat: 52 }, stars: true },
+  run(globe) {
+    let k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (let band = 0; band < 3; band++) {
+        const lat = 68 + band * 4;
+        ctx.beginPath();
+        let open = false;
+        for (let lon = -180; lon <= 180; lon += 4) {
+          const wob = Math.sin((lon + k * 360 + band * 60) * D2R * 3) * 3.4;
+          const p = g.project(lon, lat + wob);
+          if (!p) { open = false; continue; }
+          open ? ctx.lineTo(p.x, p.y) : (ctx.moveTo(p.x, p.y), (open = true));
+        }
+        ctx.strokeStyle = band === 2 ? "rgba(167,139,250,.32)" : `rgba(74,222,128,${0.4 - band * 0.1})`;
+        ctx.lineWidth = 9 - band * 2;
+        ctx.stroke();
+      }
+      ctx.restore();
+    } });
+    return loop(6000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AT", title: "Glass sphere", cat: "Atmosphere", status: "extend",
+  blurb: "Specular highlight, inner rim light and a soft contact shadow.",
+  sells: "Glassmorphism is still everywhere in brand and product design.",
+  options: { preset: "mono", autoRotate: true, rotateSpeed: 0.04, shade: false, stars: false },
+  run(globe) {
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 6.283);
+      ctx.clip();
+      const hi = ctx.createRadialGradient(cx - r * 0.38, cy - r * 0.44, 2, cx - r * 0.3, cy - r * 0.36, r * 1.05);
+      hi.addColorStop(0, "rgba(255,255,255,.5)");
+      hi.addColorStop(0.28, "rgba(255,255,255,.08)");
+      hi.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = hi;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      const rim = ctx.createRadialGradient(cx, cy, r * 0.82, cx, cy, r);
+      rim.addColorStop(0, "rgba(255,255,255,0)");
+      rim.addColorStop(1, "rgba(255,255,255,.34)");
+      ctx.fillStyle = rim;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+      ctx.save();
+      ctx.globalCompositeOperation = "multiply";
+      const sh = ctx.createRadialGradient(cx, cy + r * 1.06, 2, cx, cy + r * 1.06, r * 0.8);
+      sh.addColorStop(0, "rgba(0,0,0,.5)");
+      sh.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = sh;
+      ctx.fillRect(0, cy, w, h - cy);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "AU", title: "Duotone grade", cat: "Atmosphere", status: "extend",
+  blurb: "The whole frame remapped onto two brand colours, shadows to highlights.",
+  sells: "One switch to make the globe match any brand palette exactly.",
+  options: { preset: "atlas", autoRotate: true, rotateSpeed: 0.05, markers: CITIES.slice(0, 8), markerStyle: "dot" },
+  run(globe) {
+    let k = 0;
+    const pairs = [["#0f172a", "#f97316"], ["#1e1b4b", "#22d3ee"], ["#3b0764", "#fbbf24"]];
+    globe.setOptions({ onRender: (g) => {
+      const ctx = g.ctx, w = g.canvas.clientWidth, h = g.canvas.clientHeight;
+      const idx = Math.min(pairs.length - 1, Math.max(0, Math.floor(k * pairs.length)));
+      const [dark, light] = pairs[idx] || pairs[0];
+      ctx.save();
+      ctx.globalCompositeOperation = "saturation";
+      ctx.fillStyle = "#808080";
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "lighten";
+      ctx.fillStyle = dark;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "multiply";
+      ctx.fillStyle = light;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    } });
+    return loop(6000, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AV", title: "Tilt-shift depth", cat: "Atmosphere", status: "engine",
+  blurb: "The far limb softens out of focus while the centre stays sharp.",
+  sells: "Reads as a macro photograph of a real object. Very expensive-looking.",
+  options: { preset: "political", autoRotate: true, rotateSpeed: 0.04, shade: true },
+  run(globe) {
+    let buf = null, bctx = null;
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      const w = c.clientWidth, h = c.clientHeight;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.clearRect(0, 0, buf.width, buf.height);
+      bctx.filter = "blur(4px)";
+      bctx.drawImage(c, 0, 0);
+      bctx.filter = "none";
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.4;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 6.283);
+      ctx.clip();
+      const mask = ctx.createRadialGradient(cx, cy, r * 0.32, cx, cy, r);
+      mask.addColorStop(0, "rgba(0,0,0,0)");
+      mask.addColorStop(1, "rgba(0,0,0,1)");
+      ctx.globalAlpha = 1;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const tmp = document.createElement("canvas");
+      tmp.width = c.width; tmp.height = c.height;
+      const tctx = tmp.getContext("2d");
+      tctx.drawImage(buf, 0, 0);
+      tctx.globalCompositeOperation = "destination-in";
+      tctx.setTransform(g._dpr || 1, 0, 0, g._dpr || 1, 0, 0);
+      tctx.fillStyle = mask;
+      tctx.fillRect(0, 0, w, h);
+      ctx.drawImage(tmp, 0, 0);
+      ctx.restore();
+    } });
+    return () => {};
+  },
+},
+{
+  tag: "AW", title: "Metaball clusters", cat: "Atmosphere", status: "engine",
+  blurb: "Nearby markers melt into one another instead of overlapping.",
+  sells: "Organic, liquid clustering. Nothing else on canvas looks like it.",
+  options: { preset: "neon", autoRotate: true, rotateSpeed: 0.05, markers: [], landStyle: "dots", dotSpacing: 3 },
+  run(globe) {
+    let buf = null, bctx = null, k = 0;
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      const w = c.clientWidth, h = c.clientHeight;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.setTransform(g._dpr || 1, 0, 0, g._dpr || 1, 0, 0);
+      bctx.clearRect(0, 0, w, h);
+      bctx.filter = "blur(7px)";
+      bctx.fillStyle = "#f0abfc";
+      for (const city of CITIES) {
+        const p = g.project(city.lon, city.lat);
+        if (!p) continue;
+        const pulse = 1 + 0.22 * Math.sin(k * 6.283 + city.lon * 0.05);
+        bctx.beginPath();
+        bctx.arc(p.x, p.y, (5 + (city.count / 214) * 13) * pulse, 0, 6.283);
+        bctx.fill();
+      }
+      bctx.filter = "none";
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.filter = "contrast(22) saturate(1.4)";
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(buf, 0, 0);
+      ctx.filter = "none";
+      ctx.restore();
+    } });
+    return loop(3600, (t) => { k = t; globe.invalidate(); });
+  },
+},
+{
+  tag: "AX", title: "Jelly squash", cat: "Atmosphere", status: "engine",
+  blurb: "The sphere wobbles like a soft body when it lands or is nudged.",
+  sells: "Playful brands pay for character. Nothing else here is cute.",
+  options: { preset: "aurora", autoRotate: true, rotateSpeed: 0.06, stars: false },
+  run(globe) {
+    let k = 0, buf = null, bctx = null;
+    globe.setOptions({ onRender: (g) => {
+      const c = g.canvas, ctx = g.ctx;
+      if (!buf) { buf = document.createElement("canvas"); bctx = buf.getContext("2d"); }
+      if (buf.width !== c.width) { buf.width = c.width; buf.height = c.height; }
+      bctx.clearRect(0, 0, buf.width, buf.height);
+      bctx.drawImage(c, 0, 0);
+      const decay = Math.exp(-k * 4.5);
+      const sx = 1 + Math.sin(k * 26) * 0.11 * decay;
+      const sy = 1 - Math.sin(k * 26) * 0.11 * decay;
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.translate(c.width / 2, c.height / 2);
+      ctx.scale(sx, sy);
+      ctx.drawImage(buf, -c.width / 2, -c.height / 2);
+      ctx.restore();
+    } });
+    return loop(2200, (t) => { k = t; globe.invalidate(); }, { hold: 500 });
+  },
+},
+];
+
+/* ------------------------------------------------------------------- ui - */
+const grid = document.getElementById("grid");
+const picked = new Set();
+const live = new Map();
+const SC = { "built-in": "built", extend: "extend", engine: "newwork" };
+
+for (const fx of EFFECTS) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.cat = fx.cat;
+  card.innerHTML = `
+    <div class="stage">
+      <span class="tag">${fx.tag}</span>
+      <button class="replay" title="Replay">↻</button>
+      <canvas></canvas>
+    </div>
+    <div class="body">
+      <div class="title">${fx.title}</div>
+      <p class="blurb">${fx.blurb}</p>
+      <p class="sells">${fx.sells}</p>
+      <div class="meta">
+        <span class="pill cat">${fx.cat}</span>
+        <span class="pill ${SC[fx.status]}">${fx.status}</span>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+  const canvas = card.querySelector("canvas");
+
+  const start = () => {
+    stop();
+    try {
+      const globe = createGlobe(canvas, {
+        interactive: false, keyboard: false, fps: 30, radiusRatio: 0.4,
+        center: { lon: 30, lat: 18 }, ...fx.options,
+      });
+      live.set(fx.tag, { globe, stop: fx.run(globe) || (() => {}) });
+    } catch (e) {
+      console.error(fx.tag, e);
+    }
+  };
+  const stop = () => {
+    const rec = live.get(fx.tag);
+    if (!rec) return;
+    rec.stop?.();
+    rec.globe?.destroy();
+    live.delete(fx.tag);
+  };
+
+  card.querySelector(".replay").addEventListener("click", (e) => { e.stopPropagation(); start(); });
+  card.addEventListener("click", () => {
+    picked.has(fx.tag) ? picked.delete(fx.tag) : picked.add(fx.tag);
+    card.classList.toggle("on", picked.has(fx.tag));
+    render();
+  });
+  new IntersectionObserver((en) => {
+    for (const e of en) e.isIntersecting ? (live.has(fx.tag) || start()) : stop();
+  }, { rootMargin: "240px" }).observe(card);
+}
+
+function render() {
+  const l = [...picked].sort();
+  document.getElementById("pickList").textContent = l.length ? l.join(", ") : "none";
+}
+document.getElementById("copy").addEventListener("click", () =>
+  navigator.clipboard?.writeText([...picked].sort().join(", ")));
+document.getElementById("clear").addEventListener("click", () => {
+  picked.clear();
+  document.querySelectorAll(".card.on").forEach((c) => c.classList.remove("on"));
+  render();
+});
+
+const filters = document.getElementById("filters");
+["All", ...new Set(EFFECTS.map((e) => e.cat))].forEach((cat, i) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.textContent = cat;
+  b.setAttribute("aria-pressed", String(i === 0));
+  b.addEventListener("click", () => {
+    filters.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    document.querySelectorAll(".card").forEach((c) =>
+      c.classList.toggle("hide", cat !== "All" && c.dataset.cat !== cat));
+  });
+  filters.appendChild(b);
+});
+</script>
+</body>
+</html>

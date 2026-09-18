@@ -5,6 +5,7 @@ CanvasGlobe includes geographic data derived from these sources:
 | Files | Source | Terms |
 | --- | --- | --- |
 | `src/data/world.js` | [Natural Earth 1:110m](https://www.naturalearthdata.com/about/terms-of-use/) through [world-atlas](https://github.com/topojson/world-atlas) | Natural Earth states that its data is public domain |
+| `src/data/places.js` | [Natural Earth 1:10m populated places](https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/) | Natural Earth states that its data is public domain |
 | `src/data/india.js` | [Datameet india-composite](https://github.com/datameet/maps) | CC0 / public-domain dedication as stated by the source repository |
 
 The CanvasGlobe Software License Agreement applies to CanvasGlobe's original software

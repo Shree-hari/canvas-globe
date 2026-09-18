@@ -506,6 +506,32 @@ export interface GeoGlobeOptions {
   onCountryHover?: (country: CountryShape | null, position: { x: number; y: number } | null) => void;
   onCountryClick?: (country: CountryShape, position: { x: number; y: number }) => void;
   onRender?: (instance: GeoGlobe) => void;
+  /** Effects installed when the globe is created. */
+  effects?: GlobeEffect[];
+}
+
+/** Where an effect paints relative to the globe itself. */
+export type EffectStage = "beneath" | "above" | "post";
+
+/**
+ * An effect derives its whole appearance from `t` (0→1), which is why
+ * `renderFrame()` can reproduce any frame exactly.
+ */
+export interface GlobeEffect<S = any> {
+  name?: string;
+  /** Default "above". */
+  stage?: EffectStage;
+  /** Paint order within a stage. Lower paints first. Default 0. */
+  z?: number;
+  /** Milliseconds for one cycle. Default 1000. */
+  duration?: number;
+  /** Milliseconds held at the end before looping. Default 0. */
+  hold?: number;
+  /** Default true. */
+  loop?: boolean;
+  setup?(globe: GeoGlobe): S;
+  frame(ctx: CanvasRenderingContext2D, globe: GeoGlobe, t: number, state: S): void;
+  dispose?(state: S, globe: GeoGlobe): void;
 }
 
 export interface FlyToOptions {
@@ -593,6 +619,28 @@ export declare class GeoGlobe {
   countryAt(x: number, y: number): CountryShape | null;
   /** Marks the next frame as needing a redraw. */
   invalidate(): this;
+
+  /** Pointer position in canvas pixels and the coordinate beneath it. */
+  readonly pointer: { x: number; y: number; lon: number; lat: number; over: boolean };
+  /** Effects currently installed, in paint order. */
+  readonly effects: GlobeEffect[];
+  use(effect: GlobeEffect): this;
+  remove(effect: GlobeEffect | string): this;
+  clearEffects(): this;
+  /** Pins the effect clock so a frame can be reproduced. */
+  seek(ms: number): this;
+  /** Releases the clock back to wall time. */
+  play(): this;
+  /** Draws the frame belonging at `ms` on the effect clock. */
+  renderFrame(ms: number): this;
+  /** Traces a country outline into a path using the current projection. */
+  tracePath(
+    shape: CountryShape | { coordinates: unknown },
+    ctx?: CanvasRenderingContext2D,
+    transform?: (coord: [number, number]) => [number, number],
+  ): this;
+  /** Land sample points as `[lon, lat]` pairs. */
+  landPoints(spacing?: number): [number, number][];
   resize(): this;
   render(): this;
   snapshot(type?: string, quality?: number): string;

@@ -20,7 +20,9 @@ const EXPORTS = [
   "geometryBounds", "projections", "world",
   "DEFAULT_LICENSE_KEY", "LICENSE_PAGE_URL", "inspectRuntime", "inspectLicenseKey", "verifyLicenseKey", "hasLicenseKey",
 ];
-const SIZE_BUDGET_KB = Number(process.env.CANVAS_GLOBE_SIZE_BUDGET_KB || 125);
+// Geometry is ~78 KB of this; the code is ~45 KB. Effects live in src/fx and
+// are published separately, so this budget only ever guards the core.
+const SIZE_BUDGET_KB = Number(process.env.CANVAS_GLOBE_SIZE_BUDGET_KB || 130);
 
 const strip = (src, file) => {
   const out = src

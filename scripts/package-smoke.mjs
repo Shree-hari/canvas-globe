@@ -57,8 +57,20 @@ try {
       "-e",
       "const m=await import('canvas-globe');" +
         "if(typeof m.createGlobe!=='function'||m.CanvasGlobe!==m.GeoGlobe||m.createCanvasGlobe!==m.createGlobe||m.DEFAULT_LICENSE_KEY!=='0000-0000-000-0000')process.exit(1);" +
-        "const e=await import('canvas-globe/element');" +
-        "if(typeof e.defineGeoGlobe!=='function')process.exit(1)",
+      "const e=await import('canvas-globe/element');" +
+        "if(typeof e.defineGeoGlobe!=='function')process.exit(1);" +
+      "const fx=await import('canvas-globe/fx');" +
+        "if(typeof fx.scanlines!=='function'||typeof fx.rng!=='function')process.exit(1);" +
+      "const interaction=await import('canvas-globe/fx/interaction');" +
+        "if(typeof interaction.measureTool!=='function')process.exit(1);" +
+      "const charts=await import('canvas-globe/charts');" +
+        "if(typeof charts.tilegram!=='function')process.exit(1);" +
+      "const recipes=await import('canvas-globe/recipes');" +
+        "if(typeof recipes.applyRecipe!=='function')process.exit(1);" +
+      "const controls=await import('canvas-globe/controls');" +
+        "if(typeof controls.searchAndFly!=='function')process.exit(1);" +
+      "const places=await import('canvas-globe/places');" +
+        "if(typeof places.searchPlaces!=='function'||places.placeCount()<6000)process.exit(1)",
     ],
     scratch,
   );
@@ -75,6 +87,12 @@ try {
 
   for (const file of [
     "types/index.d.ts",
+    "types/fx.d.ts",
+    "types/fx-interaction.d.ts",
+    "types/charts.d.ts",
+    "types/recipes.d.ts",
+    "types/controls.d.ts",
+    "types/places.d.ts",
     "LICENSE.md",
     "LICENSING.md",
     "THIRD_PARTY_NOTICES.md",

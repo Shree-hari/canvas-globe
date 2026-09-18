@@ -11,6 +11,13 @@
     "types": ["react"],
     "baseUrl": ".",
     "paths": {
+      "canvas-globe": ["./types/index.d.ts"],
+      "canvas-globe/fx": ["./types/fx.d.ts"],
+      "canvas-globe/fx/interaction": ["./types/fx-interaction.d.ts"],
+      "canvas-globe/charts": ["./types/charts.d.ts"],
+      "canvas-globe/recipes": ["./types/recipes.d.ts"],
+      "canvas-globe/controls": ["./types/controls.d.ts"],
+      "canvas-globe/places": ["./types/places.d.ts"],
       "3d-globe-map": ["./packages/3d-globe-map/index.d.ts"],
       "canvas-globe-svelte": ["./packages/canvas-globe-svelte/index.d.ts"],
       "canvas-globe-vue": ["./packages/canvas-globe-vue/index.d.ts"],
