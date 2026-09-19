@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -80,7 +81,10 @@ copyFileSync(
 );
 
 for (const collection of ["starters", "packages/create-canvas-globe/templates"]) {
-  for (const name of ["vanilla-vite", "react-vite", "nextjs-app-router", "nuxt-ssr", "vue-vite", "sveltekit", "angular-ssr", "web-component-vite"]) {
+  const names = readdirSync(join(root, collection), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && existsSync(join(root, collection, entry.name, "package.json")))
+    .map((entry) => entry.name);
+  for (const name of names) {
     const path = `${collection}/${name}/package.json`;
     updatePackage(path, (pkg) => {
       for (const dependency of ["canvas-globe", ...companionDirectories]) {

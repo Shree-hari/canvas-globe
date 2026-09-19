@@ -1,6 +1,6 @@
 {
   "name": "canvas-globe-web-component",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Web Component for interactive 3D globes and world maps rendered with Canvas 2D.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
@@ -37,7 +37,7 @@
   ],
   "sideEffects": true,
   "dependencies": {
-    "canvas-globe": "^1.4.0"
+    "canvas-globe": "^1.4.1"
   },
   "publishConfig": {
     "access": "public"

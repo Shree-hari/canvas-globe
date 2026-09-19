@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "canvas-globe": "^1.4.0"
+    "canvas-globe": "^1.4.1"
   },
   "devDependencies": {
     "vite": "^7.1.5"

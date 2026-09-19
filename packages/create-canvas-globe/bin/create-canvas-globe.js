@@ -8,6 +8,14 @@ import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
 const templates = {
+  analytics: "analytics-dashboard",
+  dashboard: "analytics-dashboard",
+  "analytics-dashboard": "analytics-dashboard",
+  choropleth: "choropleth-analytics",
+  "choropleth-analytics": "choropleth-analytics",
+  logistics: "logistics-routes",
+  routes: "logistics-routes",
+  "logistics-routes": "logistics-routes",
   angular: "angular-ssr",
   "angular-ssr": "angular-ssr",
   vanilla: "vanilla-vite",
@@ -36,7 +44,8 @@ Usage:
   npx create-canvas-globe my-globe --template vanilla
 
 Templates:
-  vanilla, react, nextjs, nuxt, angular, vue, sveltekit, web-component
+  analytics, choropleth, logistics, vanilla, react, nextjs, nuxt,
+  angular, vue, sveltekit, web-component
 `);
 }
 
@@ -68,7 +77,7 @@ async function main() {
   const rl = createInterface({ input, output });
   try {
     const name = args.name || (args.yes ? "canvas-globe-app" : await rl.question("Project directory: ")) || "canvas-globe-app";
-    const requested = args.template || (args.yes ? "vanilla" : await rl.question("Template (vanilla, react, nextjs, nuxt, angular, vue, sveltekit, web-component): ")) || "vanilla";
+    const requested = args.template || (args.yes ? "vanilla" : await rl.question("Template (analytics, choropleth, logistics, vanilla, react, nextjs, nuxt, angular, vue, sveltekit, web-component): ")) || "vanilla";
     const template = templates[requested.toLowerCase()];
     if (!template) throw new Error(`Unknown template: ${requested}. Run with --help to see the choices.`);
 

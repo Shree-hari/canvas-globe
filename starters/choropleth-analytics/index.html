@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CanvasGlobe interactive choropleth analytics starter" />
+    <title>CanvasGlobe Country Analytics</title>
+  </head>
+  <body>
+    <main>
+      <header><div class="brand"><span></span><strong>MarketScope</strong></div><nav><a href="#explorer">Explorer</a><a href="https://canvasglobe.swiftools.com/guides/choropleth">Guide</a></nav></header>
+      <section class="hero" id="explorer">
+        <div class="copy">
+          <p class="eyebrow">Choropleth analytics starter</p>
+          <h1>Compare markets without losing the world around them.</h1>
+          <p class="lede">Use the same dataset on a rotatable globe or a flat Natural Earth map. Change the metric and every country, legend, ranking, and insight updates together.</p>
+          <div class="metrics" aria-label="Metric">
+            <button class="active" data-metric="adoption">Product adoption</button>
+            <button data-metric="growth">Annual growth</button>
+            <button data-metric="revenue">Revenue index</button>
+          </div>
+        </div>
+        <div class="snapshot"><span>Selected metric</span><strong id="metric-name">Product adoption</strong><small id="metric-insight">India leads the current sample</small></div>
+      </section>
+      <section class="explorer">
+        <div class="visual">
+          <canvas id="globe" aria-label="Interactive world choropleth"></canvas>
+          <div class="modes"><button data-mode="globe">Globe</button><button class="active" data-mode="map">Flat map</button></div>
+        </div>
+        <aside>
+          <div class="aside-heading"><div><span>Top markets</span><h2 id="ranking-title">Product adoption</h2></div><b>2026</b></div>
+          <ol id="ranking"></ol>
+          <div class="selection"><span>Country selection</span><strong id="selected-country">Click a country</strong><small id="selected-value">Its value will appear here</small></div>
+        </aside>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

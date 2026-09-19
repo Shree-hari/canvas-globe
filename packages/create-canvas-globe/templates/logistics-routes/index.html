@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CanvasGlobe logistics routes and shipment tracking starter" />
+    <title>CanvasGlobe Logistics Network</title>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <div class="brand"><span>NF</span><div><strong>Northfield Freight</strong><small>Global operations</small></div></div>
+        <span class="network"><i></i> Network operational</span>
+      </header>
+      <section class="headline">
+        <div><p>Live logistics starter</p><h1>Every route.<br />One clear view.</h1></div>
+        <div class="summary"><div><strong id="route-count">0</strong><span>active routes</span></div><div><strong>98.7%</strong><span>on-time</span></div><div><strong>14</strong><span>global hubs</span></div></div>
+      </section>
+      <section class="workspace">
+        <div class="stage"><canvas id="globe" aria-label="Interactive global shipment route globe"></canvas><div class="mode"><button class="active" data-mode="globe">Globe</button><button data-mode="map">Map</button></div></div>
+        <aside>
+          <div class="aside-title"><div><span>Route activity</span><h2>Shipments in motion</h2></div><span class="pulse"></span></div>
+          <div class="filters" aria-label="Route region"><button class="active" data-region="all">All</button><button data-region="apac">APAC</button><button data-region="atlantic">Atlantic</button></div>
+          <div id="route-list" class="route-list"></div>
+          <p class="note">The animated routes, moving heads, live pings, filters, and projection switch are all driven by CanvasGlobe.</p>
+        </aside>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

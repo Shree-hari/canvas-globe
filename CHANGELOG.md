@@ -6,6 +6,18 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-09-19
+
+### Added
+
+- Added complete analytics-dashboard, logistics-routes, and choropleth-analytics Vite starters with
+  responsive interfaces, interactive controls, sample data, production builds, and CLI aliases.
+
+### Fixed
+
+- Prevented generated Nuxt `.nuxt` and `.output` directories from entering the
+  `create-canvas-globe` package when starter templates are synchronized.
+
 ## [1.4.0] - 2026-09-19
 
 ### Added

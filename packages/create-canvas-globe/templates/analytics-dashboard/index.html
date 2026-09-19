@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CanvasGlobe geographic analytics dashboard starter" />
+    <title>CanvasGlobe Analytics Dashboard</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div><span class="mark"></span><strong>Signal Atlas</strong></div>
+        <span class="live"><i></i> Live sample data</span>
+      </header>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">Geographic analytics starter</p>
+          <h1>Find the demand hidden in your data.</h1>
+          <p class="lede">Switch datasets, inspect dense regions, and move from globe to flat map without rebuilding the view.</p>
+        </div>
+        <div class="dataset-tabs" aria-label="Dataset">
+          <button class="active" data-dataset="demand">Demand</button>
+          <button data-dataset="incidents">Incidents</button>
+          <button data-dataset="revenue">Revenue</button>
+        </div>
+      </section>
+      <section class="kpis" aria-label="Summary metrics">
+        <article><span>Total signal</span><strong id="total-signal">0</strong><small id="total-change">Across tracked regions</small></article>
+        <article><span>Strongest region</span><strong id="top-region">-</strong><small id="top-value">No data</small></article>
+        <article><span>Active locations</span><strong id="location-count">0</strong><small>Updated in this view</small></article>
+      </section>
+      <section class="visual">
+        <div class="canvas-wrap">
+          <canvas id="globe" aria-label="Interactive geographic analytics globe"></canvas>
+        </div>
+        <aside>
+          <div class="aside-head">
+            <div><span>Display</span><strong id="dataset-title">Demand density</strong></div>
+            <div class="view-tabs" aria-label="Projection family">
+              <button class="active" data-mode="globe">Globe</button>
+              <button data-mode="map">Map</button>
+            </div>
+          </div>
+          <ol id="ranking" class="ranking"></ol>
+          <p class="hint">Hover a cell to inspect the locations aggregated inside it.</p>
+        </aside>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

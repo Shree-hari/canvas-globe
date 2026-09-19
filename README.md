@@ -37,6 +37,8 @@
 
 **Start with your stack:** [Vanilla JS](starters/vanilla-vite) | [React + Vite](starters/react-vite) | [Next.js](starters/nextjs-app-router) | [Nuxt](starters/nuxt-ssr) | [Vue](starters/vue-vite) | [SvelteKit](starters/sveltekit) | [Angular SSR](starters/angular-ssr) | [Web Component](starters/web-component-vite)
 
+**Start with a data job:** [Analytics dashboard](starters/analytics-dashboard) | [Logistics routes](starters/logistics-routes) | [Choropleth analytics](starters/choropleth-analytics)
+
 **Install with shadcn:** `npx shadcn@latest add https://canvasglobe.swiftools.com/r/canvas-globe.json`
 
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
@@ -141,19 +143,19 @@ your existing application rather than installing a second React copy.
 For a plain `<script>` installation, use the versioned UMD build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.4.0/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.4.1/dist/canvas-globe.umd.js"></script>
 ```
 
 The same npm release is also available from UNPKG:
 
 ```html
-<script src="https://unpkg.com/canvas-globe@1.4.0/dist/canvas-globe.umd.js"></script>
+<script src="https://unpkg.com/canvas-globe@1.4.1/dist/canvas-globe.umd.js"></script>
 ```
 
 Modern browsers can import the package through an ESM CDN:
 
 ```js
-import { createGlobe } from "https://esm.sh/canvas-globe@1.4.0";
+import { createGlobe } from "https://esm.sh/canvas-globe@1.4.1";
 ```
 
 Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
@@ -173,7 +175,7 @@ import { createGlobe } from "canvas-globe";
 Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.4.0/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.4.1/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {
@@ -273,11 +275,13 @@ license. Framework packages add native lifecycle and event integration, while
 | [`3d-globe-map`](https://www.npmjs.com/package/3d-globe-map) | Search-friendly alternate package entry |
 | [`create-canvas-globe`](https://www.npmjs.com/package/create-canvas-globe) | Project scaffolder and starter templates |
 
-To scaffold a complete starter for React, Next.js, Vue, SvelteKit, Vanilla
-JavaScript, or Web Components, run:
+To scaffold a complete framework or data-product starter, run:
 
 ```bash
 npm create canvas-globe my-globe
+npm create canvas-globe demand-dashboard -- --template analytics
+npm create canvas-globe freight-network -- --template logistics
+npm create canvas-globe market-map -- --template choropleth
 ```
 
 ### AI-assisted setup
