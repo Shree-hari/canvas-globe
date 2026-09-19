@@ -10,6 +10,7 @@
     "build:hosted": "node generate-fixture.mjs && vite build --mode hosted",
     "smoke": "node runner/smoke.mjs",
     "smoke:built": "node runner/smoke-built.mjs",
+    "smoke:live": "node runner/smoke-live.mjs",
     "benchmark": "node runner/run.mjs",
     "report": "node runner/report.mjs && node scripts/validate-records.mjs",
     "validate:results": "node scripts/validate-records.mjs",
