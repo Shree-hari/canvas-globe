@@ -6,6 +6,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-19
+
 ### Added
 
 - Added an interactive screen-space hex-bin density layer for globe and map
