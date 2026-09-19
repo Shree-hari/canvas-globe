@@ -52,12 +52,6 @@ lock.packages[""].version = version;
 lock.packages[""].license = "SEE LICENSE IN LICENSE.md";
 writeJson("package-lock.json", lock);
 
-if (existsSync(join(root, "jsr.json"))) {
-  const jsr = readJson("jsr.json");
-  jsr.version = version;
-  writeJson("jsr.json", jsr);
-}
-
 const companionDirectories = [
   "3d-globe-map",
   "canvas-globe-angular",

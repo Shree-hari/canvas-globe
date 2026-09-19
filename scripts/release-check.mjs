@@ -120,29 +120,16 @@ if (existsSync(join(root, "codemeta.json"))) {
   );
 }
 
-if (existsSync(join(root, "jsr.json"))) {
-  const jsr = JSON.parse(readFileSync(join(root, "jsr.json"), "utf8"));
-  assert(jsr.name === "@swiftools/canvas-globe", "unexpected JSR package name");
-  assert(jsr.version === pkg.version, "JSR version is stale");
-  assert(!jsr.license, "JSR must derive the proprietary terms from the packaged LICENSE.md file");
-  assert(jsr.exports?.["."] === "./src/index.js", "JSR default export is stale");
-  assert(jsr.exports?.["./element"] === "./jsr/element.js", "JSR element export is stale");
-  assert(jsr.exports?.["./data/world"] === "./jsr/data/world.js", "JSR world-data export is stale");
-  assert(!jsr.exports?.["./react"], "JSR must not bundle a separate React peer");
-  assert(!jsr.publish?.include?.includes("types"), "JSR must not include npm-only global declarations");
-  assert(jsr.publish?.exclude?.includes("src/react.js"), "JSR must exclude the npm-only React entry point");
-  assert(jsr.publish?.exclude?.includes("types/react.d.ts"), "JSR must exclude React declarations");
-  assert(jsr.publish?.include?.includes("types/jsr-element.d.ts"), "JSR element declarations are missing");
-  assert(
-    jsr.publish?.include?.includes("src") || jsr.publish?.include?.includes("src/version.js"),
-    "JSR version module is missing",
-  );
-  assert(jsr.publish?.include?.includes("LICENSE.md"), "JSR proprietary license file is missing");
-  assert(jsr.publish?.include?.includes("README.md"), "JSR README is missing");
-}
 if (commercialRelease) {
   assert(!existsSync(join(root, "LICENSE")), "commercial releases must not pack the former root GPL LICENSE file");
-  assert(existsSync(join(root, "jsr.json")), "commercial releases must keep JSR aligned with npm");
+  assert(
+    !existsSync(join(root, "jsr.json")),
+    "commercial releases must not expose an active JSR configuration because JSR does not accept the proprietary license",
+  );
+  assert(
+    !existsSync(join(root, ".github", "workflows", "publish-jsr.yml")),
+    "commercial releases must not expose a JSR publishing workflow",
+  );
   assert(pkg.files?.includes("LICENSE.md"), "commercial package files must include LICENSE.md");
   assert(!pkg.files?.includes("LICENSE"), "commercial package files still include the former GPL LICENSE");
 }
