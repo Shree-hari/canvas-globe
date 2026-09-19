@@ -1384,7 +1384,7 @@ function drawFitted(ctx, media, box) {
 }
 
 // Keep in sync with package.json. Release checks enforce this value.
-const CANVAS_GLOBE_VERSION = "1.2.0";
+const CANVAS_GLOBE_VERSION = "1.3.0";
 
 /** Local license-key checks and production-use presentation helpers. */
 
