@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { installGlobals, makeCanvas } from "./helpers.js";
-import { createGlobe } from "../src/index.js";
+import { createGlobe, TileLayer } from "../src/index.js";
 import { locateViewer, timeZoneLocation, countryLocation } from "../src/viewer.js";
 import { supportedRecordingType, canRecord } from "../src/recorder.js";
 
@@ -352,6 +352,35 @@ test("texture is ignored when it cannot be loaded", () => {
   g.setTexture(null);
   assert.equal(g._texture, null);
   g.destroy();
+});
+
+test("the default renderer creates no tile layer or network source", () => {
+  const g = globe();
+  assert.equal(g._tileLayer, null);
+  g.destroy();
+});
+
+test("optional tile layers render in globe and map modes with attribution", () => {
+  for (const mode of ["globe", "map"]) {
+    const layer = Object.create(TileLayer.prototype);
+    let draws = 0;
+    let destroyed = false;
+    Object.assign(layer, {
+      ready: true,
+      attribution: "Example tile provider",
+      draw() { draws++; return true; },
+      drawFlat() { draws++; return true; },
+      destroy() { destroyed = true; },
+    });
+    const canvas = makeCanvas();
+    const g = createGlobe(canvas, { autoRotate: false, mode, tileLayer: layer });
+    g.render();
+    assert.ok(draws > 0, `${mode} should draw the tile raster`);
+    assert.ok(canvas.calls.some(([name, args]) => name === "fillText" && args[0] === "Example tile provider"));
+    g.setTileLayer(null);
+    assert.equal(destroyed, true);
+    g.destroy();
+  }
 });
 
 /* -------------------------- focus & country media ------------------------ */

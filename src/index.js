@@ -15,6 +15,7 @@ export { fromCSV, fromRows, parseCSV, geocode, countryPoint } from "./csv.js";
 export { locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation } from "./viewer.js";
 export { recordCanvas, downloadBlob, canRecord, supportedRecordingType } from "./recorder.js";
 export { SphereTexture } from "./texture.js";
+export { TileLayer, tileUrl } from "./tiles.js";
 export { Media, drawFitted } from "./media.js";
 export {
   DEFAULT_LICENSE_KEY,

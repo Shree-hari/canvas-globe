@@ -42,10 +42,12 @@
 `canvas-globe` is a zero-dependency JavaScript library for an interactive
 **3D globe** and **flat world map** on Canvas 2D. It works with
 vanilla JavaScript, React, Vue, Angular, Svelte, or a Web Component and requires no WebGL, map API
-key, tile service, or runtime network request.
+key, tile service, or runtime network request. Optional XYZ tiles are available when you explicitly
+configure a provider.
 
-- **Zero dependencies:** no WebGL, D3, map tiles, or API keys
-- **Zero network calls:** country geometry ships inside the package
+- **Zero dependencies:** no required WebGL, D3, map tiles, or API keys
+- **Zero required network calls:** country geometry ships inside the package
+- **Optional XYZ tiles:** opt into a cached raster provider for globe and overview-map backgrounds
 - **Interactive:** drag, zoom, pinch, hover, and click
 - **Marker support:** weighted markers, avatars, pulse rings, and clustering
 - **Great-circle arcs:** animated routes clipped at the horizon
@@ -139,19 +141,19 @@ your existing application rather than installing a second React copy.
 For a plain `<script>` installation, use the versioned UMD build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.3.0/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.4.0/dist/canvas-globe.umd.js"></script>
 ```
 
 The same npm release is also available from UNPKG:
 
 ```html
-<script src="https://unpkg.com/canvas-globe@1.3.0/dist/canvas-globe.umd.js"></script>
+<script src="https://unpkg.com/canvas-globe@1.4.0/dist/canvas-globe.umd.js"></script>
 ```
 
 Modern browsers can import the package through an ESM CDN:
 
 ```js
-import { createGlobe } from "https://esm.sh/canvas-globe@1.3.0";
+import { createGlobe } from "https://esm.sh/canvas-globe@1.4.0";
 ```
 
 Pin an exact version in production so a future release cannot change a deployed page unexpectedly.
@@ -171,7 +173,7 @@ import { createGlobe } from "canvas-globe";
 Or drop the UMD build on a page with no build step at all:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.3.0/dist/canvas-globe.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-globe@1.4.0/dist/canvas-globe.umd.js"></script>
 <canvas id="globe" style="width:520px;aspect-ratio:1"></canvas>
 <script>
   CanvasGlobe.createGlobe(document.getElementById("globe"), {
@@ -371,6 +373,7 @@ included effects. See `types/fx.d.ts` for every option and callback signature.
 | `orbits` | `0` | Decorative rings: a count (0-6) or explicit specs |
 | `texture` | Not set | Equirectangular image painted onto the sphere |
 | `textureQuality` | `"auto"` | Pixel step for the texture pass; higher is faster |
+| `tileLayer` | Not set | Optional cached XYZ overview tiles; see [Tile layers](#tile-layers) |
 | `focus` | Not set | Frame one country: `"IN"` or `{ country, isolate, dim, outlineWidth }` |
 | `countryMedia` | Not set | Media clipped to each country, keyed by ISO, id or name |
 | `scene` | Not set | Whole composition: preset plus the layers a job needs |
@@ -478,6 +481,41 @@ Available options are `radius`, `minValue`, `value`, `color`, `colorRange`, `opa
 `strokeWidth`, `padding`, `showCount`, `labelColor`, and `hideMarkers`. The same configuration works
 in globe and flat-map modes. Since binning happens after projection, `radius` is measured in screen
 pixels rather than geographic degrees.
+
+## Tile layers
+
+CanvasGlobe does not contact a tile service by default. Set `tileLayer` only when a raster basemap
+adds real value to the product. The same cached tile mosaic is reprojected for the globe,
+equirectangular, Mercator, and Natural Earth views.
+
+```js
+const globe = createGlobe(canvas, {
+  tileLayer: {
+    url: "https://tiles.example.com/{z}/{x}/{y}.png",
+    zoom: 2,
+    attribution: "Map data and imagery: Example Maps",
+    onError(error, tile) {
+      console.warn("Tile unavailable", tile, error);
+    },
+  },
+});
+```
+
+`url` accepts `{z}`, `{x}`, `{y}`, and `{-y}` placeholders. For private, signed, generated, or
+offline imagery, use `getTile({ x, y, z })` and return a URL, canvas, image, bitmap, or a Promise of
+one. Loaded XYZ coordinates are cached for the lifetime of the layer, and failed tiles leave the
+built-in CanvasGlobe background visible instead of breaking the render loop.
+
+This is an overview layer, not a slippy-map engine. `zoom` defaults to 2. The default `maxTiles: 64`
+allows up to zoom 3 and prevents a configuration mistake from starting hundreds of requests. Raise
+the ceiling explicitly only when the provider terms, page weight, and device budget allow it.
+
+Always supply the attribution required by your provider. CanvasGlobe paints it into the canvas, so
+it remains present in image and video exports. Remote images use anonymous CORS by default because
+globe reprojection and export must read their pixels. The provider must return a compatible
+`Access-Control-Allow-Origin` header. You may set `crossOrigin: null`, but a cross-origin response
+without CORS cannot be reprojected or exported. You are responsible for the provider's licence,
+usage policy, access token, and request limits.
 
 ### How accurate is marker placement?
 

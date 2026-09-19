@@ -256,6 +256,39 @@ export interface RecordingHandle {
   stop(): Promise<Blob>;
 }
 
+export interface TileCoordinate {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export type TileSource = string | CanvasImageSource;
+export type TileProvider = (tile: TileCoordinate) => TileSource | Promise<TileSource>;
+
+/** Optional XYZ overview tiles. No request is made unless this option is set. */
+export interface TileLayerOptions {
+  /** URL template using {z}, {x}, {y}, and optional {-y}. */
+  url?: string;
+  /** Alias for a URL template or provider callback. */
+  source?: string | TileProvider;
+  /** Return a URL or drawable image for one XYZ tile. */
+  getTile?: TileProvider;
+  /** Fixed overview zoom. Default 2. */
+  zoom?: number;
+  /** Source tile width/height. Default 256. */
+  tileSize?: number;
+  /** Maximum composed texture width. Default 2048. */
+  maxWidth?: number;
+  /** Request ceiling. Default 64, which allows zoom 3. */
+  maxTiles?: number;
+  opacity?: number;
+  /** Painted into the canvas and every export. */
+  attribution?: string;
+  /** Image CORS mode. Default "anonymous"; null leaves it unset. */
+  crossOrigin?: string | null;
+  onError?: (error: Error, tile: TileCoordinate | null) => void;
+}
+
 /** Anything `drawImage` accepts, plus a URL or a live stream. */
 export type MediaSource = string | CanvasImageSource | MediaStream;
 
@@ -445,6 +478,8 @@ export interface GeoGlobeOptions {
   texture?: string | CanvasImageSource | null;
   /** Pixel step for the texture pass; higher is faster. Default "auto". */
   textureQuality?: "auto" | number;
+  /** Optional XYZ overview tiles. The default configuration performs no requests. */
+  tileLayer?: string | TileProvider | TileLayerOptions | TileLayer | null;
   /** Frame a single country, optionally dropping the rest of the world. */
   focus?: string | FocusSpec | null;
   /** Media painted inside each country's outline, keyed by ISO, id or name. */
@@ -602,6 +637,8 @@ export declare class GeoGlobe {
   setLandStyle(style: LandStyle): this;
   /** Equirectangular image painted onto the sphere; null removes it. */
   setTexture(source: string | CanvasImageSource | null): this;
+  /** Optional XYZ overview tiles; null removes the layer. */
+  setTileLayer(source: GeoGlobeOptions["tileLayer"]): this;
   /** Frames a country and, with `isolate`, drops the rest of the world away. */
   focusOn(country: string | FocusSpec | null, opts?: Partial<FocusSpec> & FlyToOptions): this;
   clearFocus(): this;
@@ -780,6 +817,18 @@ export declare class SphereTexture {
   readonly ready: boolean;
   readonly error: Error | null;
 }
+
+/** Cached XYZ tiles composed into the raster used by globe and map modes. */
+export declare class TileLayer {
+  constructor(source: string | TileProvider | TileLayerOptions, options?: { onLoad?: (layer: TileLayer) => void });
+  readonly ready: boolean;
+  readonly error: Error | null;
+  readonly attribution: string;
+  readonly stats: { loaded: number; failed: number; total: number; cached: number };
+  destroy(): void;
+}
+
+export declare function tileUrl(template: string, tile: TileCoordinate): string;
 
 /** A drawable media source: image, GIF, video, canvas or live stream. */
 export declare class Media {
