@@ -1,0 +1,83 @@
+{
+  "canvas-globe": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 1,
+    "focusableCanvasCount": 1,
+    "semanticGlobeCount": 1,
+    "focusableCount": 1,
+    "tabReachedVisualization": true,
+    "reducedMotionRequested": true
+  },
+  "three-globe": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 0,
+    "tabReachedVisualization": false,
+    "reducedMotionRequested": true
+  },
+  "globe-gl": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 0,
+    "tabReachedVisualization": false,
+    "reducedMotionRequested": true
+  },
+  "react-globe-gl": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 0,
+    "tabReachedVisualization": false,
+    "reducedMotionRequested": true
+  },
+  "cobe": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 0,
+    "tabReachedVisualization": false,
+    "reducedMotionRequested": true
+  },
+  "cesium": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 3,
+    "tabReachedVisualization": true,
+    "reducedMotionRequested": true
+  },
+  "maplibre-gl": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 1,
+    "focusableCanvasCount": 1,
+    "semanticGlobeCount": 0,
+    "focusableCount": 1,
+    "tabReachedVisualization": true,
+    "reducedMotionRequested": true
+  },
+  "dotted-map": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 0,
+    "tabReachedVisualization": false,
+    "reducedMotionRequested": true
+  },
+  "mappo": {
+    "canvasCount": 1,
+    "labeledCanvasCount": 0,
+    "focusableCanvasCount": 0,
+    "semanticGlobeCount": 0,
+    "focusableCount": 0,
+    "tabReachedVisualization": false,
+    "reducedMotionRequested": true
+  }
+}

@@ -8,6 +8,8 @@ import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
 const templates = {
+  angular: "angular-ssr",
+  "angular-ssr": "angular-ssr",
   vanilla: "vanilla-vite",
   "vanilla-vite": "vanilla-vite",
   react: "react-vite",
@@ -32,7 +34,7 @@ Usage:
   npx create-canvas-globe my-globe --template vanilla
 
 Templates:
-  vanilla, react, nextjs, vue, sveltekit, web-component
+  vanilla, react, nextjs, angular, vue, sveltekit, web-component
 `);
 }
 
@@ -64,7 +66,7 @@ async function main() {
   const rl = createInterface({ input, output });
   try {
     const name = args.name || (args.yes ? "canvas-globe-app" : await rl.question("Project directory: ")) || "canvas-globe-app";
-    const requested = args.template || (args.yes ? "vanilla" : await rl.question("Template (vanilla, react, nextjs, vue, sveltekit, web-component): ")) || "vanilla";
+    const requested = args.template || (args.yes ? "vanilla" : await rl.question("Template (vanilla, react, nextjs, angular, vue, sveltekit, web-component): ")) || "vanilla";
     const template = templates[requested.toLowerCase()];
     if (!template) throw new Error(`Unknown template: ${requested}. Run with --help to see the choices.`);
 

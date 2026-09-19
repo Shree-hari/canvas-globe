@@ -6,6 +6,21 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Added an Angular SSR and hydration starter with prerendered HTML, a stable
+  canvas shell, client hydration, and project-creator support.
+- Added a reproducible nine-library globe comparison harness for timing,
+  bundle size, package metadata, server-import, and accessibility-surface
+  measurements.
+
+### Fixed
+
+- Prevented the Angular component from creating a CanvasGlobe instance during
+  server rendering.
+- Corrected public TypeScript declarations for story-step overrides and theme
+  options.
+
 ## [1.2.0] - 2026-09-18
 
 ### Added

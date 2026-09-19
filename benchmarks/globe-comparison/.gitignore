@@ -1,0 +1,5 @@
+node_modules/
+dist/
+public/shared-dataset.json
+results/raw/benchmark-quick.json
+screenshots/

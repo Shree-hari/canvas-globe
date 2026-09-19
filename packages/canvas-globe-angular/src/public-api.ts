@@ -69,6 +69,9 @@ export class CanvasGlobeComponent implements AfterViewInit, OnChanges, OnDestroy
   }
 
   ngAfterViewInit(): void {
+    // Angular runs lifecycle hooks during server rendering too. Defer all
+    // canvas work until the hydrated browser instance owns a real window.
+    if (typeof window === "undefined") return;
     this.globe = new GeoGlobe(this.canvas.nativeElement, this.resolvedOptions());
     this.ready.emit(this.globe);
   }

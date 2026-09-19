@@ -178,7 +178,7 @@ export interface Handle {
   stop(): void;
 }
 
-export interface StoryStep extends Partial<GeoGlobeOptions> {
+export interface StoryStep extends Omit<Partial<GeoGlobeOptions>, "center" | "zoom"> {
   /** Scroll progress, 0-1. */
   at: number;
   center?: [lon: number, lat: number];
@@ -387,8 +387,6 @@ export interface GeoGlobeOptions {
   mode?: "globe" | "map";
   /** Flat-map projection. Default "equirectangular". */
   projection?: MapProjection;
-  /** Built-in theme name or a partial theme object. Default "atlas". */
-  theme?: ThemeName | Partial<Theme>;
   /** Named bundle of theme + render style, applied under your own options. */
   preset?: PresetName;
   /** Theme name, a partial theme, "auto" for the OS colour scheme, or "css"

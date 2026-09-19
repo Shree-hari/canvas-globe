@@ -12,7 +12,7 @@ const names = (await readdir(sourceRoot, { withFileTypes: true }))
 
 await rm(targetRoot, { recursive: true, force: true });
 await mkdir(targetRoot, { recursive: true });
-const ignored = new Set(["node_modules", "dist", ".next", ".svelte-kit", "build", ".env"]);
+const ignored = new Set(["node_modules", "dist", ".next", ".svelte-kit", ".angular", "build", ".env", "package-lock.json"]);
 for (const name of names) {
   const source = join(sourceRoot, name);
   await cp(source, join(targetRoot, name), {

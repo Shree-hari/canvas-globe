@@ -1,0 +1,41 @@
+{
+  "canvas-globe": {
+    "packageName": "canvas-globe",
+    "serverImport": "supported"
+  },
+  "three-globe": {
+    "packageName": "three-globe",
+    "serverImport": "unsupported",
+    "error": "window is not defined"
+  },
+  "globe-gl": {
+    "packageName": "globe.gl",
+    "serverImport": "unsupported",
+    "error": "window is not defined"
+  },
+  "react-globe-gl": {
+    "packageName": "react-globe.gl",
+    "serverImport": "unsupported",
+    "error": "window is not defined"
+  },
+  "cobe": {
+    "packageName": "cobe",
+    "serverImport": "supported"
+  },
+  "cesium": {
+    "packageName": "cesium",
+    "serverImport": "supported"
+  },
+  "maplibre-gl": {
+    "packageName": "maplibre-gl",
+    "serverImport": "supported"
+  },
+  "dotted-map": {
+    "packageName": "@wescld/dotted-map",
+    "serverImport": "supported"
+  },
+  "mappo": {
+    "packageName": "mappo",
+    "serverImport": "supported"
+  }
+}
