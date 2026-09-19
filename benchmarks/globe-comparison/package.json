@@ -6,8 +6,10 @@
   "scripts": {
     "fixture": "node generate-fixture.mjs",
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build && node runner/bundle-sizes.mjs",
+    "build": "node generate-fixture.mjs && vite build && node runner/bundle-sizes.mjs",
+    "build:hosted": "node generate-fixture.mjs && vite build --mode hosted",
     "smoke": "node runner/smoke.mjs",
+    "smoke:built": "node runner/smoke-built.mjs",
     "benchmark": "node runner/run.mjs",
     "report": "node runner/report.mjs && node scripts/validate-records.mjs",
     "validate:results": "node scripts/validate-records.mjs",

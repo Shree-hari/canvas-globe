@@ -58,7 +58,7 @@ async function runOnce(browser, origin, library, workload, viewport) {
     page.on("pageerror", (error) => failures.push(error.message));
     page.on("requestfailed", (request) => failures.push(`${request.url()}: ${request.failure()?.errorText}`));
     const navigationStarted = performance.now();
-    await page.goto(`${origin}/?library=${encodeURIComponent(library.id)}&workload=${encodeURIComponent(workload.id)}`, { waitUntil: "domcontentloaded", timeout: 90_000 });
+    await page.goto(`${origin}/?library=${encodeURIComponent(library.id)}&workload=${encodeURIComponent(workload.id)}&measurement=1`, { waitUntil: "domcontentloaded", timeout: 90_000 });
     await page.waitForFunction(() => window.__benchmark?.ready || window.__benchmark?.error, null, { timeout: 90_000 });
     const state = await page.evaluate(() => ({ ready: window.__benchmark.ready, error: window.__benchmark.error, mountMs: window.__benchmark.mountMs, unsupported: window.__benchmark.unsupported }));
     if (!state.ready) throw new Error(`${library.id}/${workload.id}: ${state.error}`);

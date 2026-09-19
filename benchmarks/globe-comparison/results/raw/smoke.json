@@ -2,28 +2,28 @@
   {
     "library": "canvas-globe",
     "ready": true,
-    "mountMs": 432.09999999403954,
-    "elapsedMs": 1737.1717,
+    "mountMs": 539.9000000059605,
+    "elapsedMs": 1922.2601000000002,
     "frameSamples": 20,
-    "pngLength": 1153230,
+    "pngLength": 1153778,
     "unsupported": [],
     "errors": []
   },
   {
     "library": "three-globe",
     "ready": true,
-    "mountMs": 129.89999999850988,
-    "elapsedMs": 2261.0146999999997,
+    "mountMs": 95.1000000089407,
+    "elapsedMs": 1301.9058999999997,
     "frameSamples": 20,
-    "pngLength": 182834,
+    "pngLength": 169682,
     "unsupported": [],
     "errors": []
   },
   {
     "library": "globe-gl",
     "ready": true,
-    "mountMs": 114.5,
-    "elapsedMs": 1808.9170999999997,
+    "mountMs": 109.59999999403954,
+    "elapsedMs": 1322.5054999999993,
     "frameSamples": 20,
     "pngLength": 27798,
     "unsupported": [],
@@ -32,8 +32,8 @@
   {
     "library": "react-globe-gl",
     "ready": true,
-    "mountMs": 207.80000000447035,
-    "elapsedMs": 1798.8019000000004,
+    "mountMs": 226.59999999403954,
+    "elapsedMs": 1524.3598000000002,
     "frameSamples": 20,
     "pngLength": 27798,
     "unsupported": [],
@@ -42,8 +42,8 @@
   {
     "library": "cobe",
     "ready": true,
-    "mountMs": 318.6000000014901,
-    "elapsedMs": 1291.1530000000002,
+    "mountMs": 170.70000000298023,
+    "elapsedMs": 839.5969999999998,
     "frameSamples": 20,
     "pngLength": 27798,
     "unsupported": [],
@@ -52,8 +52,8 @@
   {
     "library": "cesium",
     "ready": true,
-    "mountMs": 887.5,
-    "elapsedMs": 6636.405100000002,
+    "mountMs": 485.6000000089407,
+    "elapsedMs": 3578.402400000001,
     "frameSamples": 20,
     "pngLength": 27838,
     "unsupported": [
@@ -64,8 +64,8 @@
   {
     "library": "maplibre-gl",
     "ready": true,
-    "mountMs": 592.3000000044703,
-    "elapsedMs": 2204.320599999999,
+    "mountMs": 563.7999999970198,
+    "elapsedMs": 1395.3130999999994,
     "frameSamples": 20,
     "pngLength": 27798,
     "unsupported": [
@@ -76,8 +76,8 @@
   {
     "library": "dotted-map",
     "ready": true,
-    "mountMs": 36.399999998509884,
-    "elapsedMs": 1414.9632999999994,
+    "mountMs": 42.5,
+    "elapsedMs": 900.1492999999991,
     "frameSamples": 20,
     "pngLength": 280862,
     "unsupported": [
@@ -89,10 +89,10 @@
   {
     "library": "mappo",
     "ready": true,
-    "mountMs": 116.09999999403954,
-    "elapsedMs": 1854.3516999999993,
+    "mountMs": 58.29999999701977,
+    "elapsedMs": 800.9025000000001,
     "frameSamples": 20,
-    "pngLength": 774946,
+    "pngLength": 778362,
     "unsupported": [
       "routes",
       "video-export"

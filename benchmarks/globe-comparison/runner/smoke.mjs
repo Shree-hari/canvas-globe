@@ -36,7 +36,7 @@ try {
     let frameSamples = [];
     let pngLength = 0;
     try {
-      await page.goto(`${origin}/?library=${encodeURIComponent(library.id)}&workload=normal`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+      await page.goto(`${origin}/?library=${encodeURIComponent(library.id)}&workload=normal&measurement=1`, { waitUntil: "domcontentloaded", timeout: 60_000 });
       await page.waitForFunction(() => window.__benchmark?.ready || window.__benchmark?.error, null, { timeout: 60_000 });
       state = await page.evaluate(() => ({ ...window.__benchmark, runFrames: undefined, capturePng: undefined, destroy: undefined }));
       if (state.ready) {

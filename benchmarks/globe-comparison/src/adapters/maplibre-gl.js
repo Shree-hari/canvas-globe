@@ -1,5 +1,6 @@
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { canvasPng, sampleFrames } from "../shared.js";
 
 function featureCollections(workload) {
@@ -10,7 +11,7 @@ function featureCollections(workload) {
 }
 
 export async function mount(container, workload) {
-  maplibregl.setWorkerUrl("/node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs");
+  maplibregl.setWorkerUrl(workerUrl);
   const data = featureCollections(workload);
   const map = new maplibregl.Map({
     container,
