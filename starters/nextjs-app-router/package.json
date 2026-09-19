@@ -8,10 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
-    "canvas-globe": "^1.3.0",
+    "canvas-globe": "^1.4.0",
     "next": "^16.3.5",
     "react": "^19.1.1",
-    "react-canvas-globe": "^1.3.0",
+    "react-canvas-globe": "^1.4.0",
     "react-dom": "^19.1.1"
   }
 }

@@ -1,6 +1,6 @@
 /**
  * canvas-globe: interactive globe & world map on a 2D canvas.
- * No dependencies, no WebGL, no network calls, no API keys.
+ * No dependencies, no WebGL, no required network calls, no API keys.
  */
 import { world as bundledWorld } from "./data/world.js";
 import { themes, countryPalette } from "./themes.js";
@@ -8,6 +8,7 @@ import { presets, presetKeys } from "./presets.js";
 import { locateViewer, locateViewerPrecise } from "./viewer.js";
 import { recordCanvas, downloadBlob, canRecord } from "./recorder.js";
 import { SphereTexture } from "./texture.js";
+import { TileLayer } from "./tiles.js";
 import { Media, drawFitted } from "./media.js";
 import { scenes, sceneKeys } from "./scenes.js";
 import { exportSize } from "./export.js";
@@ -31,6 +32,7 @@ const DEFAULTS = {
   countryPalette: null,
   texture: null,
   textureQuality: "auto",
+  tileLayer: null,
   focus: null,
   countryMedia: null,
   annotations: null,
@@ -151,6 +153,7 @@ export class GeoGlobe {
     this._story = null;
     this._viewer = null;
     this._texture = null;
+    this._tileLayer = null;
     this._media = new Map();
     this._markerMedia = new Map();
     this._counterShown = null;
@@ -166,6 +169,7 @@ export class GeoGlobe {
     this._applyWorld();
     this._applyMarkers(this.o.markers);
     this._applyTexture();
+    this._applyTileLayer();
     this._applyMedia();
     this._watchMotion();
     this._bind();
@@ -336,6 +340,7 @@ export class GeoGlobe {
     if ("ariaLabel" in patch) this.canvas.setAttribute("aria-label", this.o.ariaLabel);
     if ("projection" in patch || "latRange" in patch) this._bbox = null;
     if ("texture" in patch) this._applyTexture();
+    if ("tileLayer" in patch) this._applyTileLayer();
     if ("countryMedia" in patch) this._applyMedia();
     if ("theme" in patch) this._cssCache = null;
     if ("focus" in patch) this._resolveFocus();
@@ -401,6 +406,11 @@ export class GeoGlobe {
   /** Equirectangular image painted onto the sphere. Pass null to remove it. */
   setTexture(source) {
     return this.setOptions({ texture: source });
+  }
+
+  /** Optional XYZ overview tiles. Pass null to remove the layer. */
+  setTileLayer(source) {
+    return this.setOptions({ tileLayer: source });
   }
 
   /* ---------------------------- country focus ---------------------------- */
@@ -899,6 +909,8 @@ export class GeoGlobe {
     this._media.clear();
     for (const media of this._markerMedia.values()) media.destroy?.();
     this._markerMedia.clear();
+    this._tileLayer?.destroy?.();
+    this._tileLayer = null;
     this._tip = null;
     this._live = null;
     this._licenseHits = [];
@@ -963,6 +975,26 @@ export class GeoGlobe {
     if (this._textureFor === source) return;
     this._textureFor = source;
     this._texture = new SphereTexture(source, { onLoad: () => this.invalidate() });
+  }
+
+  _applyTileLayer() {
+    const source = this.o.tileLayer;
+    if (!source) {
+      this._tileLayer?.destroy?.();
+      this._tileLayer = null;
+      this._tileLayerFor = null;
+      return;
+    }
+    if (this._tileLayerFor === source) return;
+    this._tileLayer?.destroy?.();
+    this._tileLayerFor = source;
+    if (source instanceof TileLayer) {
+      this._tileLayer = source;
+      source._onLoad = () => this.invalidate();
+    } else {
+      this._tileLayer = new TileLayer(source, { onLoad: () => this.invalidate() });
+    }
+    this._dirty = true;
   }
 
   /** Rebuilds the per-country media map, reusing sources that did not change. */
@@ -2206,6 +2238,23 @@ export class GeoGlobe {
     ctx.restore();
   }
 
+  _paintTileAttribution(w, h) {
+    const text = this._tileLayer?.attribution;
+    if (!text || !this._tileLayer.ready) return;
+    const { ctx } = this;
+    ctx.save();
+    ctx.font = "500 10px Inter,system-ui,sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    const width = Math.min(w - 16, ctx.measureText(text).width + 12);
+    const x = w - 8, y = h - 8;
+    ctx.fillStyle = "rgba(7, 12, 22, 0.72)";
+    ctx.fillRect(x - width, y - 16, width, 18);
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.fillText(text, x - 6, y - 3, width - 12);
+    ctx.restore();
+  }
+
   _licenseRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
     if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, width, height, radius);
@@ -2982,7 +3031,8 @@ export class GeoGlobe {
       ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     }
 
-    const textured = this._texture && this._texture.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions());
+    let textured = !!(this._texture && this._texture.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions()));
+    textured = !!(this._tileLayer?.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions()) || textured);
 
     if (this.o.graticule) {
       ctx.strokeStyle = t.graticule;
@@ -3062,6 +3112,7 @@ export class GeoGlobe {
     this._paintCounter(t, w, h);
     this._paintTitle(t, w, h);
     this._paintWatermark(t, w, h);
+    this._paintTileAttribution(w, h);
     return hits;
   }
 
@@ -3081,7 +3132,14 @@ export class GeoGlobe {
       ctx.fillRect(0, 0, w, h);
     }
 
-    const textured = this._texture && this._texture.drawFlat(ctx, fwd, w, h);
+    const flatTextureOptions = {
+      ...this._textureOptions(),
+      inv: v.inv,
+      latRange: this.o.latRange,
+      key: `${this.o.projection}:${this.lon.toFixed(5)}:${this.lat.toFixed(5)}:${this._zoom.toFixed(5)}`,
+    };
+    let textured = !!(this._texture && this._texture.drawFlat(ctx, fwd, w, h, flatTextureOptions));
+    textured = !!(this._tileLayer?.drawFlat(ctx, fwd, w, h, flatTextureOptions) || textured);
 
     if (this.o.graticule) {
       ctx.strokeStyle = t.graticule;
@@ -3141,6 +3199,7 @@ export class GeoGlobe {
     this._paintCounter(t, w, h);
     this._paintTitle(t, w, h);
     this._paintWatermark(t, w, h);
+    this._paintTileAttribution(w, h);
     return hits;
   }
 

@@ -6,6 +6,19 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-19
+
+### Added
+
+- Added opt-in cached XYZ overview tiles with Web Mercator conversion, globe and flat-map
+  reprojection, provider callbacks, request ceilings, graceful failures, CORS-aware export, and
+  attribution painted into every frame.
+
+### Fixed
+
+- Reprojected equirectangular textures correctly in Mercator and Natural Earth map views instead
+  of stretching them to the projected viewport.
+
 ## [1.3.0] - 2026-09-19
 
 ### Added

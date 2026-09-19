@@ -1,6 +1,6 @@
 {
   "name": "canvas-globe-angular",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Angular standalone component for interactive 3D globes and world maps rendered with Canvas 2D.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
@@ -39,7 +39,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "canvas-globe": "^1.3.0"
+    "canvas-globe": "^1.4.0"
   },
   "peerDependencies": {
     "@angular/core": ">=21 <23"

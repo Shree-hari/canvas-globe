@@ -9,13 +9,13 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8").replace(/\r\n?/g, "\n");
 
 // Modules that make up the bundle, in dependency order.
-const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/media.js", "src/version.js", "src/license.js", "src/geo-globe.js", "src/element.js"];
+const MODULES = ["src/themes.js", "src/presets.js", "src/scenes.js", "src/export.js", "src/geo.js", "src/viewer.js", "src/csv.js", "src/recorder.js", "src/texture.js", "src/tiles.js", "src/media.js", "src/version.js", "src/license.js", "src/geo-globe.js", "src/element.js"];
 const EXPORTS = [
   "GeoGlobe", "CanvasGlobe", "createGlobe", "createCanvasGlobe", "GeoGlobeElement", "defineGeoGlobe", "themes", "presets", "scenes",
   "countryPalette", "exportPresets", "exportSize",
   "fromCSV", "fromRows", "parseCSV", "geocode", "countryPoint",
   "locateViewer", "locateViewerPrecise", "timeZoneLocation", "countryLocation", "placeLocation",
-  "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "Media",
+  "recordCanvas", "downloadBlob", "canRecord", "supportedRecordingType", "SphereTexture", "TileLayer", "tileUrl", "Media",
   "mapAspect", "colorScale", "subsolarPoint", "greatCircle", "angularDistance", "pointInGeometry",
   "geometryBounds", "projections", "world",
   "DEFAULT_LICENSE_KEY", "LICENSE_PAGE_URL", "inspectRuntime", "inspectLicenseKey", "verifyLicenseKey", "hasLicenseKey",

@@ -103,7 +103,7 @@ export class SphereTexture {
         out[o] = pixels[s] * k;
         out[o + 1] = pixels[s + 1] * k;
         out[o + 2] = pixels[s + 2] * k;
-        out[o + 3] = 255;
+        out[o + 3] = pixels[s + 3];
       }
     }
     this._ctx.putImageData(this._image, 0, 0);
@@ -111,10 +111,45 @@ export class SphereTexture {
     return true;
   }
 
-  /** Paints the whole texture into a flat-map viewport. */
-  drawFlat(ctx, fwd, w, h) {
+  /** Paints the texture into a flat-map viewport, respecting its projection. */
+  drawFlat(ctx, fwd, w, h, options = {}) {
+    if (!this.ready) return false;
+    const { inv, step = 2, key = "", latRange = [90, -90] } = options;
+    if (inv) {
+      const size = Math.max(1, Number(step) || 1);
+      const width = Math.max(1, Math.ceil(w / size));
+      const height = Math.max(1, Math.ceil(h / size));
+      const cacheKey = `${width}:${height}:${key}:${latRange[0]}:${latRange[1]}`;
+      if (!this._flatProjected || this._flatKey !== cacheKey) {
+        this._flatProjected = makeSurface(width, height);
+        if (!this._flatProjected) return false;
+        this._flatCtx = this._flatProjected.getContext("2d");
+        this._flatImage = this._flatCtx.createImageData(width, height);
+        const out = this._flatImage.data;
+        const [north, south] = latRange;
+        for (let y = 0, offset = 0; y < height; y++) {
+          for (let x = 0; x < width; x++, offset += 4) {
+            const geo = inv((x + 0.5) * size, (y + 0.5) * size);
+            if (!geo || !Number.isFinite(geo[0]) || !Number.isFinite(geo[1]) || geo[1] > north || geo[1] < south) {
+              out[offset + 3] = 0;
+              continue;
+            }
+            const u = Math.max(0, Math.min(this.tw - 1, Math.floor((((geo[0] + 180) % 360 + 360) % 360) * (this.tw / 360))));
+            const v = Math.max(0, Math.min(this.th - 1, Math.floor(((90 - geo[1]) / 180) * this.th)));
+            const source = (v * this.tw + u) * 4;
+            out[offset] = this.pixels[source];
+            out[offset + 1] = this.pixels[source + 1];
+            out[offset + 2] = this.pixels[source + 2];
+            out[offset + 3] = this.pixels[source + 3];
+          }
+        }
+        this._flatCtx.putImageData(this._flatImage, 0, 0);
+        this._flatKey = cacheKey;
+      }
+      ctx.drawImage(this._flatProjected, 0, 0, w, h);
+      return true;
+    }
     if (!this.ready || !this._surface2) {
-      if (!this.ready) return false;
       this._surface2 = makeSurface(this.tw, this.th);
       if (!this._surface2) return false;
       const c = this._surface2.getContext("2d");

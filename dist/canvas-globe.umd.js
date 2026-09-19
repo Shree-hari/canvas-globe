@@ -1197,7 +1197,7 @@ class SphereTexture {
         out[o] = pixels[s] * k;
         out[o + 1] = pixels[s + 1] * k;
         out[o + 2] = pixels[s + 2] * k;
-        out[o + 3] = 255;
+        out[o + 3] = pixels[s + 3];
       }
     }
     this._ctx.putImageData(this._image, 0, 0);
@@ -1205,10 +1205,45 @@ class SphereTexture {
     return true;
   }
 
-  /** Paints the whole texture into a flat-map viewport. */
-  drawFlat(ctx, fwd, w, h) {
+  /** Paints the texture into a flat-map viewport, respecting its projection. */
+  drawFlat(ctx, fwd, w, h, options = {}) {
+    if (!this.ready) return false;
+    const { inv, step = 2, key = "", latRange = [90, -90] } = options;
+    if (inv) {
+      const size = Math.max(1, Number(step) || 1);
+      const width = Math.max(1, Math.ceil(w / size));
+      const height = Math.max(1, Math.ceil(h / size));
+      const cacheKey = `${width}:${height}:${key}:${latRange[0]}:${latRange[1]}`;
+      if (!this._flatProjected || this._flatKey !== cacheKey) {
+        this._flatProjected = makeSurface(width, height);
+        if (!this._flatProjected) return false;
+        this._flatCtx = this._flatProjected.getContext("2d");
+        this._flatImage = this._flatCtx.createImageData(width, height);
+        const out = this._flatImage.data;
+        const [north, south] = latRange;
+        for (let y = 0, offset = 0; y < height; y++) {
+          for (let x = 0; x < width; x++, offset += 4) {
+            const geo = inv((x + 0.5) * size, (y + 0.5) * size);
+            if (!geo || !Number.isFinite(geo[0]) || !Number.isFinite(geo[1]) || geo[1] > north || geo[1] < south) {
+              out[offset + 3] = 0;
+              continue;
+            }
+            const u = Math.max(0, Math.min(this.tw - 1, Math.floor((((geo[0] + 180) % 360 + 360) % 360) * (this.tw / 360))));
+            const v = Math.max(0, Math.min(this.th - 1, Math.floor(((90 - geo[1]) / 180) * this.th)));
+            const source = (v * this.tw + u) * 4;
+            out[offset] = this.pixels[source];
+            out[offset + 1] = this.pixels[source + 1];
+            out[offset + 2] = this.pixels[source + 2];
+            out[offset + 3] = this.pixels[source + 3];
+          }
+        }
+        this._flatCtx.putImageData(this._flatImage, 0, 0);
+        this._flatKey = cacheKey;
+      }
+      ctx.drawImage(this._flatProjected, 0, 0, w, h);
+      return true;
+    }
     if (!this.ready || !this._surface2) {
-      if (!this.ready) return false;
       this._surface2 = makeSurface(this.tw, this.th);
       if (!this._surface2) return false;
       const c = this._surface2.getContext("2d");
@@ -1219,6 +1254,233 @@ class SphereTexture {
     const a = fwd(-180, 90), b = fwd(180, -90);
     ctx.drawImage(this._surface2, a[0], a[1], b[0] - a[0], b[1] - a[1]);
     return true;
+  }
+}
+
+/**
+ * Optional XYZ raster tiles composed into an equirectangular texture.
+ *
+ * Nothing is requested unless a tile layer is configured. The deliberately
+ * small default request ceiling keeps this suitable for globe and overview-map
+ * backgrounds, rather than pretending to be a full slippy-map engine.
+ */
+
+const makeTileSurface = (width, height) => {
+  if (typeof OffscreenCanvas !== "undefined") return new OffscreenCanvas(width, height);
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  return canvas;
+};
+
+const isTilePromise = (value) => value && typeof value.then === "function";
+const isTileDrawable = (value) => value && typeof value === "object" && (
+  Number(value.naturalWidth || value.videoWidth || value.width) > 0
+);
+
+const tileUrl = (template, { x, y, z }) => String(template)
+  .replaceAll("{z}", String(z))
+  .replaceAll("{x}", String(x))
+  .replaceAll("{y}", String(y))
+  .replaceAll("{-y}", String((2 ** z) - y - 1));
+
+const tileSourceFrom = (spec) => {
+  if (typeof spec === "string" || typeof spec === "function") return spec;
+  return spec?.getTile || spec?.url || spec?.source || null;
+};
+
+class TileLayer {
+  constructor(input, { onLoad } = {}) {
+    const spec = typeof input === "object" && input && !isTileDrawable(input) ? input : { source: input };
+    this.spec = spec;
+    this.zoom = Math.max(0, Math.floor(spec.zoom ?? 2));
+    this.tileSize = Math.max(16, Math.floor(spec.tileSize ?? 256));
+    this.opacity = Math.max(0, Math.min(1, Number(spec.opacity ?? 1)));
+    this.attribution = spec.attribution || "";
+    this.crossOrigin = "crossOrigin" in spec ? spec.crossOrigin : "anonymous";
+    this.maxTiles = Math.max(1, Math.floor(spec.maxTiles ?? 64));
+    this.total = (2 ** this.zoom) ** 2;
+    this.loaded = 0;
+    this.failed = 0;
+    this.ready = false;
+    this.error = null;
+    this.cache = new Map();
+    this._source = tileSourceFrom(input);
+    this._onLoad = onLoad;
+    this._destroyed = false;
+    this._refreshQueued = false;
+
+    if (!this._source) {
+      this.error = new TypeError("canvas-globe: tileLayer requires url, source, or getTile");
+      return;
+    }
+    if (this.total > this.maxTiles) {
+      this.error = new RangeError(`canvas-globe: tileLayer zoom ${this.zoom} needs ${this.total} tiles; raise maxTiles to allow it`);
+      spec.onError?.(this.error, null);
+      return;
+    }
+
+    const side = this.tileSize * (2 ** this.zoom);
+    const maxWidth = Math.max(this.tileSize, Math.floor(spec.maxWidth ?? 2048));
+    const width = Math.min(side, maxWidth);
+    this._scale = width / side;
+    this._surface = makeTileSurface(width, width);
+    this._ctx = this._surface?.getContext?.("2d") || null;
+    if (!this._ctx) {
+      this.error = new Error("canvas-globe: tileLayer needs a canvas-capable browser");
+      return;
+    }
+    this._loadAll();
+  }
+
+  _loadAll() {
+    const side = 2 ** this.zoom;
+    for (let y = 0; y < side; y++) {
+      for (let x = 0; x < side; x++) this._load({ x, y, z: this.zoom });
+    }
+  }
+
+  _resolve(tile) {
+    if (typeof this._source === "function") return this._source(tile);
+    return tileUrl(this._source, tile);
+  }
+
+  _load(tile) {
+    const key = `${tile.z}/${tile.x}/${tile.y}`;
+    if (this.cache.has(key)) return this.cache.get(key);
+    const entry = { ...tile, key, status: "loading", source: null, error: null };
+    this.cache.set(key, entry);
+    let resolved;
+    try {
+      resolved = this._resolve(tile);
+    } catch (error) {
+      this._fail(entry, error);
+      return entry;
+    }
+    const finish = (source) => this._loadSource(source, entry);
+    if (isTilePromise(resolved)) resolved.then(finish, (error) => this._fail(entry, error));
+    else finish(resolved);
+    return entry;
+  }
+
+  _loadSource(source, entry) {
+    if (this._destroyed) return;
+    if (isTileDrawable(source)) {
+      this._draw(source, entry);
+      return;
+    }
+    if (typeof source !== "string" || !source) {
+      this._fail(entry, new TypeError(`canvas-globe: tile ${entry.key} did not resolve to an image or URL`));
+      return;
+    }
+    if (typeof Image === "undefined") {
+      this._fail(entry, new Error("canvas-globe: tile URLs need the browser Image API"));
+      return;
+    }
+    const image = new Image();
+    if (this.crossOrigin != null) image.crossOrigin = this.crossOrigin;
+    image.onload = () => this._draw(image, entry);
+    image.onerror = () => this._fail(entry, new Error(`canvas-globe: could not load tile ${entry.key}`));
+    image.src = source;
+    entry.source = source;
+  }
+
+  _draw(source, entry) {
+    if (this._destroyed || entry.status !== "loading") return;
+    const size = this.tileSize * this._scale;
+    try {
+      this._ctx.drawImage(source, entry.x * size, entry.y * size, size, size);
+      entry.status = "loaded";
+      entry.source = source;
+      this.loaded++;
+      this._queueRefresh();
+    } catch (error) {
+      this._fail(entry, error);
+    }
+  }
+
+  _fail(entry, error) {
+    if (this._destroyed || entry.status === "failed") return;
+    entry.status = "failed";
+    entry.error = error instanceof Error ? error : new Error(String(error));
+    this.failed++;
+    if (!this.error) this.error = entry.error;
+    this.spec.onError?.(entry.error, { x: entry.x, y: entry.y, z: entry.z });
+    if (this.loaded) this._queueRefresh();
+    this._onLoad?.(this);
+  }
+
+  _queueRefresh() {
+    const complete = this.loaded + this.failed;
+    const interval = Math.max(1, Math.ceil(this.total / 4));
+    if (complete < this.total && this.loaded % interval !== 0) return;
+    if (this._refreshQueued) return;
+    this._refreshQueued = true;
+    queueMicrotask(() => {
+      this._refreshQueued = false;
+      if (this._destroyed || !this.loaded) return;
+      const surface = this._toEquirectangular();
+      const texture = new SphereTexture(surface, {
+        maxWidth: surface.width,
+        onLoad: () => this._onLoad?.(this),
+      });
+      if (texture.ready) {
+        this.texture = texture;
+        this.ready = true;
+      } else if (texture.error) {
+        this.error = texture.error;
+        this.spec.onError?.(texture.error, null);
+      }
+      this._onLoad?.(this);
+    });
+  }
+
+  /** XYZ rows use Web Mercator; the globe texture expects linear latitude. */
+  _toEquirectangular() {
+    const width = this._surface.width;
+    const height = Math.max(1, Math.round(width / 2));
+    const surface = makeTileSurface(width, height);
+    const ctx = surface.getContext("2d");
+    const sourceHeight = this._surface.height;
+    for (let y = 0; y < height; y++) {
+      const lat = 90 - ((y + 0.5) / height) * 180;
+      const sin = Math.sin((Math.max(-85.05112878, Math.min(85.05112878, lat)) * Math.PI) / 180);
+      const mercatorY = 0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI);
+      const sourceY = Math.max(0, Math.min(sourceHeight - 1, mercatorY * sourceHeight));
+      ctx.drawImage(this._surface, 0, sourceY, width, 1, 0, y, width, 1);
+    }
+    return surface;
+  }
+
+  draw(ctx, ...args) {
+    if (!this.ready || !this.texture || this.opacity <= 0) return false;
+    ctx.save();
+    ctx.globalAlpha *= this.opacity;
+    const drew = this.texture.draw(ctx, ...args);
+    ctx.restore();
+    return drew;
+  }
+
+  drawFlat(ctx, ...args) {
+    if (!this.ready || !this.texture || this.opacity <= 0) return false;
+    ctx.save();
+    ctx.globalAlpha *= this.opacity;
+    const drew = this.texture.drawFlat(ctx, ...args);
+    ctx.restore();
+    return drew;
+  }
+
+  get stats() {
+    return { loaded: this.loaded, failed: this.failed, total: this.total, cached: this.cache.size };
+  }
+
+  destroy() {
+    this._destroyed = true;
+    this.cache.clear();
+    this.texture = null;
+    this._surface = null;
+    this._ctx = null;
   }
 }
 
@@ -1384,7 +1646,7 @@ function drawFitted(ctx, media, box) {
 }
 
 // Keep in sync with package.json. Release checks enforce this value.
-const CANVAS_GLOBE_VERSION = "1.3.0";
+const CANVAS_GLOBE_VERSION = "1.4.0";
 
 /** Local license-key checks and production-use presentation helpers. */
 
@@ -1511,8 +1773,9 @@ function reportLicenseStatus(value, mode = COMMERCIAL_LICENSE_MODE) {
 
 /**
  * canvas-globe: interactive globe & world map on a 2D canvas.
- * No dependencies, no WebGL, no network calls, no API keys.
+ * No dependencies, no WebGL, no required network calls, no API keys.
  */
+
 
 
 
@@ -1538,6 +1801,7 @@ const DEFAULTS = {
   countryPalette: null,
   texture: null,
   textureQuality: "auto",
+  tileLayer: null,
   focus: null,
   countryMedia: null,
   annotations: null,
@@ -1658,6 +1922,7 @@ class GeoGlobe {
     this._story = null;
     this._viewer = null;
     this._texture = null;
+    this._tileLayer = null;
     this._media = new Map();
     this._markerMedia = new Map();
     this._counterShown = null;
@@ -1673,6 +1938,7 @@ class GeoGlobe {
     this._applyWorld();
     this._applyMarkers(this.o.markers);
     this._applyTexture();
+    this._applyTileLayer();
     this._applyMedia();
     this._watchMotion();
     this._bind();
@@ -1843,6 +2109,7 @@ class GeoGlobe {
     if ("ariaLabel" in patch) this.canvas.setAttribute("aria-label", this.o.ariaLabel);
     if ("projection" in patch || "latRange" in patch) this._bbox = null;
     if ("texture" in patch) this._applyTexture();
+    if ("tileLayer" in patch) this._applyTileLayer();
     if ("countryMedia" in patch) this._applyMedia();
     if ("theme" in patch) this._cssCache = null;
     if ("focus" in patch) this._resolveFocus();
@@ -1908,6 +2175,11 @@ class GeoGlobe {
   /** Equirectangular image painted onto the sphere. Pass null to remove it. */
   setTexture(source) {
     return this.setOptions({ texture: source });
+  }
+
+  /** Optional XYZ overview tiles. Pass null to remove the layer. */
+  setTileLayer(source) {
+    return this.setOptions({ tileLayer: source });
   }
 
   /* ---------------------------- country focus ---------------------------- */
@@ -2406,6 +2678,8 @@ class GeoGlobe {
     this._media.clear();
     for (const media of this._markerMedia.values()) media.destroy?.();
     this._markerMedia.clear();
+    this._tileLayer?.destroy?.();
+    this._tileLayer = null;
     this._tip = null;
     this._live = null;
     this._licenseHits = [];
@@ -2470,6 +2744,26 @@ class GeoGlobe {
     if (this._textureFor === source) return;
     this._textureFor = source;
     this._texture = new SphereTexture(source, { onLoad: () => this.invalidate() });
+  }
+
+  _applyTileLayer() {
+    const source = this.o.tileLayer;
+    if (!source) {
+      this._tileLayer?.destroy?.();
+      this._tileLayer = null;
+      this._tileLayerFor = null;
+      return;
+    }
+    if (this._tileLayerFor === source) return;
+    this._tileLayer?.destroy?.();
+    this._tileLayerFor = source;
+    if (source instanceof TileLayer) {
+      this._tileLayer = source;
+      source._onLoad = () => this.invalidate();
+    } else {
+      this._tileLayer = new TileLayer(source, { onLoad: () => this.invalidate() });
+    }
+    this._dirty = true;
   }
 
   /** Rebuilds the per-country media map, reusing sources that did not change. */
@@ -3713,6 +4007,23 @@ class GeoGlobe {
     ctx.restore();
   }
 
+  _paintTileAttribution(w, h) {
+    const text = this._tileLayer?.attribution;
+    if (!text || !this._tileLayer.ready) return;
+    const { ctx } = this;
+    ctx.save();
+    ctx.font = "500 10px Inter,system-ui,sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    const width = Math.min(w - 16, ctx.measureText(text).width + 12);
+    const x = w - 8, y = h - 8;
+    ctx.fillStyle = "rgba(7, 12, 22, 0.72)";
+    ctx.fillRect(x - width, y - 16, width, 18);
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.fillText(text, x - 6, y - 3, width - 12);
+    ctx.restore();
+  }
+
   _licenseRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
     if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, width, height, radius);
@@ -4489,7 +4800,8 @@ class GeoGlobe {
       ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     }
 
-    const textured = this._texture && this._texture.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions());
+    let textured = !!(this._texture && this._texture.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions()));
+    textured = !!(this._tileLayer?.draw(ctx, cx, cy, r, this.lon, this.lat, this._textureOptions()) || textured);
 
     if (this.o.graticule) {
       ctx.strokeStyle = t.graticule;
@@ -4569,6 +4881,7 @@ class GeoGlobe {
     this._paintCounter(t, w, h);
     this._paintTitle(t, w, h);
     this._paintWatermark(t, w, h);
+    this._paintTileAttribution(w, h);
     return hits;
   }
 
@@ -4588,7 +4901,14 @@ class GeoGlobe {
       ctx.fillRect(0, 0, w, h);
     }
 
-    const textured = this._texture && this._texture.drawFlat(ctx, fwd, w, h);
+    const flatTextureOptions = {
+      ...this._textureOptions(),
+      inv: v.inv,
+      latRange: this.o.latRange,
+      key: `${this.o.projection}:${this.lon.toFixed(5)}:${this.lat.toFixed(5)}:${this._zoom.toFixed(5)}`,
+    };
+    let textured = !!(this._texture && this._texture.drawFlat(ctx, fwd, w, h, flatTextureOptions));
+    textured = !!(this._tileLayer?.drawFlat(ctx, fwd, w, h, flatTextureOptions) || textured);
 
     if (this.o.graticule) {
       ctx.strokeStyle = t.graticule;
@@ -4648,6 +4968,7 @@ class GeoGlobe {
     this._paintCounter(t, w, h);
     this._paintTitle(t, w, h);
     this._paintWatermark(t, w, h);
+    this._paintTileAttribution(w, h);
     return hits;
   }
 
@@ -4979,5 +5300,5 @@ function defineGeoGlobe(tag = "geo-globe") {
 defineGeoGlobe();
 
 const CanvasGlobe = GeoGlobe; const createCanvasGlobe = createGlobe;
-return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, LICENSE_PAGE_URL, inspectRuntime, inspectLicenseKey, verifyLicenseKey, hasLicenseKey, default: createGlobe };
+return { GeoGlobe, CanvasGlobe, createGlobe, createCanvasGlobe, GeoGlobeElement, defineGeoGlobe, themes, presets, scenes, countryPalette, exportPresets, exportSize, fromCSV, fromRows, parseCSV, geocode, countryPoint, locateViewer, locateViewerPrecise, timeZoneLocation, countryLocation, placeLocation, recordCanvas, downloadBlob, canRecord, supportedRecordingType, SphereTexture, TileLayer, tileUrl, Media, mapAspect, colorScale, subsolarPoint, greatCircle, angularDistance, pointInGeometry, geometryBounds, projections, world, DEFAULT_LICENSE_KEY, LICENSE_PAGE_URL, inspectRuntime, inspectLicenseKey, verifyLicenseKey, hasLicenseKey, default: createGlobe };
 });
