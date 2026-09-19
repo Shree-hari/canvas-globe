@@ -640,6 +640,76 @@ const withAlpha = (color, a) => {
   return color;
 };
 
+/**
+ * Aggregates projected points into a pointy-top hexagonal grid.
+ *
+ * The input is deliberately renderer-shaped (`{ x, y, depth, m }`) so the
+ * same helper works after either globe or flat-map projection. Each returned
+ * bin preserves its source markers for tooltips, clicks, and custom details.
+ */
+const hexBinPoints = (points = [], radius = 18) => {
+  const size = Math.max(1, Number(radius) || 18);
+  const sqrt3 = Math.sqrt(3);
+  const cells = new Map();
+
+  const roundAxial = (q, r) => {
+    let x = q;
+    let z = r;
+    let y = -x - z;
+    let rx = Math.round(x);
+    let ry = Math.round(y);
+    let rz = Math.round(z);
+    const dx = Math.abs(rx - x);
+    const dy = Math.abs(ry - y);
+    const dz = Math.abs(rz - z);
+    if (dx > dy && dx > dz) rx = -ry - rz;
+    else if (dy > dz) ry = -rx - rz;
+    else rz = -rx - ry;
+    return [rx, rz];
+  };
+
+  for (const point of points) {
+    if (!Number.isFinite(point?.x) || !Number.isFinite(point?.y)) continue;
+    const q = (sqrt3 / 3 * point.x - point.y / 3) / size;
+    const r = (2 * point.y / 3) / size;
+    const [hq, hr] = roundAxial(q, r);
+    const key = `${hq}:${hr}`;
+    let cell = cells.get(key);
+    if (!cell) {
+      cell = {
+        q: hq,
+        r: hr,
+        x: size * sqrt3 * (hq + hr / 2),
+        y: size * 1.5 * hr,
+        count: 0,
+        value: 0,
+        depth: 0,
+        lon: 0,
+        lat: 0,
+        weight: 0,
+        markers: [],
+      };
+      cells.set(key, cell);
+    }
+    const marker = point.m || {};
+    const value = Number(marker.count);
+    const weight = Number.isFinite(value) && value > 0 ? value : 1;
+    cell.count += 1;
+    cell.value += weight;
+    cell.depth = Math.max(cell.depth, Number(point.depth) || 0);
+    cell.lon += (Number(marker.lon) || 0) * weight;
+    cell.lat += (Number(marker.lat) || 0) * weight;
+    cell.weight += weight;
+    cell.markers.push(marker);
+  }
+
+  return [...cells.values()].map((cell) => ({
+    ...cell,
+    lon: cell.weight ? cell.lon / cell.weight : 0,
+    lat: cell.weight ? cell.lat / cell.weight : 0,
+  }));
+};
+
 const parseRGB = (color) => {
   if (color.startsWith("#")) {
     const hex = color.length === 4 ? color.replace(/#(.)(.)(.)/, "#$1$1$2$2$3$3") : color;
@@ -1477,6 +1547,7 @@ const DEFAULTS = {
   timeline: null,
   transparentBackground: false,
   heatmap: false,
+  hexBins: false,
   spikes: false,
   labels: false,
   legend: null,
@@ -1541,6 +1612,7 @@ const phaseOf = (fx, ms) => {
 const defaultTooltip = (target, kind) => {
   if (kind === "country") return target.name || String(target.id ?? "");
   if (kind === "cluster") return `${target.count} in this area`;
+  if (kind === "hex-bin") return `${target.markerCount} markers, value ${target.value}`;
   const name = target.city || target.name || target.label;
   const count = target.count != null ? `: ${target.count}` : "";
   return name ? `${name}${count}` : `${target.lat.toFixed(2)}, ${target.lon.toFixed(2)}${count}`;
@@ -2836,7 +2908,7 @@ class GeoGlobe {
         this._cursor();
         this._dirty = true;
         const target = marker || this._hoveredCountry;
-        this._showTip(marker ? (marker.cluster ? "cluster" : "marker") : this._hoveredCountry ? "country" : null, target);
+        this._showTip(marker ? (marker.hexBin ? "hex-bin" : marker.cluster ? "cluster" : "marker") : this._hoveredCountry ? "country" : null, target);
       } else if (this._tipVisible) {
         this._placeTip();
       }
@@ -4024,6 +4096,87 @@ class GeoGlobe {
     ctx.restore();
   }
 
+  /** Aggregate projected markers into an interactive hexagonal density layer. */
+  _paintHexBins(pts, t, cx, cy, globeRadius, w, h) {
+    const o = this.o.hexBins === true ? {} : this.o.hexBins;
+    const { ctx } = this;
+    const radius = Math.max(4, o.radius ?? 18);
+    const padding = clamp(o.padding ?? 1.5, 0, radius * 0.45);
+    const drawRadius = radius - padding;
+    const minValue = Math.max(0, o.minValue ?? 1);
+    const metric = o.value === "count" ? "count" : "value";
+    const bins = hexBinPoints(pts, radius).filter((bin) => {
+      if (bin[metric] < minValue) return false;
+      if (this.o.mode === "globe") return Math.hypot(bin.x - cx, bin.y - cy) <= globeRadius + drawRadius;
+      return bin.x >= -drawRadius && bin.x <= w + drawRadius && bin.y >= -drawRadius && bin.y <= h + drawRadius;
+    });
+    const max = Math.max(1, ...bins.map((bin) => bin[metric]));
+    const range = Array.isArray(o.colorRange) && o.colorRange.length > 1
+      ? o.colorRange
+      : [t.ocean[0], o.color || t.marker];
+    const domain = range.map((_, index) => max * index / (range.length - 1));
+    const scale = colorScale(domain, range);
+    const hits = [];
+
+    ctx.save();
+    if (this.o.mode === "globe") {
+      ctx.beginPath();
+      ctx.arc(cx, cy, globeRadius, 0, TAU);
+      ctx.clip();
+    } else {
+      ctx.beginPath();
+      ctx.rect(0, 0, w, h);
+      ctx.clip();
+    }
+
+    ctx.lineJoin = "round";
+    for (const bin of bins) {
+      const value = bin[metric];
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = (60 * i - 30) * D2R;
+        const x = bin.x + drawRadius * Math.cos(angle);
+        const y = bin.y + drawRadius * Math.sin(angle);
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.closePath();
+      ctx.globalAlpha = clamp(o.opacity ?? 0.82, 0, 1);
+      ctx.fillStyle = scale(value) || o.color || t.marker;
+      ctx.fill();
+      if ((o.strokeWidth ?? 0.8) > 0) {
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = o.stroke || withAlpha(t.label, 0.3);
+        ctx.lineWidth = o.strokeWidth ?? 0.8;
+        ctx.stroke();
+      }
+      if (o.showCount && drawRadius >= 10) {
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = o.labelColor || t.label;
+        ctx.font = `600 ${Math.max(9, Math.min(13, drawRadius * 0.7))}px Inter,system-ui,sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(value), bin.x, bin.y);
+      }
+      hits.push({
+        marker: {
+          hexBin: true,
+          count: bin.count,
+          value: bin.value,
+          markerCount: bin.count,
+          markers: bin.markers,
+          lon: bin.lon,
+          lat: bin.lat,
+        },
+        x: bin.x,
+        y: bin.y,
+        r: drawRadius,
+      });
+    }
+    ctx.restore();
+    this._lastHexBins = bins;
+    return hits;
+  }
+
   /** Spike height for a marker, as a fraction of the globe radius. */
   _spikeLift(m) {
     if (!this.o.spikes) return 0;
@@ -4404,9 +4557,11 @@ class GeoGlobe {
       pts.push({ m, x: cx + x, y: cy + y, depth: 0.65 + c * 0.35 });
     }
     if (this.o.heatmap) this._paintHeatmap(pts, t);
+    const binHits = this.o.hexBins ? this._paintHexBins(pts, t, cx, cy, r, w, h) : [];
     if (this.o.spikes) this._paintSpikes(t, cx, cy, r, w, h, null);
     this._paintViewerAccuracy(t, cx, cy, r, null);
-    const hits = this._paintMarkers(pts, t);
+    const showMarkers = !this.o.hexBins || (this.o.hexBins !== true && this.o.hexBins.hideMarkers === false);
+    const hits = [...binHits, ...(showMarkers ? this._paintMarkers(pts, t) : [])];
     if (this.o.labels) this._paintLabels(pts, t, cx, cy, r, w, h);
     this._paintAnnotations(t);
     this._paintPings(t);
@@ -4481,9 +4636,11 @@ class GeoGlobe {
       pts.push({ m, x, y, depth: 1 });
     }
     if (this.o.heatmap) this._paintHeatmap(pts, t);
+    const binHits = this.o.hexBins ? this._paintHexBins(pts, t, 0, 0, 0, w, h) : [];
     if (this.o.spikes) this._paintSpikes(t, 0, 0, 0, w, h, fwd);
     this._paintViewerAccuracy(t, 0, 0, 0, fwd);
-    const hits = this._paintMarkers(pts, t);
+    const showMarkers = !this.o.hexBins || (this.o.hexBins !== true && this.o.hexBins.hideMarkers === false);
+    const hits = [...binHits, ...(showMarkers ? this._paintMarkers(pts, t) : [])];
     if (this.o.labels) this._paintLabels(pts, t, 0, 0, 0, w, h);
     this._paintAnnotations(t);
     this._paintPings(t);

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Switch between nine JavaScript globe libraries using the same deterministic marker and route data." />
+    <title>Same-data JavaScript globe comparison</title>
+  </head>
+  <body>
+    <div class="lab-shell">
+      <header class="lab-header">
+        <div>
+          <a class="eyebrow" href="https://canvasglobe.swiftools.com/compare/javascript-globe-libraries/">CanvasGlobe research</a>
+          <h1>Same data. Nine globe libraries.</h1>
+          <p>Switch the renderer while keeping the seeded markers and routes consistent.</p>
+        </div>
+        <div class="header-links">
+          <a href="https://canvasglobe.swiftools.com/compare/javascript-globe-libraries/">Read measured results</a>
+          <a href="https://github.com/Shree-hari/canvas-globe/tree/f43afc69dafabf3bd2a9aa80359196cae06e6203/benchmarks/globe-comparison">Reproduce the test</a>
+        </div>
+      </header>
+      <div class="lab-layout">
+        <aside class="lab-controls" aria-label="Comparison controls">
+          <fieldset>
+            <legend>Library</legend>
+            <div class="choice-grid">
+              <button type="button" data-library="canvas-globe"></button>
+              <button type="button" data-library="three-globe"></button>
+              <button type="button" data-library="globe-gl"></button>
+              <button type="button" data-library="react-globe-gl"></button>
+              <button type="button" data-library="cobe"></button>
+              <button type="button" data-library="cesium"></button>
+              <button type="button" data-library="maplibre-gl"></button>
+              <button type="button" data-library="dotted-map"></button>
+              <button type="button" data-library="mappo"></button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Workload</legend>
+            <div class="choice-grid workloads">
+              <button type="button" data-workload="normal">250 markers</button>
+              <button type="button" data-workload="dense">1,000 markers</button>
+              <button type="button" data-workload="stress">5,000 markers</button>
+            </div>
+          </fieldset>
+          <p class="method-note">The visual fixture is identical where an adapter supports the feature. Read the report before comparing unlike renderer categories.</p>
+        </aside>
+        <section class="lab-stage" aria-label="Selected globe render">
+          <main id="benchmark-root" aria-label="Globe benchmark viewport"></main>
+          <output id="benchmark-status" aria-live="polite">Loading benchmark…</output>
+        </section>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

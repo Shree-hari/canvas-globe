@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   projections, projectionBounds, mapAspect, ortho, orthoInverse, greatCircle, angularDistance,
-  subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha, colorScale, wrapLon, clamp,
+  subsolarPoint, pointInGeometry, geometryBounds, normalizeShapes, withAlpha, colorScale, wrapLon, clamp, hexBinPoints,
 } from "../src/geo.js";
 
 const SAMPLES = [
@@ -20,6 +20,38 @@ test("clamp bounds values", () => {
   assert.equal(clamp(5, 0, 3), 3);
   assert.equal(clamp(-5, 0, 3), 0);
   assert.equal(clamp(2, 0, 3), 2);
+});
+
+test("hexBinPoints aggregates projected markers and preserves source data", () => {
+  const a = { lon: 10, lat: 20, count: 4, name: "A" };
+  const b = { lon: 12, lat: 22, count: 2, name: "B" };
+  const c = { lon: 80, lat: -10, name: "C" };
+  const bins = hexBinPoints([
+    { x: 100, y: 100, depth: 0.8, m: a },
+    { x: 102, y: 101, depth: 0.9, m: b },
+    { x: 260, y: 220, depth: 1, m: c },
+  ], 20);
+  assert.equal(bins.length, 2);
+  const combined = bins.find((bin) => bin.count === 2);
+  assert.ok(combined);
+  assert.equal(combined.value, 6);
+  assert.deepEqual(combined.markers, [a, b]);
+  assert.equal(combined.depth, 0.9);
+  assert.ok(combined.lon > 10 && combined.lon < 12);
+});
+
+test("hexBinPoints aggregates 5,000 points within the performance budget", () => {
+  const points = Array.from({ length: 5000 }, (_, i) => ({
+    x: (i * 37) % 1200,
+    y: (i * 71) % 700,
+    depth: 1,
+    m: { lon: (i % 360) - 180, lat: (i % 140) - 70, count: (i % 9) + 1 },
+  }));
+  const start = performance.now();
+  const bins = hexBinPoints(points, 16);
+  const elapsed = performance.now() - start;
+  assert.ok(bins.length > 100 && bins.length < points.length);
+  assert.ok(elapsed < 250, `expected <250ms, received ${elapsed.toFixed(1)}ms`);
 });
 
 for (const name of Object.keys(projections)) {

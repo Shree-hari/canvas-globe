@@ -1,0 +1,90 @@
+{
+  "canvas-globe": {
+    "files": [
+      "assets/canvas-globe-BHnWmeQe.js",
+      "assets/shared-BvZ9AvHT.js"
+    ],
+    "minifiedBytes": 339528,
+    "gzipBytes": 108607
+  },
+  "three-globe": {
+    "files": [
+      "assets/three-globe-3CLyP5wc.js",
+      "assets/shared-BvZ9AvHT.js",
+      "assets/three-globe-ZT03rat8.js",
+      "assets/rolldown-runtime-Dd_uD5pT.js",
+      "assets/tween.esm-C4ONn8cJ.js"
+    ],
+    "minifiedBytes": 1822474,
+    "gzipBytes": 511293
+  },
+  "globe-gl": {
+    "files": [
+      "assets/globe-gl-DqnRkAHm.js",
+      "assets/shared-BvZ9AvHT.js",
+      "assets/globe.gl-JLDEEeqZ.js",
+      "assets/tween.esm-C4ONn8cJ.js",
+      "assets/three-globe-ZT03rat8.js",
+      "assets/rolldown-runtime-Dd_uD5pT.js"
+    ],
+    "minifiedBytes": 1934293,
+    "gzipBytes": 541326
+  },
+  "react-globe-gl": {
+    "files": [
+      "assets/react-globe-gl-DCaWKk9q.js",
+      "assets/rolldown-runtime-Dd_uD5pT.js",
+      "assets/shared-BvZ9AvHT.js",
+      "assets/client-kqnhDPHS.js",
+      "assets/globe.gl-JLDEEeqZ.js",
+      "assets/tween.esm-C4ONn8cJ.js",
+      "assets/three-globe-ZT03rat8.js"
+    ],
+    "minifiedBytes": 2169884,
+    "gzipBytes": 612044
+  },
+  "cobe": {
+    "files": [
+      "assets/cobe-z8dAITtd.js",
+      "assets/shared-BvZ9AvHT.js"
+    ],
+    "minifiedBytes": 14499,
+    "gzipBytes": 6715
+  },
+  "cesium": {
+    "files": [
+      "assets/cesium-xZH1A-5U.js",
+      "assets/rolldown-runtime-Dd_uD5pT.js",
+      "assets/shared-BvZ9AvHT.js",
+      "assets/tween.esm-C4ONn8cJ.js"
+    ],
+    "minifiedBytes": 4137289,
+    "gzipBytes": 1106654
+  },
+  "maplibre-gl": {
+    "files": [
+      "assets/maplibre-gl-C64RSshi.js",
+      "assets/shared-BvZ9AvHT.js"
+    ],
+    "minifiedBytes": 1012784,
+    "gzipBytes": 271508
+  },
+  "dotted-map": {
+    "files": [
+      "assets/dotted-map-CzMyWdjQ.js",
+      "assets/rolldown-runtime-Dd_uD5pT.js",
+      "assets/shared-BvZ9AvHT.js",
+      "assets/client-kqnhDPHS.js"
+    ],
+    "minifiedBytes": 282834,
+    "gzipBytes": 85586
+  },
+  "mappo": {
+    "files": [
+      "assets/mappo-CKA8bb0c.js",
+      "assets/shared-BvZ9AvHT.js"
+    ],
+    "minifiedBytes": 53862,
+    "gzipBytes": 16579
+  }
+}

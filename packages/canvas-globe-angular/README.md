@@ -42,3 +42,29 @@ export class AudienceMapComponent {
 Documentation: https://canvasglobe.swiftools.com/integrations/angular
 
 Support and licensing: globe@swiftools.com
+
+## Angular SSR and hydration
+
+The component can be imported by an Angular SSR route. It renders the canvas
+shell on the server and creates CanvasGlobe only after Angular runs the
+component in the browser. No custom `isPlatformBrowser` wrapper is required.
+
+Keep the parent width stable to avoid a layout shift during hydration:
+
+```ts
+@Component({
+  standalone: true,
+  imports: [CanvasGlobeComponent],
+  template: `
+    <canvas-globe
+      class="audience-globe"
+      [markers]="markers"
+      [options]="{ preset: 'hologram', ariaLabel: 'Customer locations' }"
+    />
+  `,
+  styles: [`.audience-globe { display: block; width: min(100%, 44rem); aspect-ratio: 1; }`],
+})
+export class AudienceGlobeComponent {
+  markers = [{ lat: 23.03, lon: 72.58, count: 12 }];
+}
+```

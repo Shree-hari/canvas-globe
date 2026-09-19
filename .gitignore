@@ -1,4 +1,10 @@
 node_modules/
+.angular/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+starters/*/dist/
 storybook-static/
 .registry-build/
 packages/canvas-globe-angular/dist/

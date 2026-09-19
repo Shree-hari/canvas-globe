@@ -6,6 +6,7 @@ import type {
   FlyToOptions,
   GeoGlobe,
   GeoGlobeOptions,
+  HexBinMarker,
   Marker,
 } from "canvas-globe";
 
@@ -20,8 +21,8 @@ export interface CanvasGlobeSvelteProps {
 
 export interface CanvasGlobeSvelteEvents {
   ready: CustomEvent<GeoGlobe>;
-  markerHover: CustomEvent<{ marker: Marker | ClusterMarker | null; position: { x: number; y: number } | null }>;
-  markerClick: CustomEvent<{ marker: Marker | ClusterMarker; position: { x: number; y: number } }>;
+  markerHover: CustomEvent<{ marker: Marker | ClusterMarker | HexBinMarker | null; position: { x: number; y: number } | null }>;
+  markerClick: CustomEvent<{ marker: Marker | ClusterMarker | HexBinMarker; position: { x: number; y: number } }>;
   countryHover: CustomEvent<{ country: CountryShape | null; position: { x: number; y: number } | null }>;
   countryClick: CustomEvent<{ country: CountryShape; position: { x: number; y: number } }>;
   render: CustomEvent<GeoGlobe>;
@@ -35,4 +36,4 @@ export default class CanvasGlobe extends SvelteComponentTyped<CanvasGlobeSvelteP
 }
 
 export { CanvasGlobe, CanvasGlobe as Globe };
-export type { Arc, GeoGlobe, GeoGlobeOptions, Marker } from "canvas-globe";
+export type { Arc, GeoGlobe, GeoGlobeOptions, HexBinMarker, Marker } from "canvas-globe";

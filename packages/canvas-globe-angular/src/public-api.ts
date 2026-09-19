@@ -17,11 +17,12 @@ import type {
   CountryShape,
   FlyToOptions,
   GeoGlobeOptions,
+  HexBinMarker,
   Marker,
 } from "canvas-globe";
 
 export interface CanvasGlobeMarkerEvent {
-  marker: Marker | ClusterMarker | null;
+  marker: Marker | ClusterMarker | HexBinMarker | null;
   position: { x: number; y: number } | null;
 }
 
@@ -69,6 +70,9 @@ export class CanvasGlobeComponent implements AfterViewInit, OnChanges, OnDestroy
   }
 
   ngAfterViewInit(): void {
+    // Angular runs lifecycle hooks during server rendering too. Defer all
+    // canvas work until the hydrated browser instance owns a real window.
+    if (typeof window === "undefined") return;
     this.globe = new GeoGlobe(this.canvas.nativeElement, this.resolvedOptions());
     this.ready.emit(this.globe);
   }

@@ -1,0 +1,40 @@
+{
+  "name": "canvas-globe-comparison-benchmark",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fixture": "node generate-fixture.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "node generate-fixture.mjs && vite build && node runner/bundle-sizes.mjs",
+    "build:hosted": "node generate-fixture.mjs && vite build --mode hosted",
+    "smoke": "node runner/smoke.mjs",
+    "smoke:built": "node runner/smoke-built.mjs",
+    "smoke:live": "node runner/smoke-live.mjs",
+    "framework:hydrate": "node runner/framework-hydration.mjs",
+    "framework:matrix": "node runner/framework-matrix.mjs",
+    "benchmark": "node runner/run.mjs",
+    "report": "node runner/report.mjs && node scripts/validate-records.mjs",
+    "validate:results": "node scripts/validate-records.mjs",
+    "metadata": "node runner/package-metadata.mjs && node runner/server-imports.mjs && node runner/accessibility.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "@wescld/dotted-map": "1.0.0",
+    "canvas-globe": "1.2.0",
+    "cesium": "1.145.0",
+    "cobe": "2.0.1",
+    "globe.gl": "2.46.2",
+    "maplibre-gl": "6.10.0",
+    "mappo": "0.3.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-globe.gl": "2.38.0",
+    "three": "0.186.0",
+    "three-globe": "2.45.2"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0",
+    "vite": "8.3.0"
+  }
+}

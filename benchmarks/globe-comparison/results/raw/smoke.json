@@ -1,0 +1,102 @@
+[
+  {
+    "library": "canvas-globe",
+    "ready": true,
+    "mountMs": 539.9000000059605,
+    "elapsedMs": 1922.2601000000002,
+    "frameSamples": 20,
+    "pngLength": 1153778,
+    "unsupported": [],
+    "errors": []
+  },
+  {
+    "library": "three-globe",
+    "ready": true,
+    "mountMs": 95.1000000089407,
+    "elapsedMs": 1301.9058999999997,
+    "frameSamples": 20,
+    "pngLength": 169682,
+    "unsupported": [],
+    "errors": []
+  },
+  {
+    "library": "globe-gl",
+    "ready": true,
+    "mountMs": 109.59999999403954,
+    "elapsedMs": 1322.5054999999993,
+    "frameSamples": 20,
+    "pngLength": 27798,
+    "unsupported": [],
+    "errors": []
+  },
+  {
+    "library": "react-globe-gl",
+    "ready": true,
+    "mountMs": 226.59999999403954,
+    "elapsedMs": 1524.3598000000002,
+    "frameSamples": 20,
+    "pngLength": 27798,
+    "unsupported": [],
+    "errors": []
+  },
+  {
+    "library": "cobe",
+    "ready": true,
+    "mountMs": 170.70000000298023,
+    "elapsedMs": 839.5969999999998,
+    "frameSamples": 20,
+    "pngLength": 27798,
+    "unsupported": [],
+    "errors": []
+  },
+  {
+    "library": "cesium",
+    "ready": true,
+    "mountMs": 485.6000000089407,
+    "elapsedMs": 3578.402400000001,
+    "frameSamples": 20,
+    "pngLength": 27838,
+    "unsupported": [
+      "video-export"
+    ],
+    "errors": []
+  },
+  {
+    "library": "maplibre-gl",
+    "ready": true,
+    "mountMs": 563.7999999970198,
+    "elapsedMs": 1395.3130999999994,
+    "frameSamples": 20,
+    "pngLength": 27798,
+    "unsupported": [
+      "video-export"
+    ],
+    "errors": []
+  },
+  {
+    "library": "dotted-map",
+    "ready": true,
+    "mountMs": 42.5,
+    "elapsedMs": 900.1492999999991,
+    "frameSamples": 20,
+    "pngLength": 280862,
+    "unsupported": [
+      "routes",
+      "video-export"
+    ],
+    "errors": []
+  },
+  {
+    "library": "mappo",
+    "ready": true,
+    "mountMs": 58.29999999701977,
+    "elapsedMs": 800.9025000000001,
+    "frameSamples": 20,
+    "pngLength": 778362,
+    "unsupported": [
+      "routes",
+      "video-export"
+    ],
+    "errors": []
+  }
+]

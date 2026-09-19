@@ -1,0 +1,92 @@
+{
+  "canvas-globe": {
+    "renderer": "Canvas 2D",
+    "trueSceneDepth": false,
+    "networkRequired": false,
+    "licenseSummary": "Proprietary commercial software for production use",
+    "productionUse": "A valid commercial license key is required for public production use.",
+    "licenseSource": "https://canvasglobe.swiftools.com/license/",
+    "builtInPngExport": true,
+    "builtInVideoExport": true
+  },
+  "three-globe": {
+    "renderer": "Three.js and WebGL",
+    "trueSceneDepth": true,
+    "networkRequired": false,
+    "licenseSummary": "MIT",
+    "productionUse": "Permitted under the MIT License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/vasturiano/three-globe/blob/master/LICENSE",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "globe-gl": {
+    "renderer": "Three.js and WebGL",
+    "trueSceneDepth": true,
+    "networkRequired": false,
+    "licenseSummary": "MIT",
+    "productionUse": "Permitted under the MIT License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/vasturiano/globe.gl/blob/master/LICENSE",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "react-globe-gl": {
+    "renderer": "React wrapper over globe.gl, Three.js and WebGL",
+    "trueSceneDepth": true,
+    "networkRequired": false,
+    "licenseSummary": "MIT",
+    "productionUse": "Permitted under the MIT License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/vasturiano/react-globe.gl/blob/master/LICENSE",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "cobe": {
+    "renderer": "WebGL",
+    "trueSceneDepth": true,
+    "networkRequired": false,
+    "licenseSummary": "MIT",
+    "productionUse": "Permitted under the MIT License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/shuding/cobe/blob/master/LICENSE",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "cesium": {
+    "renderer": "WebGL geospatial engine",
+    "trueSceneDepth": true,
+    "networkRequired": false,
+    "licenseSummary": "Apache-2.0",
+    "productionUse": "Permitted under Apache License 2.0, subject to its notice and license conditions.",
+    "licenseSource": "https://github.com/CesiumGS/cesium/blob/main/LICENSE.md",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "maplibre-gl": {
+    "renderer": "WebGL map engine",
+    "trueSceneDepth": true,
+    "networkRequired": false,
+    "licenseSummary": "BSD-3-Clause",
+    "productionUse": "Permitted under the BSD 3-Clause License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/maplibre/maplibre-gl-js/blob/main/LICENSE.txt",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "dotted-map": {
+    "renderer": "React and Canvas 2D",
+    "trueSceneDepth": false,
+    "networkRequired": false,
+    "licenseSummary": "MIT",
+    "productionUse": "Permitted under the MIT License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/wescld/dotted-map/blob/main/LICENSE",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  },
+  "mappo": {
+    "renderer": "Canvas 2D globe and SVG flat map",
+    "trueSceneDepth": false,
+    "networkRequired": false,
+    "licenseSummary": "MIT",
+    "productionUse": "Permitted under the MIT License, subject to its notice conditions.",
+    "licenseSource": "https://github.com/rameerez/mappo/blob/main/LICENSE",
+    "builtInPngExport": false,
+    "builtInVideoExport": false
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canvasglobe.swiftools.com/schemas/globe-comparison-result.schema.json",
+  "title": "Globe comparison benchmark result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "collectedAt",
+    "environment",
+    "library",
+    "workload",
+    "measurements",
+    "capabilities",
+    "license"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "runId": { "type": "string", "minLength": 1 },
+    "collectedAt": { "type": "string", "format": "date-time" },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "cpu", "memoryBytes", "browser", "browserVersion", "viewport", "deviceScaleFactor", "mobileMethod", "lockfileSha256"],
+      "properties": {
+        "os": { "type": "string" },
+        "cpu": { "type": "string" },
+        "memoryBytes": { "type": "integer", "minimum": 1 },
+        "browser": { "type": "string" },
+        "browserVersion": { "type": "string" },
+        "viewport": { "type": "string", "pattern": "^[0-9]+x[0-9]+$" },
+        "deviceScaleFactor": { "type": "number", "exclusiveMinimum": 0 },
+        "mobileMethod": { "enum": ["not-mobile", "real-device", "emulated"] },
+        "lockfileSha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+      }
+    },
+    "library": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "renderer", "trueSceneDepth", "directDependencies", "transitiveDependencies"],
+      "properties": {
+        "id": { "type": "string" },
+        "version": { "type": "string" },
+        "renderer": { "type": "string" },
+        "trueSceneDepth": { "type": "boolean" },
+        "directDependencies": { "type": "integer", "minimum": 0 },
+        "transitiveDependencies": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "markers", "routes", "seed"],
+      "properties": {
+        "id": { "enum": ["normal", "dense", "stress"] },
+        "markers": { "type": "integer", "minimum": 0 },
+        "routes": { "type": "integer", "minimum": 0 },
+        "seed": { "type": "integer" }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sampleCount", "bundleMinBytes", "bundleGzipBytes", "runtimeRequests", "runtimeTransferBytes", "firstRenderMs", "dataRenderMs", "interactionFrameMs", "heapBytes"],
+      "properties": {
+        "sampleCount": { "type": "integer", "minimum": 20 },
+        "bundleMinBytes": { "type": ["integer", "null"], "minimum": 0 },
+        "bundleGzipBytes": { "type": ["integer", "null"], "minimum": 0 },
+        "runtimeRequests": { "type": ["integer", "null"], "minimum": 0 },
+        "runtimeTransferBytes": { "type": ["integer", "null"], "minimum": 0 },
+        "firstRenderMs": { "$ref": "#/$defs/distribution" },
+        "dataRenderMs": { "$ref": "#/$defs/distribution" },
+        "interactionFrameMs": { "$ref": "#/$defs/distribution" },
+        "heapBytes": { "$ref": "#/$defs/nullableDistribution" }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyboard", "reducedMotion", "serverImport", "hydration", "pngExport", "videoExport", "networkRequired"],
+      "properties": {
+        "keyboard": { "$ref": "#/$defs/support" },
+        "reducedMotion": { "$ref": "#/$defs/support" },
+        "serverImport": { "$ref": "#/$defs/support" },
+        "hydration": { "$ref": "#/$defs/support" },
+        "pngExport": { "$ref": "#/$defs/support" },
+        "videoExport": { "$ref": "#/$defs/support" },
+        "networkRequired": { "type": "boolean" }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "productionUse", "sourceUrl", "reviewedAt"],
+      "properties": {
+        "summary": { "type": "string" },
+        "productionUse": { "type": "string" },
+        "sourceUrl": { "type": "string", "format": "uri" },
+        "reviewedAt": { "type": "string", "format": "date" }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["median", "p95", "samples"],
+      "properties": {
+        "median": { "type": "number", "minimum": 0 },
+        "p95": { "type": "number", "minimum": 0 },
+        "samples": { "type": "array", "minItems": 20, "items": { "type": "number", "minimum": 0 } }
+      }
+    },
+    "nullableDistribution": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/distribution" }
+      ]
+    },
+    "support": { "enum": ["supported", "partial", "unsupported", "not-applicable", "not-tested"] }
+  }
+}

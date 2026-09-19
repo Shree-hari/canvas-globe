@@ -112,9 +112,11 @@ const starterNames = readdirSync(join(root, "starters"), { withFileTypes: true }
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
   .sort();
-assert.deepEqual(starterNames, ["nextjs-app-router", "react-vite", "sveltekit", "vanilla-vite", "vue-vite", "web-component-vite"]);
+assert.deepEqual(starterNames, ["angular-ssr", "nextjs-app-router", "nuxt-ssr", "react-vite", "sveltekit", "vanilla-vite", "vue-vite", "web-component-vite"]);
 const starterCompanions = {
+  "angular-ssr": "canvas-globe-angular",
   "nextjs-app-router": "react-canvas-globe",
+  "nuxt-ssr": "canvas-globe-vue",
   "react-vite": "react-canvas-globe",
   sveltekit: "canvas-globe-svelte",
   "vue-vite": "canvas-globe-vue",
@@ -137,7 +139,7 @@ for (const name of starterNames) {
 function filesBelow(path) {
   const absolute = join(root, path);
   const found = [];
-  const ignored = new Set(["node_modules", "dist", ".next", ".svelte-kit", "build", ".env"]);
+  const ignored = new Set(["node_modules", "dist", ".next", ".nuxt", ".output", ".svelte-kit", ".angular", "build", ".env", "package-lock.json"]);
   const visit = (directory) => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       if (ignored.has(entry.name)) continue;
