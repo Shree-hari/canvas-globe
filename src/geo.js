@@ -254,6 +254,76 @@ export const withAlpha = (color, a) => {
   return color;
 };
 
+/**
+ * Aggregates projected points into a pointy-top hexagonal grid.
+ *
+ * The input is deliberately renderer-shaped (`{ x, y, depth, m }`) so the
+ * same helper works after either globe or flat-map projection. Each returned
+ * bin preserves its source markers for tooltips, clicks, and custom details.
+ */
+export const hexBinPoints = (points = [], radius = 18) => {
+  const size = Math.max(1, Number(radius) || 18);
+  const sqrt3 = Math.sqrt(3);
+  const cells = new Map();
+
+  const roundAxial = (q, r) => {
+    let x = q;
+    let z = r;
+    let y = -x - z;
+    let rx = Math.round(x);
+    let ry = Math.round(y);
+    let rz = Math.round(z);
+    const dx = Math.abs(rx - x);
+    const dy = Math.abs(ry - y);
+    const dz = Math.abs(rz - z);
+    if (dx > dy && dx > dz) rx = -ry - rz;
+    else if (dy > dz) ry = -rx - rz;
+    else rz = -rx - ry;
+    return [rx, rz];
+  };
+
+  for (const point of points) {
+    if (!Number.isFinite(point?.x) || !Number.isFinite(point?.y)) continue;
+    const q = (sqrt3 / 3 * point.x - point.y / 3) / size;
+    const r = (2 * point.y / 3) / size;
+    const [hq, hr] = roundAxial(q, r);
+    const key = `${hq}:${hr}`;
+    let cell = cells.get(key);
+    if (!cell) {
+      cell = {
+        q: hq,
+        r: hr,
+        x: size * sqrt3 * (hq + hr / 2),
+        y: size * 1.5 * hr,
+        count: 0,
+        value: 0,
+        depth: 0,
+        lon: 0,
+        lat: 0,
+        weight: 0,
+        markers: [],
+      };
+      cells.set(key, cell);
+    }
+    const marker = point.m || {};
+    const value = Number(marker.count);
+    const weight = Number.isFinite(value) && value > 0 ? value : 1;
+    cell.count += 1;
+    cell.value += weight;
+    cell.depth = Math.max(cell.depth, Number(point.depth) || 0);
+    cell.lon += (Number(marker.lon) || 0) * weight;
+    cell.lat += (Number(marker.lat) || 0) * weight;
+    cell.weight += weight;
+    cell.markers.push(marker);
+  }
+
+  return [...cells.values()].map((cell) => ({
+    ...cell,
+    lon: cell.weight ? cell.lon / cell.weight : 0,
+    lat: cell.weight ? cell.lat / cell.weight : 0,
+  }));
+};
+
 const parseRGB = (color) => {
   if (color.startsWith("#")) {
     const hex = color.length === 4 ? color.replace(/#(.)(.)(.)/, "#$1$1$2$2$3$3") : color;

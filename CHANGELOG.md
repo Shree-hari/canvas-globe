@@ -8,6 +8,9 @@ All notable changes to this package are documented here. The format follows
 
 ### Added
 
+- Added an interactive screen-space hex-bin density layer for globe and map
+  modes, including weighted aggregation, colour ramps, source-marker hit
+  payloads, framework event types, and 5,000-marker performance coverage.
 - Added an Angular SSR and hydration starter with prerendered HTML, a stable
   canvas shell, client hydration, and project-creator support.
 - Added a reproducible nine-library globe comparison harness for timing,

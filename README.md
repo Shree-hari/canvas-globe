@@ -381,6 +381,7 @@ included effects. See `types/fx.d.ts` for every option and callback signature.
 | `timeline` | Not set | `{ at }`: hides markers whose `date` has not arrived |
 | `transparentBackground` | `false` | Skip the ocean fill so exports keep an alpha channel |
 | `heatmap` | `false` | Additive density blobs: `{ radius, intensity, color }` |
+| `hexBins` | `false` | Interactive screen-space density cells; see [Hex bins](#hex-bins) |
 | `spikes` | `false` | Bars off the surface, sized by `count`: `{ height, width }` |
 | `labels` | `false` | `"markers"` \| `"countries"` \| `"both"`, with collision avoidance |
 | `legend` | Not set | `{ title, items }` or `{ title, scale, position }` |
@@ -442,6 +443,41 @@ included effects. See `types/fx.d.ts` for every option and callback signature.
 With `cluster: true`, dense areas collapse into a single bubble and your callbacks receive
 `{ cluster: true, count, markers, lat, lon }` instead. Clustering happens in screen space, so it
 re-balances automatically as you zoom.
+
+## Hex bins
+
+Use hex bins when individual markers are too dense to read. CanvasGlobe aggregates the visible,
+projected markers into a pointy-top hexagonal grid, so the density view updates naturally as the
+globe rotates, the map pans, or the user zooms.
+
+```js
+const globe = createGlobe(canvas, {
+  markers: demandPoints,
+  hexBins: {
+    radius: 19,
+    value: "sum",
+    colorRange: ["#dbeafe", "#2563eb", "#172554"],
+    padding: 1.5,
+    showCount: true,
+  },
+  tooltip: (target, kind) => kind === "hex-bin"
+    ? `${target.markerCount} locations, ${target.value} total requests`
+    : target.name,
+  onClick: (target) => {
+    if (target.hexBin) console.log(target.markers);
+  },
+});
+```
+
+Each interactive bin returned to `tooltip`, `onHover`, and `onClick` contains
+`{ hexBin: true, markerCount, count, value, markers, lat, lon }`. The default `value: "sum"` adds
+each marker's `count`; use `value: "count"` to colour by the number of markers. Individual markers
+are hidden by default while the layer is active. Set `hideMarkers: false` to keep them visible.
+
+Available options are `radius`, `minValue`, `value`, `color`, `colorRange`, `opacity`, `stroke`,
+`strokeWidth`, `padding`, `showCount`, `labelColor`, and `hideMarkers`. The same configuration works
+in globe and flat-map modes. Since binning happens after projection, `radius` is measured in screen
+pixels rather than geographic degrees.
 
 ### How accurate is marker placement?
 

@@ -211,6 +211,48 @@ test("heatmap, spikes, labels and legend all render", () => {
   }
 });
 
+test("hex bins aggregate markers in globe and map modes", () => {
+  const markers = [
+    { lat: 23, lon: 72, count: 9, name: "Ahmedabad" },
+    { lat: 23.2, lon: 72.2, count: 3, name: "Nearby" },
+    { lat: 51, lon: 0, count: 2, name: "London" },
+  ];
+  for (const mode of ["globe", "map"]) {
+    const g = globe({ mode, center: { lon: 40, lat: 25 }, markers, hexBins: { radius: 28, showCount: true } });
+    g.render();
+    assert.ok(g._lastHexBins.length > 0);
+    assert.ok(g.hits.every((hit) => hit.marker.hexBin), "individual markers are hidden by default");
+    assert.ok(g.hits.some((hit) => hit.marker.markers.length >= 1));
+    g.destroy();
+  }
+});
+
+test("hex bins can remain underneath individual markers", () => {
+  const markers = [{ lat: 23, lon: 72, count: 9 }, { lat: 24, lon: 73, count: 3 }];
+  const g = globe({ mode: "map", markers, hexBins: { hideMarkers: false } });
+  g.render();
+  assert.ok(g.hits.some((hit) => hit.marker.hexBin));
+  assert.ok(g.hits.some((hit) => !hit.marker.hexBin));
+  g.destroy();
+});
+
+test("hex-bin rendering keeps 5,000 markers within the performance budget", () => {
+  const markers = Array.from({ length: 5000 }, (_, index) => ({
+    lat: -55 + ((index * 29) % 135),
+    lon: -179 + ((index * 47) % 358),
+    count: (index % 11) + 1,
+  }));
+  for (const mode of ["globe", "map"]) {
+    const g = globe({ mode, markers, hexBins: { radius: 16 } });
+    const start = performance.now();
+    g.render();
+    const elapsed = performance.now() - start;
+    assert.ok(g.hits.length > 10);
+    assert.ok(elapsed < 1500, `${mode} expected <1500ms, received ${elapsed.toFixed(1)}ms`);
+    g.destroy();
+  }
+});
+
 test("legend renders swatch items too", () => {
   const g = globe({ legend: { title: "Regions", items: [{ color: "#f00", label: "APAC" }] } });
   g.render();

@@ -1,8 +1,8 @@
-import type { Arc, CountryShape, GeoGlobe, GeoGlobeOptions, Marker, ClusterMarker, FlyToOptions } from "./index.js";
+import type { Arc, CountryShape, GeoGlobe, GeoGlobeOptions, Marker, ClusterMarker, HexBinMarker, FlyToOptions } from "./index.js";
 
 export interface GeoGlobeEventMap {
-  "geo-hover": CustomEvent<{ marker: Marker | ClusterMarker | null; pos: { x: number; y: number } | null }>;
-  "geo-click": CustomEvent<{ marker: Marker | ClusterMarker; pos: { x: number; y: number } }>;
+  "geo-hover": CustomEvent<{ marker: Marker | ClusterMarker | HexBinMarker | null; pos: { x: number; y: number } | null }>;
+  "geo-click": CustomEvent<{ marker: Marker | ClusterMarker | HexBinMarker; pos: { x: number; y: number } }>;
   "geo-country-hover": CustomEvent<{ country: CountryShape | null; pos: { x: number; y: number } | null }>;
   "geo-country-click": CustomEvent<{ country: CountryShape; pos: { x: number; y: number } }>;
   "geo-render": CustomEvent<{ globe: GeoGlobe }>;

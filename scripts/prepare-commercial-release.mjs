@@ -80,7 +80,7 @@ copyFileSync(
 );
 
 for (const collection of ["starters", "packages/create-canvas-globe/templates"]) {
-  for (const name of ["vanilla-vite", "react-vite", "nextjs-app-router", "vue-vite", "sveltekit", "web-component-vite"]) {
+  for (const name of ["vanilla-vite", "react-vite", "nextjs-app-router", "nuxt-ssr", "vue-vite", "sveltekit", "angular-ssr", "web-component-vite"]) {
     const path = `${collection}/${name}/package.json`;
     updatePackage(path, (pkg) => {
       for (const dependency of ["canvas-globe", ...companionDirectories]) {

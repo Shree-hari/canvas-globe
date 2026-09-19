@@ -32,6 +32,20 @@ export interface ClusterMarker {
   lon: number;
 }
 
+/** Synthetic marker produced by the `hexBins` density layer. */
+export interface HexBinMarker {
+  hexBin: true;
+  /** Number of source markers in the cell. */
+  markerCount: number;
+  /** Number of source markers in the cell. */
+  count: number;
+  /** Sum of source marker `count` values, with missing values treated as 1. */
+  value: number;
+  markers: Marker[];
+  lat: number;
+  lon: number;
+}
+
 export type Coordinate = { lat: number; lon: number } | [lon: number, lat: number];
 
 export interface Arc {
@@ -191,6 +205,31 @@ export interface HeatmapOptions {
   /** Peak opacity, 0-1. Default 0.5. */
   intensity?: number;
   color?: string;
+}
+
+export interface HexBinOptions {
+  /** Hexagon radius in screen pixels. Default 18. */
+  radius?: number;
+  /** Ignore cells below this count or summed value. Default 1. */
+  minValue?: number;
+  /** Colour cells by summed marker values or marker count. Default "sum". */
+  value?: "sum" | "count";
+  /** Single base colour used when `colorRange` is omitted. */
+  color?: string;
+  /** Low-to-high colour ramp. */
+  colorRange?: string[];
+  /** Fill opacity, 0-1. Default 0.82. */
+  opacity?: number;
+  stroke?: string;
+  /** Cell outline width in px. Default 0.8. */
+  strokeWidth?: number;
+  /** Gap inside each cell in px. Default 1.5. */
+  padding?: number;
+  /** Draw the selected count/value inside each cell. Default false. */
+  showCount?: boolean;
+  labelColor?: string;
+  /** Hide individual markers beneath the bins. Default true. */
+  hideMarkers?: boolean;
 }
 
 export interface SpikeOptions {
@@ -378,7 +417,7 @@ export interface RenderMarkerContext {
   globe: GeoGlobe;
 }
 
-export type TooltipKind = "marker" | "cluster" | "country";
+export type TooltipKind = "marker" | "cluster" | "hex-bin" | "country";
 
 export interface GeoGlobeOptions {
   /** Commercial license key supplied after purchase. */
@@ -426,6 +465,8 @@ export interface GeoGlobeOptions {
   transparentBackground?: boolean;
   /** Additive density blobs instead of, or under, markers. */
   heatmap?: boolean | HeatmapOptions;
+  /** Screen-space hexagonal aggregation for dense marker datasets. */
+  hexBins?: boolean | HexBinOptions;
   /** Bars standing off the surface, scaled by each marker's `count`. */
   spikes?: boolean | SpikeOptions;
   /** Text labels with collision avoidance. */
@@ -494,13 +535,13 @@ export interface GeoGlobeOptions {
   /** Frame cap. Default 30. */
   fps?: number;
   /** Built-in tooltip. `true` uses the default text, or pass a formatter. */
-  tooltip?: boolean | ((target: Marker | ClusterMarker | CountryShape, kind: TooltipKind) => string);
+  tooltip?: boolean | ((target: Marker | ClusterMarker | HexBinMarker | CountryShape, kind: TooltipKind) => string);
   /** Honour `prefers-reduced-motion`. Default true. */
   respectReducedMotion?: boolean;
   /** Accessible name for the canvas. */
   ariaLabel?: string;
-  onHover?: (marker: Marker | ClusterMarker | null, position: { x: number; y: number } | null) => void;
-  onClick?: (marker: Marker | ClusterMarker, position: { x: number; y: number }) => void;
+  onHover?: (marker: Marker | ClusterMarker | HexBinMarker | null, position: { x: number; y: number } | null) => void;
+  onClick?: (marker: Marker | ClusterMarker | HexBinMarker, position: { x: number; y: number }) => void;
   onCountryHover?: (country: CountryShape | null, position: { x: number; y: number } | null) => void;
   onCountryClick?: (country: CountryShape, position: { x: number; y: number }) => void;
   onRender?: (instance: GeoGlobe) => void;

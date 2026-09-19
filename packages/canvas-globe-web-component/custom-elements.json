@@ -112,8 +112,8 @@
             { "name": "lat-range", "description": "Serialized latitude range.", "type": { "text": "[number, number]" } }
           ],
           "events": [
-            { "name": "geo-hover", "description": "Fires when the hovered marker changes.", "type": { "text": "CustomEvent<{ marker: Marker | ClusterMarker | null; pos: { x: number; y: number } | null }>" } },
-            { "name": "geo-click", "description": "Fires when a marker is clicked.", "type": { "text": "CustomEvent<{ marker: Marker | ClusterMarker; pos: { x: number; y: number } }>" } },
+            { "name": "geo-hover", "description": "Fires when the hovered marker changes.", "type": { "text": "CustomEvent<{ marker: Marker | ClusterMarker | HexBinMarker | null; pos: { x: number; y: number } | null }>" } },
+            { "name": "geo-click", "description": "Fires when a marker is clicked.", "type": { "text": "CustomEvent<{ marker: Marker | ClusterMarker | HexBinMarker; pos: { x: number; y: number } }>" } },
             { "name": "geo-country-hover", "description": "Fires when the hovered country changes.", "type": { "text": "CustomEvent<{ country: CountryShape | null; pos: { x: number; y: number } | null }>" } },
             { "name": "geo-country-click", "description": "Fires when a country is clicked.", "type": { "text": "CustomEvent<{ country: CountryShape; pos: { x: number; y: number } }>" } },
             { "name": "geo-render", "description": "Fires after CanvasGlobe renders a frame.", "type": { "text": "CustomEvent<{ globe: GeoGlobe }>" } }

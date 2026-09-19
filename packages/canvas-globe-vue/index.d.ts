@@ -5,6 +5,7 @@ import type {
   FlyToOptions,
   GeoGlobe,
   GeoGlobeOptions,
+  HexBinMarker,
   Marker,
   ClusterMarker,
 } from "canvas-globe";
@@ -24,11 +25,11 @@ export interface CanvasGlobeVueExposed {
 }
 
 export type MarkerHoverPayload = {
-  marker: Marker | ClusterMarker | null;
+  marker: Marker | ClusterMarker | HexBinMarker | null;
   position: { x: number; y: number } | null;
 };
 export type MarkerClickPayload = {
-  marker: Marker | ClusterMarker;
+  marker: Marker | ClusterMarker | HexBinMarker;
   position: { x: number; y: number };
 };
 export type CountryHoverPayload = {

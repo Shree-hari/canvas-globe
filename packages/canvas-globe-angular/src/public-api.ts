@@ -17,11 +17,12 @@ import type {
   CountryShape,
   FlyToOptions,
   GeoGlobeOptions,
+  HexBinMarker,
   Marker,
 } from "canvas-globe";
 
 export interface CanvasGlobeMarkerEvent {
-  marker: Marker | ClusterMarker | null;
+  marker: Marker | ClusterMarker | HexBinMarker | null;
   position: { x: number; y: number } | null;
 }
 
