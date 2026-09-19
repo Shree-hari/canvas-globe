@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/controls.d.ts" */
+
 /**
  * Controls: bindings between your own DOM and the globe.
  *

@@ -81,7 +81,16 @@ requireCondition(
   !/dual-license|GPLv3-compatible|GPL key|complimentary key/i.test(currentDocs),
   "current package documentation or metadata still presents GPL as a current licensing path",
 );
-requireCondition(!existsSync(join(root, "jsr.json")), "JSR publishing has not been paused for the proprietary release");
+requireCondition(existsSync(join(root, "jsr.json")), "current JSR package configuration is missing");
+if (existsSync(join(root, "jsr.json"))) {
+  const jsr = json("jsr.json");
+  requireCondition(jsr.name === "@swiftools/canvas-globe", "JSR package name is incorrect");
+  requireCondition(jsr.version === pkg.version, "JSR version is not aligned with npm");
+  requireCondition(!jsr.license, "JSR must derive the proprietary terms from LICENSE.md");
+  requireCondition(jsr.publish?.include?.includes("LICENSE.md"), "JSR does not package LICENSE.md");
+  requireCondition(jsr.publish?.include?.includes("README.md"), "JSR does not package README.md");
+  requireCondition(jsr.publish?.exclude?.includes("src/react.js"), "JSR does not exclude the npm-only React entry point");
+}
 requireCondition(!existsSync(join(root, "LICENSE")), "the former root GPL LICENSE is still in the commercial package tree");
 requireCondition(
   !existsSync(join(root, "operations", "license-worker", "src", "index.js")) &&

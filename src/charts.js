@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/charts.d.ts" */
+
 /**
  * Chart layers.
  *

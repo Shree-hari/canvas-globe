@@ -124,16 +124,20 @@ yarn add canvas-globe
 # Bun
 bun add canvas-globe
 
-# Deno and JSR-aware projects
-deno add jsr:@swiftools/canvas-globe
-npx jsr add @swiftools/canvas-globe
+# Deno and JSR-aware projects, current proprietary release
+deno add jsr:@swiftools/canvas-globe@^1.4.1
+npx jsr add @swiftools/canvas-globe@^1.4.1
 ```
 
-You can also import the JSR release directly in Deno:
+You can also import the current JSR release directly in Deno:
 
 ```js
-import { createGlobe } from "jsr:@swiftools/canvas-globe@0.1.6";
+import { createGlobe } from "jsr:@swiftools/canvas-globe@1.4.1";
 ```
+
+JSR follows the same licensing boundary as npm. JSR versions through 0.1.6
+are historical GPL-3.0-only releases. JSR version 1.0.0 and later use the
+CanvasGlobe Software License Agreement.
 
 The React entry point remains on npm so React's peer dependency is resolved by
 your existing application rather than installing a second React copy.

@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/recipes.d.ts" */
+
 /**
  * Recipes: complete looks, rather than single effects.
  *

@@ -52,6 +52,12 @@ lock.packages[""].version = version;
 lock.packages[""].license = "SEE LICENSE IN LICENSE.md";
 writeJson("package-lock.json", lock);
 
+if (existsSync(join(root, "jsr.json"))) {
+  const jsr = readJson("jsr.json");
+  jsr.version = version;
+  writeJson("jsr.json", jsr);
+}
+
 const companionDirectories = [
   "3d-globe-map",
   "canvas-globe-angular",
@@ -110,6 +116,9 @@ write("src/version.js", read("src/version.js").replace(
 write("README.md", read("README.md").replace(
   /(?<!@swiftools\/)canvas-globe@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g,
   `canvas-globe@${version}`,
+).replace(
+  /@swiftools\/canvas-globe@(?:\^)?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g,
+  (match) => `@swiftools/canvas-globe@${match.includes("@^") ? "^" : ""}${version}`,
 ));
 write("src/license.js", read("src/license.js").replace(
   /COMMERCIAL_LICENSE_MODE\s*=\s*false/,
@@ -129,10 +138,5 @@ if (existsSync(join(root, "LICENSE"))) {
   copyFileSync(join(root, "LICENSE"), join(root, "legal", "GPL-3.0-v0.1.6.txt"));
   rmSync(join(root, "LICENSE"));
 }
-if (existsSync(join(root, "jsr.json"))) {
-  copyFileSync(join(root, "jsr.json"), join(root, "legal", "jsr-v0.1.6.json"));
-  rmSync(join(root, "jsr.json"));
-}
-
 console.log(`Prepared CanvasGlobe ${version} for the proprietary commercial release line.`);
 console.log("Run npm run release:check and review every diff before publishing.");
