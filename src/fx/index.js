@@ -1,3 +1,5 @@
+/* @ts-self-types="../../types/fx.d.ts" */
+
 /**
  * Effect kit for canvas-globe. Import only what you use  -  every effect is a
  * separate export so a bundler can drop the rest.

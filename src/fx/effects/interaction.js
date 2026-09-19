@@ -1,3 +1,5 @@
+/* @ts-self-types="../../../types/fx-interaction.d.ts" */
+
 /** Pointer-driven effects. These respond to input rather than the clock. */
 import { bar, clamp01, drawPath, easeOut, label, panel, particles, readout, ring, TAU } from "../runtime.js";
 import { nearest, onDragPath, onTap, pointInPath } from "../pointer.js";

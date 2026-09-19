@@ -1,3 +1,5 @@
+/* @ts-self-types="../types/places.d.ts" */
+
 /**
  * City search.
  *

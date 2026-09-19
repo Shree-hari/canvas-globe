@@ -36,8 +36,12 @@ const strip = (src, file) => {
   return out;
 };
 
-// Data files are one huge line each. Strip only the `export` keyword.
-const stripData = (src) => src.replace(/^export default .*$/gm, "").replace(/^export const /gm, "const ");
+// Data files are one huge line each. Remove JSR-only type directives and strip
+// only the `export` keyword from the generated payload.
+const stripData = (src) => src
+  .replace(/^\/\* @ts-self-types=.*\*\/\r?\n\r?\n/gm, "")
+  .replace(/^export default .*$/gm, "")
+  .replace(/^export const /gm, "const ");
 
 const parts = [
   stripData(read("src/data/world.js")),
