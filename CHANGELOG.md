@@ -6,6 +6,11 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Clarified that JSR 0.1.6 is a historical GPL-3.0-only release and removed the
+  unsupported proprietary JSR publishing path from the current release line.
+
 ## [1.4.1] - 2026-09-19
 
 ### Added
