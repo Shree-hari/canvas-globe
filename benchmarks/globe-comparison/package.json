@@ -11,6 +11,8 @@
     "smoke": "node runner/smoke.mjs",
     "smoke:built": "node runner/smoke-built.mjs",
     "smoke:live": "node runner/smoke-live.mjs",
+    "framework:hydrate": "node runner/framework-hydration.mjs",
+    "framework:matrix": "node runner/framework-matrix.mjs",
     "benchmark": "node runner/run.mjs",
     "report": "node runner/report.mjs && node scripts/validate-records.mjs",
     "validate:results": "node scripts/validate-records.mjs",

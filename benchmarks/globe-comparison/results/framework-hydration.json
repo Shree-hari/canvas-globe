@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-09-19T09:13:00.427Z",
+  "results": [
+    {
+      "framework": "nextjs-app-router",
+      "label": "Next.js App Router",
+      "build": "passed",
+      "serverHtml": {
+        "status": 200,
+        "heading": true,
+        "canvasShell": true
+      },
+      "hydration": "passed",
+      "browserState": {
+        "canvasWidth": 549,
+        "canvasHeight": 549,
+        "pngLength": 636814,
+        "nuxtReady": null,
+        "angularVersion": null
+      },
+      "errors": []
+    },
+    {
+      "framework": "nuxt-ssr",
+      "label": "Nuxt SSR",
+      "build": "passed",
+      "serverHtml": {
+        "status": 200,
+        "heading": true,
+        "canvasShell": true
+      },
+      "hydration": "passed",
+      "browserState": {
+        "canvasWidth": 663,
+        "canvasHeight": 663,
+        "pngLength": 738118,
+        "nuxtReady": "true",
+        "angularVersion": null
+      },
+      "errors": []
+    },
+    {
+      "framework": "sveltekit",
+      "label": "SvelteKit",
+      "build": "passed",
+      "serverHtml": {
+        "status": 200,
+        "heading": true,
+        "canvasShell": true
+      },
+      "hydration": "passed",
+      "browserState": {
+        "canvasWidth": 549,
+        "canvasHeight": 549,
+        "pngLength": 587846,
+        "nuxtReady": null,
+        "angularVersion": null
+      },
+      "errors": []
+    },
+    {
+      "framework": "angular-ssr",
+      "label": "Angular SSR with prerender and hydration",
+      "build": "passed",
+      "serverHtml": {
+        "status": 200,
+        "heading": true,
+        "canvasShell": true
+      },
+      "hydration": "passed",
+      "browserState": {
+        "canvasWidth": 551,
+        "canvasHeight": 551,
+        "pngLength": 597706,
+        "nuxtReady": null,
+        "angularVersion": "22.1.7"
+      },
+      "errors": []
+    }
+  ]
+}

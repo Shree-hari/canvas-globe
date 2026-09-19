@@ -1,0 +1,148 @@
+{
+  "generatedAt": "2026-09-19T09:14:42.585Z",
+  "methodology": {
+    "directServerImport": "Imports the package entry in a fresh Node process. This is not a framework hydration test.",
+    "canvasGlobeHydration": "Builds production starters, checks the canvas shell in server HTML, loads the production output in Chrome, requires a rendered bitmap, and captures hydration, page, and request errors.",
+    "competitorHydration": "Not run in this study. Client-only mounting may still work when direct server import does not."
+  },
+  "rows": [
+    {
+      "id": "canvas-globe",
+      "name": "CanvasGlobe",
+      "surface": "Core API plus first-party React, Vue/Nuxt, Svelte/SvelteKit, Angular, and Web Component packages",
+      "directServerImport": {
+        "packageName": "canvas-globe",
+        "serverImport": "supported"
+      },
+      "hydration": {
+        "nextjs-app-router": "passed",
+        "nuxt-ssr": "passed",
+        "sveltekit": "passed",
+        "angular-ssr": "passed"
+      }
+    },
+    {
+      "id": "three-globe",
+      "name": "three-globe",
+      "surface": "Imperative Three.js class",
+      "directServerImport": {
+        "packageName": "three-globe",
+        "serverImport": "unsupported",
+        "error": "window is not defined"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "globe-gl",
+      "name": "globe.gl",
+      "surface": "Imperative DOM component built on three-globe",
+      "directServerImport": {
+        "packageName": "globe.gl",
+        "serverImport": "unsupported",
+        "error": "window is not defined"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "react-globe-gl",
+      "name": "react-globe.gl",
+      "surface": "React component",
+      "directServerImport": {
+        "packageName": "react-globe.gl",
+        "serverImport": "unsupported",
+        "error": "window is not defined"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "cobe",
+      "name": "Cobe",
+      "surface": "Imperative WebGL canvas API",
+      "directServerImport": {
+        "packageName": "cobe",
+        "serverImport": "supported"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "cesium",
+      "name": "CesiumJS",
+      "surface": "Imperative geospatial engine",
+      "directServerImport": {
+        "packageName": "cesium",
+        "serverImport": "supported"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "maplibre-gl",
+      "name": "MapLibre GL JS",
+      "surface": "Imperative map engine",
+      "directServerImport": {
+        "packageName": "maplibre-gl",
+        "serverImport": "supported"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "dotted-map",
+      "name": "@wescld/dotted-map",
+      "surface": "React component",
+      "directServerImport": {
+        "packageName": "@wescld/dotted-map",
+        "serverImport": "supported"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    },
+    {
+      "id": "mappo",
+      "name": "Mappo",
+      "surface": "Imperative Canvas 2D and SVG API",
+      "directServerImport": {
+        "packageName": "mappo",
+        "serverImport": "supported"
+      },
+      "hydration": {
+        "nextjs-app-router": "not-tested",
+        "nuxt-ssr": "not-tested",
+        "sveltekit": "not-tested",
+        "angular-ssr": "not-tested"
+      }
+    }
+  ]
+}

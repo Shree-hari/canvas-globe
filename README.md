@@ -35,7 +35,7 @@
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/Shree-hari/canvas-globe?startScript=start)
 
-**Start with your stack:** [Vanilla JS](starters/vanilla-vite) | [React + Vite](starters/react-vite) | [Next.js](starters/nextjs-app-router) | [Vue](starters/vue-vite) | [SvelteKit](starters/sveltekit) | [Web Component](starters/web-component-vite)
+**Start with your stack:** [Vanilla JS](starters/vanilla-vite) | [React + Vite](starters/react-vite) | [Next.js](starters/nextjs-app-router) | [Nuxt](starters/nuxt-ssr) | [Vue](starters/vue-vite) | [SvelteKit](starters/sveltekit) | [Angular SSR](starters/angular-ssr) | [Web Component](starters/web-component-vite)
 
 **Install with shadcn:** `npx shadcn@latest add https://canvasglobe.swiftools.com/r/canvas-globe.json`
 
