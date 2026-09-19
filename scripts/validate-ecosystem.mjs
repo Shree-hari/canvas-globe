@@ -112,7 +112,7 @@ const starterNames = readdirSync(join(root, "starters"), { withFileTypes: true }
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
   .sort();
-assert.deepEqual(starterNames, ["angular-ssr", "nextjs-app-router", "nuxt-ssr", "react-vite", "sveltekit", "vanilla-vite", "vue-vite", "web-component-vite"]);
+assert.deepEqual(starterNames, ["analytics-dashboard", "angular-ssr", "choropleth-analytics", "logistics-routes", "nextjs-app-router", "nuxt-ssr", "react-vite", "sveltekit", "vanilla-vite", "vue-vite", "web-component-vite"]);
 const starterCompanions = {
   "angular-ssr": "canvas-globe-angular",
   "nextjs-app-router": "react-canvas-globe",

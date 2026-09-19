@@ -30,6 +30,28 @@ test("scaffolds a named project from a template", async () => {
   }
 });
 
+for (const [template, expectedText] of [
+  ["analytics", "hexBins"],
+  ["choropleth", "countryColors"],
+  ["logistics", "setArcs"],
+]) {
+  test(`scaffolds the ${template} data-product template`, async () => {
+    const scratch = await mkdtemp(join(tmpdir(), `create-canvas-globe-${template}-`));
+    try {
+      const cli = join(testDirectory, "..", "bin", "create-canvas-globe.js");
+      const result = spawnSync(process.execPath, [cli, `${template}-demo`, "--template", template, "--yes"], { cwd: scratch, encoding: "utf8" });
+      assert.equal(result.status, 0, result.stderr);
+      const root = join(scratch, `${template}-demo`);
+      const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
+      assert.equal(pkg.name, `${template}-demo`);
+      assert.match(await readFile(join(root, "src", "main.js"), "utf8"), new RegExp(expectedText));
+      assert.match(result.stdout, /purchase a CanvasGlobe license/i);
+    } finally {
+      await rm(scratch, { recursive: true, force: true });
+    }
+  });
+}
+
 test("scaffolds the Angular SSR template", async () => {
   const scratch = await mkdtemp(join(tmpdir(), "create-canvas-globe-angular-"));
   try {

@@ -6,7 +6,11 @@ Scaffold a working CanvasGlobe project with one command.
 npm create canvas-globe my-globe -- --template react
 ```
 
-Templates: `vanilla`, `react`, `nextjs`, `angular`, `vue`, `sveltekit`, and `web-component`.
+Framework templates: `vanilla`, `react`, `nextjs`, `nuxt`, `angular`, `vue`, `sveltekit`, and
+`web-component`.
+
+Data-product templates: `analytics`, `choropleth`, and `logistics`. These include complete
+responsive interfaces, sample datasets, interactive controls, and job-specific CanvasGlobe layers.
 
 The generated project includes a responsive globe, sample markers and routes,
 and cleanup. The CLI does not install dependencies or overwrite a non-empty

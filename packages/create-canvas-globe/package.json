@@ -1,7 +1,7 @@
 {
   "name": "create-canvas-globe",
-  "version": "1.4.0",
-  "description": "Scaffold CanvasGlobe projects for vanilla JavaScript, React, Next.js, Nuxt SSR, Angular SSR, Vue, SvelteKit, or Web Components.",
+  "version": "1.4.1",
+  "description": "Scaffold CanvasGlobe data dashboards, choropleths, logistics views, and framework projects.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": {
     "name": "Harsh Jhunjhunuwala"
@@ -39,6 +39,9 @@
     "canvas-globe",
     "react-globe",
     "globe-starter",
+    "data-visualization-starter",
+    "choropleth-starter",
+    "logistics-dashboard",
     "project-scaffold"
   ],
   "private": false
