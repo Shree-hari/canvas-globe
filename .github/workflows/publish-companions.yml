@@ -41,7 +41,7 @@ jobs:
       matrix:
         package: ${{ fromJSON(inputs.package == 'all' && '["3d-world-map","3d-maps","3d-globe-map","canvas-globe-angular","canvas-globe-svelte","canvas-globe-vue","canvas-globe-web-component","react-canvas-globe","create-canvas-globe"]' || format('["{0}"]', inputs.package)) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: 24
