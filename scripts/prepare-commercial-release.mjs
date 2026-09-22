@@ -53,7 +53,8 @@ lock.packages[""].license = "SEE LICENSE IN LICENSE.md";
 writeJson("package-lock.json", lock);
 
 const companionDirectories = [
-  "3d-map",
+  "3d-world-map",
+  "3d-maps",
   "3d-globe-map",
   "canvas-globe-angular",
   "canvas-globe-svelte",
