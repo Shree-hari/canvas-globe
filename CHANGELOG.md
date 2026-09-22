@@ -6,6 +6,11 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Added `3d-map` as an official discovery package with the complete CanvasGlobe
+  API, descriptive npm documentation, and automatic companion publishing.
+
 ### Fixed
 
 - Clarified that JSR 0.1.6 is a historical GPL-3.0-only release and removed the
