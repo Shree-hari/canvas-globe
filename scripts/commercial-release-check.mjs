@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (path) => readFileSync(join(root, path), "utf8");
 const json = (path) => JSON.parse(read(path));
+const normalizeNewlines = (value) => value.replace(/\r\n?/g, "\n");
 const failures = [];
 const requireCondition = (condition, message) => {
   if (!condition) failures.push(message);
@@ -13,6 +14,7 @@ const requireCondition = (condition, message) => {
 const pkg = json("package.json");
 const licenseSource = read("src/license.js");
 const companionDirectories = [
+  "3d-map",
   "3d-globe-map",
   "canvas-globe-angular",
   "canvas-globe-svelte",
@@ -73,7 +75,10 @@ for (const { directory, pkg: companion } of companionPackages) {
   const path = join(root, "packages", directory, "LICENSE.md");
   requireCondition(existsSync(path), `${directory} is missing its packaged LICENSE.md`);
   if (existsSync(path) && existsSync(join(root, "LICENSE.md"))) {
-    requireCondition(readFileSync(path, "utf8") === read("LICENSE.md"), `${directory} LICENSE.md is out of sync`);
+    requireCondition(
+      normalizeNewlines(readFileSync(path, "utf8")) === normalizeNewlines(read("LICENSE.md")),
+      `${directory} LICENSE.md is out of sync`,
+    );
   }
 }
 requireCondition(

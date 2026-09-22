@@ -272,7 +272,8 @@ npm install react-canvas-globe
 
 Every official package uses the same CanvasGlobe renderer and commercial
 license. Framework packages add native lifecycle and event integration, while
-`3d-globe-map` is an alternate discovery entry for the canonical API.
+`3d-map` and `3d-globe-map` are alternate discovery entries for the canonical
+API.
 
 | Package | Use it for |
 | --- | --- |
@@ -282,6 +283,7 @@ license. Framework packages add native lifecycle and event integration, while
 | [`canvas-globe-angular`](https://www.npmjs.com/package/canvas-globe-angular) | Angular standalone component |
 | [`canvas-globe-svelte`](https://www.npmjs.com/package/canvas-globe-svelte) | Svelte and SvelteKit component |
 | [`canvas-globe-web-component`](https://www.npmjs.com/package/canvas-globe-web-component) | Framework-independent custom element |
+| [`3d-map`](https://www.npmjs.com/package/3d-map) | Broad 3D map discovery entry for the canonical API |
 | [`3d-globe-map`](https://www.npmjs.com/package/3d-globe-map) | Search-friendly alternate package entry |
 | [`create-canvas-globe`](https://www.npmjs.com/package/create-canvas-globe) | Project scaffolder and starter templates |
 
