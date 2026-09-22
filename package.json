@@ -30,6 +30,8 @@
     "web-component-globe",
     "3d-globe-map",
     "3d-map",
+    "3d-world-map",
+    "3d-maps",
     "react",
     "globe-visualization",
     "data-visualization",

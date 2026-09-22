@@ -14,7 +14,8 @@ const requireCondition = (condition, message) => {
 const pkg = json("package.json");
 const licenseSource = read("src/license.js");
 const companionDirectories = [
-  "3d-map",
+  "3d-world-map",
+  "3d-maps",
   "3d-globe-map",
   "canvas-globe-angular",
   "canvas-globe-svelte",

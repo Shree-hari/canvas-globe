@@ -8,8 +8,9 @@ All notable changes to this package are documented here. The format follows
 
 ### Added
 
-- Added `3d-map` as an official discovery package with the complete CanvasGlobe
-  API, descriptive npm documentation, and automatic companion publishing.
+- Added `3d-world-map` and `3d-maps` as official discovery packages with the
+  complete CanvasGlobe API, descriptive npm documentation, and automatic
+  companion publishing.
 
 ### Fixed
 

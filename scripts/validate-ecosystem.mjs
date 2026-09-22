@@ -26,7 +26,8 @@ assert.ok(item.dependencies.includes(`canvas-globe@${packageSpec}`));
 for (const file of item.files) assert.ok(existsSync(join(root, file.path)), `Missing registry file: ${file.path}`);
 
 const companionDirectories = [
-  "3d-map",
+  "3d-world-map",
+  "3d-maps",
   "3d-globe-map",
   "canvas-globe-angular",
   "canvas-globe-svelte",
@@ -52,21 +53,23 @@ for (const directory of companionDirectories) {
 }
 
 assert.match(read("packages/3d-globe-map/README.md"), /official discovery package/i);
-assert.match(read("packages/3d-map/README.md"), /official package entry/i);
-const mapPackage = json("packages/3d-map/package.json");
-for (const entry of [
-  ".",
-  "./element",
-  "./react",
-  "./fx",
-  "./fx/interaction",
-  "./recipes",
-  "./charts",
-  "./controls",
-  "./places",
-  "./data/world",
-]) {
-  assert.ok(mapPackage.exports[entry], `3d-map is missing the ${entry} export`);
+for (const packageName of ["3d-world-map", "3d-maps"]) {
+  assert.match(read(`packages/${packageName}/README.md`), /official package entry/i);
+  const mapPackage = json(`packages/${packageName}/package.json`);
+  for (const entry of [
+    ".",
+    "./element",
+    "./react",
+    "./fx",
+    "./fx/interaction",
+    "./recipes",
+    "./charts",
+    "./controls",
+    "./places",
+    "./data/world",
+  ]) {
+    assert.ok(mapPackage.exports[entry], `${packageName} is missing the ${entry} export`);
+  }
 }
 assert.match(read("packages/canvas-globe-vue/README.md"), /Vue 3 component/);
 assert.match(read("packages/canvas-globe-angular/README.md"), /Angular standalone component/);
@@ -86,16 +89,26 @@ const compiledSvelte = compile(svelteSource, {
 assert.match(compiledSvelte.js.code, /GeoGlobe/);
 
 for (const path of [
-  "packages/3d-map/index.js",
-  "packages/3d-map/element.js",
-  "packages/3d-map/react.js",
-  "packages/3d-map/fx.js",
-  "packages/3d-map/fx-interaction.js",
-  "packages/3d-map/recipes.js",
-  "packages/3d-map/charts.js",
-  "packages/3d-map/controls.js",
-  "packages/3d-map/places.js",
-  "packages/3d-map/data/world.js",
+  "packages/3d-world-map/index.js",
+  "packages/3d-world-map/element.js",
+  "packages/3d-world-map/react.js",
+  "packages/3d-world-map/fx.js",
+  "packages/3d-world-map/fx-interaction.js",
+  "packages/3d-world-map/recipes.js",
+  "packages/3d-world-map/charts.js",
+  "packages/3d-world-map/controls.js",
+  "packages/3d-world-map/places.js",
+  "packages/3d-world-map/data/world.js",
+  "packages/3d-maps/index.js",
+  "packages/3d-maps/element.js",
+  "packages/3d-maps/react.js",
+  "packages/3d-maps/fx.js",
+  "packages/3d-maps/fx-interaction.js",
+  "packages/3d-maps/recipes.js",
+  "packages/3d-maps/charts.js",
+  "packages/3d-maps/controls.js",
+  "packages/3d-maps/places.js",
+  "packages/3d-maps/data/world.js",
   "packages/3d-globe-map/index.js",
   "packages/3d-globe-map/element.js",
   "packages/3d-globe-map/react.js",
